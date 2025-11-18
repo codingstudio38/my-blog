@@ -109,7 +109,7 @@ async function postFormData() {
                             {btndisable ?
                                 "Loding.."
                                 :
-                                "Login"
+                                "Register"
                             }
                           </button>
                         </div>

@@ -26,7 +26,13 @@ export default function Createblog() {
         "title": "",
         "content": "",
         "photo": "",
+        "sort_description": "",
+        "blog_type": "",
         "file_view_path": "",
+        "thumbnail_file_view_path": "",
+        "thumbnail": "",
+        "edit_photo":"",
+        "edit_thumbnail":"",
     });
 
     useEffect(() => {
@@ -36,6 +42,7 @@ export default function Createblog() {
             navigate('/');
             return;
         }
+         BlogCetegoryList();
          Myblogs();
     }, [currentpage]);
 
@@ -101,6 +108,12 @@ export default function Createblog() {
                         "content": "",
                         "photo": "",
                         "file_view_path": "",
+                        "sort_description": "",
+                        "blog_type": "",
+                        "thumbnail_file_view_path": "",
+                        "thumbnail": "",
+                        "edit_photo":"",
+                        "edit_thumbnail":"",
                     }
                 })
                 swal({
@@ -161,6 +174,49 @@ export default function Createblog() {
         } catch (error) {
             setLoader(false);
             setBdetails((data) => { return { ...data, "photo": "", "file_view_path": "" } })
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+   
+    const [thumbnail_loader, setthumbnail_loader] = useState(false);
+    async function UploadThumbnail(event) {
+        try {
+            setthumbnail_loader(true);
+            let url = `${API_URL}/upload-blog-thumbnail`;
+            let myform = new FormData();
+            myform.append("photo", event.target.files[0]);
+            myform.append("userid", LOGIN_USER._id);
+            let headers = {
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setthumbnail_loader(false);
+            if(response!==""){
+            response = await response.json();
+            const data = response;
+            if (data.status == 200) {
+                setBdetails((data) => {
+                    return { ...data, "thumbnail": response.file_name, "thumbnail_file_view_path": response.result }
+                })
+                swal({
+                    title: `Successfully uploaded`,
+                    icon: "success",
+                })
+                event.target.value="";
+            } else {
+                setBdetails((data) => { return { ...data, "thumbnail": "", "thumbnail_file_view_path": "" } })
+                swal({
+                    title: `${data?.message}`,
+                    icon: "warning",
+                })
+            }
+        }
+        } catch (error) {
+            setthumbnail_loader(false);
+            setBdetails((data) => { return { ...data, "thumbnail": "", "thumbnail_file_view_path": "" } })
             swal({
                 title: `Unknow error:- ${error.message}`,
                 icon: "error",
@@ -234,13 +290,19 @@ export default function Createblog() {
                     seteditdata(blog);
                     setBdetails((data)=>{
                         return {
+                            "sort_description":blog.sort_description,
+                            "blog_type":blog.blog_type,
                             "edit":true,
                             "id":blog._id,
                             "user_id":blog.user_id,
                             "title": blog.title,
                             "content": blog.content,
-                            "photo": blog.photo,
+                            "photo":"",
                             "file_view_path": blog.photo!==null ? blog.file_dtl.file_view_path :"",
+                            "thumbnail_file_view_path": blog.thumbnail!==null ? blog.thumbnail_dtl.file_view_path :"",
+                            "thumbnail": "",
+                            "edit_photo":blog.photo,
+                            "edit_thumbnail":blog.thumbnail,
                         }
                     })
                     if (childRef.current) {
@@ -283,7 +345,7 @@ export default function Createblog() {
             if (data.status == 200) {
                 setDatelist([]);
                 settotal_rec(0);
-                setcurrentpage(1);
+                // setcurrentpage(1);
                 setlimit(5);
                 Myblogs();
                 setBdetails((data) => {
@@ -295,6 +357,12 @@ export default function Createblog() {
                         "content": "",
                         "photo": "",
                         "file_view_path": "",
+                        "sort_description":"",
+                        "blog_type":"",
+                        "thumbnail_file_view_path":"",
+                        "thumbnail":"",
+                        "edit_photo":"",
+                        "edit_thumbnail":"",
                     }
                 })
                 swal({
@@ -327,16 +395,65 @@ export default function Createblog() {
   const getEditorData = (data) => {
     setBdetails(prev => ({ ...prev, content: data }))
   };
+
+  const [category,setCategory] = useState([]);//
+async function BlogCetegoryList() {
+        try {
+            setLoader(true);
+            let url = `${API_URL}/blog-cetegory-list`;
+            let myform = JSON.stringify({name:''});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setLoader(false);
+            if(response!==""){
+            response = await response.json();
+            const data = response;
+            if (data.status == 200) {
+                setCategory(data.result.list);
+            } else {
+                swal({
+                    title: `${data?.message}`,
+                    icon: "warning",
+                })
+            }
+            }
+        } catch (error) {
+            setLoader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+  
     return (
         <>
-            {/* <Header /> */}
-            <section className="vh-100">
+           
+            <section>
                 <div className="container h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
                         <div className="col-xl-9">
                             <h1 className="mb-4 text-dark text-decoration-underline">Create Blog</h1>
                             <div className="card" style={{ borderRadius: '15px' }}>
                                 <div className="card-body">
+                                    <div className="row align-items-center pt-4 pb-3">
+                                        <div className="col-md-3 ps-5">
+                                            <h6 className="mb-0">Blog Type</h6>
+                                        </div>
+                                        <div className="col-md-9 pe-5">
+                                        <select value={blog_details.blog_type} id='blog_type' name='blog_type' onChange={(e) => setBdetails({ ...blog_details, blog_type: e.target.value })} className="form-select form-select-lg">
+                                            <option value="">Type</option>
+                                            {category.map((city,key) => (
+                                            <option key={key} value={city._id}>
+                                                {city.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                        </div>
+                                    </div>
                                     <div className="row align-items-center pt-4 pb-3">
                                         <div className="col-md-3 ps-5">
                                             <h6 className="mb-0">Title</h6>
@@ -348,7 +465,16 @@ export default function Createblog() {
                                     <hr className="mx-n3" />
                                     <div className="row align-items-center py-3">
                                         <div className="col-md-3 ps-5">
-                                            <h6 className="mb-0">Content</h6>
+                                            <h6 className="mb-0">Sort Description</h6>
+                                        </div>
+                                        <div className="col-md-9 pe-5">
+                                            <textarea className="form-control form-control-lg" id="sort_description" value={blog_details.sort_description} rows="3" onChange={(e) => setBdetails({ ...blog_details, sort_description: e.target.value })}></textarea>
+                                        </div>
+                                    </div>
+                                    <hr className="mx-n3" />
+                                    <div className="row align-items-center py-3">
+                                        <div className="col-md-3 ps-5">
+                                            <h6 className="mb-0">Description</h6>
                                         </div>
                                         <div className="col-md-9 pe-5">
                                                 <Ckeditor getcontent={getEditorData} ckid={"editor"} ref={childRef}/>
@@ -366,22 +492,84 @@ export default function Createblog() {
                                                     <div className="small text-muted mt-2">Allow only images. Max file size 2 MB</div>
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <>
-                                                        {blog_details.photo !== ""
-                                                            ?
-                                                            <>
-                                                                <img src={blog_details.file_view_path} style={{ "height": "120px", "width": "120px" }} />
-                                                            </>
-                                                            :
-                                                            <></>
-                                                        }
-                                                    </>
+                                                    {
+                                                        blog_details.edit == true ? 
+                                                        <>
+                                                            {blog_details.edit_photo !== "" && blog_details.blog_type=='691beef0c2cfd41cc117ef70'
+                                                                ?
+                                                                <>
+                                                                    <img src={blog_details.file_view_path} style={{ "height": "120px", "width": "120px" }} />
+                                                                </>
+                                                                :
+                                                                <></>
+                                                            }
+                                                        </> 
+                                                        : 
+                                                        <>
+                                                            {blog_details.photo !== "" && blog_details.blog_type=='691beef0c2cfd41cc117ef70'
+                                                                ?
+                                                                <>
+                                                                    <img src={blog_details.file_view_path} style={{ "height": "120px", "width": "120px" }} />
+                                                                </>
+                                                                :
+                                                                <></>
+                                                            }
+                                                        </>
+                                                    }
                                                 </div>
                                                 
                                             </div>
 
                                         </div>
                                     </div>
+                                    {blog_details.blog_type!=='691beef0c2cfd41cc117ef70' && blog_details.blog_type!==''?
+                                    <>
+                                    <hr className="mx-n3" />
+                                    <div className="row align-items-center py-3">
+                                        <div className="col-md-3 ps-5">
+                                            <h6 className="mb-0">Upload Thumbnail</h6>
+                                        </div>
+                                        <div className="col-md-9 pe-5">
+                                            <div className='row'>
+                                                <div className="col-md-8">
+                                                    <input className="form-control form-control-lg" id="thumbnail" type="file" accept="image/*" onChange={(e) => UploadThumbnail(e)} disabled={thumbnail_loader == true ? "disabled" : null} />
+                                                    <div className="small text-muted mt-2">Allow only images. Max file size 2 MB</div>
+                                                </div>
+                                                <div className="col-md-4">
+                                                    {
+                                                        blog_details.edit == true ? 
+                                                        <>
+                                                            {blog_details.edit_thumbnail !== ""
+                                                                ?
+                                                                <>
+                                                                    <img src={blog_details.thumbnail_file_view_path} style={{ "height": "120px", "width": "120px" }} />
+                                                                </>
+                                                                :
+                                                                <></>
+                                                            }
+                                                        </> 
+                                                        : 
+                                                        <>
+                                                            {blog_details.thumbnail !== ""
+                                                                ?
+                                                                <>
+                                                                    <img src={blog_details.thumbnail_file_view_path} style={{ "height": "120px", "width": "120px" }} />
+                                                                </>
+                                                                :
+                                                                <></>
+                                                            }
+                                                        </>
+                                                    }
+                                                   
+                                                </div>
+                                                
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    </>:<></>
+
+                                    }
                                     <hr className="mx-n3" />
                                     <div className="px-5 py-4">
 
@@ -415,28 +603,18 @@ export default function Createblog() {
                     </div>
                 </div>
             </section>
-<br/><br/><br/><br/><br/><br/>
+
             <div className='container'>
+                 <br></br>
                 <h2 style={{ textAlign: "center" }}>My Blogs</h2>
             <Table striped bordered hover>
                 <thead>
-                    {/* <tr>
-                        <th colSpan={7}>
-                             <select id='limit' name='limit' onChange={(e) => changeperPage(e)} className='limit' defaultValue={5}>
-                                <option value="5">Limit</option>
-                                {
-                                    limitval.map((item, index) =>
-                                        <option value={item} key={index}>{item}</option>
-                                    )
-                                }
-                            </select> *
-                        </th>
-
-                    </tr> */}
                     <tr>
                         <th className='th-center'>#</th>
                         <th className='th-center'>User Name</th>
+                        <th className='th-center'>Blog Type</th>
                         <th className='th-center'>Title</th>
+                        <th className='th-center'>Sort Description</th>
                         <th className='th-center'>Content</th>
                         <th className='th-center'>Blog Photo</th>
                         <th className='th-center'>Created Date</th>
@@ -446,7 +624,7 @@ export default function Createblog() {
                 <tbody>
                     {listloader==true ? 
                     <tr>
-                        <td className='td-center' colSpan={7}>Loading..</td>
+                        <td className='td-center' colSpan={9}>Loading..</td>
                     </tr>
                     :
                         datalist.map((item, index) =>
@@ -459,7 +637,13 @@ export default function Createblog() {
                                 }
                                 </td>
                                 <td align='center'>{item.user_name} </td>
+                                <td align='center'>{item.category_type_name} </td>
                                 <td align='center'>{item.title}</td>
+                                <td align='center'>
+                                    {item.sort_description!==null || item.sort_description!=="" ? <>
+                                    Available
+                                    </> : <>Not Available</>}
+                                </td>
                                 <td align='center'>
                                     {item.content!==null || item.content!=="" ? <>
                                     Available
@@ -467,14 +651,34 @@ export default function Createblog() {
                                     </> : <>Not Available</>}
                                 </td>
                                 <td align='center'>
-                                    {
+{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
 
-                                        item.file_dtl.filesize == "" ?
-                                            <span className='text-danger'>Not Available</span>
-                                            :  <>
-                                                    <img src={item.file_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} />
-                                                </>
-                                    }
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.file_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+                                    
+: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></> 
+: 
+<></>  
+}
+
+
+                                    
                                 </td>
                                 <td align='center'>{item.created_at} / {item.updated_at}</td>
                                 <td align='center'>
@@ -492,7 +696,7 @@ export default function Createblog() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colSpan={7} align='center'>
+                        <td colSpan={9} align='center'>
                             <Pagination pageSize={limit} total={total_rec} current={currentpage} onChange={(value) => changePage(value)} showQuickJumper />
                         </td>
                     </tr>
