@@ -58,7 +58,7 @@ export default function Profile() {
                     title: `Successfully uploaded`,
                     icon: "success",
                 })
-                console.log(editdata);
+                // console.log(editdata);
                 event.target.value="";
             } else {
                 seteditdata((data) => { return { ...data, "photo": "", "file_view_path": "" } })
@@ -181,7 +181,7 @@ export default function Profile() {
     return (
         <>
             {/* <Header /> */}
-            <section className="vh-100">
+            <section >
                 <div className="container h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
                         <div className="col-xl-9">
@@ -241,7 +241,7 @@ export default function Profile() {
             </section>
 
 
-            <section className="vh-100">
+            <section className="mt-5">
                 <div className="container h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
                         <div className="col-xl-9">

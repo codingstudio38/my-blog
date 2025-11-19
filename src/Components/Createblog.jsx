@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_DETAILS, API_URL } from './Constant.jsx';
+import { USER_DETAILS, API_URL,Truncatetext } from './Constant.jsx';
 import Ckeditor from './Ckeditor.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
@@ -42,8 +42,8 @@ export default function Createblog() {
             navigate('/');
             return;
         }
-         BlogCetegoryList();
-         Myblogs();
+        BlogCetegoryList();
+        Myblogs();
     }, [currentpage]);
 
     
@@ -617,6 +617,7 @@ async function BlogCetegoryList() {
                         <th className='th-center'>Sort Description</th>
                         <th className='th-center'>Content</th>
                         <th className='th-center'>Blog Photo</th>
+                        <th className='th-center'>Thumbnail</th>
                         <th className='th-center'>Created Date</th>
                         <th className='th-center'>Action</th>
                     </tr>
@@ -624,7 +625,7 @@ async function BlogCetegoryList() {
                 <tbody>
                     {listloader==true ? 
                     <tr>
-                        <td className='td-center' colSpan={9}>Loading..</td>
+                        <td className='td-center' colSpan={10}>Loading..</td>
                     </tr>
                     :
                         datalist.map((item, index) =>
@@ -638,10 +639,10 @@ async function BlogCetegoryList() {
                                 </td>
                                 <td align='center'>{item.user_name} </td>
                                 <td align='center'>{item.category_type_name} </td>
-                                <td align='center'>{item.title}</td>
+                                <td align='center'><Truncatetext text={item.title} maxLength={20}/></td>
                                 <td align='center'>
                                     {item.sort_description!==null || item.sort_description!=="" ? <>
-                                    Available
+                                    <Truncatetext text={item.sort_description} maxLength={20}/>
                                     </> : <>Not Available</>}
                                 </td>
                                 <td align='center'>
@@ -652,12 +653,33 @@ async function BlogCetegoryList() {
                                 </td>
                                 <td align='center'>
 {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-
     item.file_dtl.filesize == "" ? 
     <span className='text-danger'>Not Available</span>
         :  
     <><img src={item.file_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
-                                    
+: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/music.png' style={{ "height": "40px", "width": "40px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/video-marketing.png' style={{ "height": "40px", "width": "40px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/film-reel.png' style={{ "height": "40px", "width": "40px" }} /></> 
+: 
+<></> 
+}
+                                </td>
+
+<td align='center'>
+{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+    <></>
 : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
     item.thumbnail_dtl.filesize == "" ? 
     <span className='text-danger'>Not Available</span>
@@ -676,10 +698,9 @@ async function BlogCetegoryList() {
 : 
 <></>  
 }
-
-
-                                    
                                 </td>
+
+
                                 <td align='center'>{item.created_at} / {item.updated_at}</td>
                                 <td align='center'>
                                     <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item)}>
@@ -696,7 +717,7 @@ async function BlogCetegoryList() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colSpan={9} align='center'>
+                        <td colSpan={10} align='center'>
                             <Pagination pageSize={limit} total={total_rec} current={currentpage} onChange={(value) => changePage(value)} showQuickJumper />
                         </td>
                     </tr>

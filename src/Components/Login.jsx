@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, USER_DETAILS,SET_SESSION,REMOVE_SESSION } from './Constant';
 import { Post_Without_Htoken } from './../Services/Https';
+import Websocket from './../Services/WebSocketService';
 import swal from 'sweetalert';
 function Login() {
     const navigate = useNavigate();
@@ -36,6 +37,7 @@ function Login() {
                 if (data.status == 200) {
                     REMOVE_SESSION('buserinfo')
                     SET_SESSION('buserinfo',JSON.stringify(data.user))
+                     Websocket.connect();
                     navigate('/web/home');
                 } else {
                     swal({

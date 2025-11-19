@@ -11,7 +11,16 @@ import Home from './Components/Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Adminindex from './Components/Index';
 import Profile from './Components/Profile';
+import Websocket from './Services/WebSocketService';
+import React, { useEffect} from 'react';
+import {  USER_DETAILS } from './Components/Constant'
 function App() {
+  const LOGIN_USER = USER_DETAILS()
+   useEffect(() => {
+    if (LOGIN_USER !== false) {
+            Websocket.connect();
+        }
+  }, []);
   return (
     <div>
       <BrowserRouter basename={`${WEBSITE_BASE_URL}`}>

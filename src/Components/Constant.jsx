@@ -87,3 +87,10 @@ export const decrypt = (encryptedData) => {
     });
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
+
+export const Truncatetext = ({text='',maxLength=10}) => {
+        const str = String(text);
+        const max = Number(maxLength) || 100;
+        if (str.length <= max) return <p>{str}</p>;
+        return str.slice(0, max) + '...';
+    }
