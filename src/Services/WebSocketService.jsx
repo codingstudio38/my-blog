@@ -29,7 +29,7 @@ const connect = () => {
     if (!isConnected) {
         setTimeout(connect(), 1000);
         reconnectIn++;
-        console.warn('echo-protocol Client Closed! Trying to reconnect..', reconnectIn);
+        console.warn('echo-protocol Client Closed! Trying to reconnect in '+reconnectIn+` sec.`, );
         if (isConnected) {
             connect('');
         }

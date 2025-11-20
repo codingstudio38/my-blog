@@ -10,7 +10,7 @@ import moment from "moment";
 function Home(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
-
+    const firstCall = useRef(true);
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
     const [limit, setlimit] = useState(5);
@@ -23,6 +23,10 @@ function Home(){
             document.title = "MERN Technology || Blogs";
             if (LOGIN_USER === false) {
                 navigate('/');
+                return;
+            }
+            if (firstCall.current) {
+                firstCall.current = false;
                 return;
             }
             Allblogs();
@@ -73,7 +77,7 @@ function Home(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        console.log(data);
+                        // console.log(data);
                         setDatelist((prev) => [...prev, ...data.result.list]);
                         // setDatelist((dataid) => { return data.result.list });
                         settotal_rec((dataid) => { return data.result.total });

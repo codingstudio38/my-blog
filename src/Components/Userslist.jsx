@@ -31,7 +31,7 @@ export default function Userslist(){
                 <div className="tab-content p-0">
 
                     <div className="tab-pane fade active show" id="profile-friends">
-                        <div className="m-b-10"><b className='text-dark'>Friend List (9)</b></div>
+                        <div className="m-b-10"><b className='text-dark'>My Friend List (9)</b></div>
 
                         <ul className="friend-list clearfix">
                             <li>

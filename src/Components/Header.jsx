@@ -21,7 +21,8 @@ export default function Header(){
                 <Nav className="me-auto">
                     <NavLink className={"navlink"} to="/web/home">Home</NavLink>
                     <NavLink className={"navlink"} to="/web/create-blog">My blog</NavLink>
-                    {/* <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink> */}
+                    <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink>
+                    <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
                 </Nav>
                 {
                     LOGIN_USER!==false?

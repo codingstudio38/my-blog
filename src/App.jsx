@@ -11,14 +11,16 @@ import Home from './Components/Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Adminindex from './Components/Index';
 import Profile from './Components/Profile';
+import Editprofile from './Components/Editprofile';
 import Websocket from './Services/WebSocketService';
 import React, { useEffect} from 'react';
 import {  USER_DETAILS } from './Components/Constant'
+import Findfriends from './Components/Findfriends'
 function App() {
   const LOGIN_USER = USER_DETAILS()
    useEffect(() => {
     if (LOGIN_USER !== false) {
-            Websocket.connect();
+            // Websocket.connect();
         }
   }, []);
   return (
@@ -31,6 +33,8 @@ function App() {
             <Route path='home' element={<Protected Component={Home} />} />
             <Route path='create-blog' element={<Protected Component={Createblog} />} />
             <Route path='my-profile' element={<Protected Component={Profile} />} />
+            <Route path='edit-profile' element={<Protected Component={Editprofile} />} />
+            <Route path='find-friends' element={<Protected Component={Findfriends} />} />
           </Route>
           <Route path='*' element={<Page404 />} />
         </Routes>
