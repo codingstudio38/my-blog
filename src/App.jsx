@@ -20,7 +20,7 @@ function App() {
   const LOGIN_USER = USER_DETAILS()
    useEffect(() => {
     if (LOGIN_USER !== false) {
-            // Websocket.connect();
+            Websocket.connect();
         }
   }, []);
   return (

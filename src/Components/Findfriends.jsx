@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { USER_DETAILS, API_URL,Truncatetext } from './Constant.jsx';
 import Blogloader from './Blogloader.jsx';
 import Userslist from './Userslist.jsx';
+import Allnotifications from './Allnotifications.jsx';
+import Findfriendloader from './Findfriendloader.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
 import moment from "moment";
@@ -13,7 +15,7 @@ export default function Findfriends(){
     const firstCall = useRef(true);
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
-    const [limit, setlimit] = useState(5);
+    const [limit, setlimit] = useState(8);
     const [total_rec, settotal_rec] = useState(0);
     const [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
@@ -32,7 +34,32 @@ export default function Findfriends(){
             }
             AllUsers()
         }, [currentpage]);
-
+    useEffect(() => {
+        window.addEventListener("scroll", handelInfiniteScroll);
+        return () => window.removeEventListener("scroll", handelInfiniteScroll);
+    }, [current_scroll_position, listloader, pre_scroll_position]);
+    const handelInfiniteScroll = async () => {
+        setCurrent_scroll_position((pre) => {
+            return document.documentElement.scrollTop;
+        });
+        // console.clear();
+        try {
+            if ((window.innerHeight + document.documentElement.scrollTop + 1) > document.documentElement.scrollHeight) {
+                if (currentpage < lastpage) {
+                    if (!listloader) {
+                        if (current_scroll_position > pre_scroll_position) {
+                            let nextPage = currentpage === 1 ? 2 : currentpage + 1;
+                            setcurrentpage(nextPage);
+                            setPre_scroll_position(document.documentElement.scrollTop);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error.message);
+            return false;
+        }
+    };
     async function AllUsers() {
         try {
             if (listloader) {
@@ -74,10 +101,10 @@ export default function Findfriends(){
         }
     }
 
-    async function SendRequest(to) {
+    async function SendRequest(row) {
         try {
             let url = `${API_URL}/send-request`;
-            let myform = JSON.stringify({from:LOGIN_USER._id,to:to});
+            let myform = JSON.stringify({from:LOGIN_USER._id,to:row._id});
             let headers = {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -90,7 +117,7 @@ export default function Findfriends(){
                 const data = response;
                 if (data.status == 200) {
                     let newdatalist = datalist.map(item => {
-                        if (item._id === to) {
+                        if (item._id === row._id) {
                             return {
                                 ...item,
                                 friend_request: data.friend_request[0],
@@ -100,8 +127,43 @@ export default function Findfriends(){
                         return item;
                     });
                     setDatelist((prev) => {return newdatalist});
-                    // console.log(data.friend_request[0]);
-                  
+                    swal({
+                        title: `Success`,
+                        icon: "success",
+                    })
+                } else if (data.status == 300) {
+                    let newdatalist = datalist.map(item => {
+                        if (item._id === row._id) {
+                            return {
+                                ...item,
+                                friend_request:data.friend_request[0],
+                                check_friend_request:1,
+                                is_friend:1,
+                            };
+                        }
+                        return item;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    swal({
+                        title: `Your alredy in friend list.`,
+                        icon: "warning",
+                    })
+                } else if (data.status == 600) {
+                    let newdatalist = datalist.map(item => {
+                        if (item._id === row._id) {
+                            return {
+                                ...item,
+                                friend_request:data.friend_request[0],
+                                check_friend_request:1,
+                            };
+                        }
+                        return item;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    swal({
+                        title:`${data?.message}`,
+                        icon: "warning",
+                    })
                 } else {
                     swal({
                         title: `${data?.message}`,
@@ -337,7 +399,10 @@ export default function Findfriends(){
        <>
         <div className="container-fluid">
             <div className="row">
-            <div className="col-md-9 find-friends  mt-1">
+            <div className="col-md-2">
+                <Allnotifications/>
+            </div>
+            <div className="col-md-8 find-friends  mt-1">
              <div className='row'>
 {datalist.map((item, index) =>
                 <div className='col-md-3' key={index}>
@@ -372,7 +437,7 @@ export default function Findfriends(){
                                 }
                                 </> 
                                 : 
-                                <><button type="button" onClick={() => SendRequest(item._id)}  className="btn btn-primary send-request" disabled={disabled_sendrequest?true:false} >Send Request</button></>
+                                <><button type="button" onClick={() => SendRequest(item)}  className="btn btn-primary send-request" disabled={disabled_sendrequest?true:false} >Send Request</button></>
                             }
                         </>
                         }
@@ -383,12 +448,10 @@ export default function Findfriends(){
                 </div>
 )
 }
-
-
              </div>
-        {listloader==true ? <>Loading..</> : <></>}
+        {listloader==true ? <><Findfriendloader/></> : <></>}
             </div>
-            <div className="col-md-3 text-center">
+            <div className="col-md-2">
                 <Userslist/>
             </div>
             </div>

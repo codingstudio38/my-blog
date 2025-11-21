@@ -1,40 +1,40 @@
-.user-list .friend-list,
-.user-list .img-grid-list {
+.notifications-list .friend-list,
+.notifications-list .img-grid-list {
     margin: -1px;
     list-style-type: none;
 }
  
 
-.user-list .friend-list .friend-img img{
+.notifications-list .friend-list .friend-img img{
     max-width: 100%;
 }
  
 @media (max-width: 767px) {
      
-    .user-list .friend-list > li {
+    .notifications-list .friend-list > li {
         float: none;
         width: auto;
     }
 }
  
-.user-list .friend-list,
-.user-list .img-grid-list {
+.notifications-list .friend-list,
+.notifications-list .img-grid-list {
     margin: -1px;
     list-style-type: none;
 }
  
-.user-list .friend-list .friend-img img {
+.notifications-list .friend-list .friend-img img {
     max-width: 100%;
 }
  
-.user-list .friend-list {
+.notifications-list .friend-list {
     padding: 0;
 }
-.user-list .friend-list > li {
+.notifications-list .friend-list > li {
     /* float: left;
     width: 50%; */
 }
-.user-list .friend-list > li > a {
+.notifications-list .friend-list > li > a {
     display: block;
     text-decoration: none;
     color: #000;
@@ -42,43 +42,43 @@
     margin: 1px;
     background: #fff;
 }
-.user-list .friend-list > li > a:after,
-.user-list .friend-list > li > a:before {
+.notifications-list .friend-list > li > a:after,
+.notifications-list .friend-list > li > a:before {
     content: "";
     display: table;
     clear: both;
 }
-.user-list .friend-list .friend-img {
+.notifications-list .friend-list .friend-img {
     float: left;
     width: 3rem;
     height: 3rem;
     overflow: hidden;
     background: #efeff4;
 }
-.user-list .friend-list .friend-info {
+.notifications-list .friend-list .friend-info {
     margin-left: 3.625rem;
 }
-.user-list .friend-list .friend-info h4 {
+.notifications-list .friend-list .friend-info h4 {
     margin: 0.3125rem 0;
     font-size: 0.875rem;
     font-weight: 600;
 }
-.user-list .friend-list .friend-info p {
+.notifications-list .friend-list .friend-info p {
     color: #666;
     margin: 0;
 }
 
-.user-list .active {
+.notifications-list .active {
     background-color:#f0f4ff ;
 }
 
-.user-list  {
+.notifications-list  {
     background-color:#f0f4ff ;
         margin: 0px;
     padding: 0px;
 
 }
 
-.user-list .text-left{
+.notifications-list .text-left{
     text-align: left;
 }

@@ -5,11 +5,11 @@ export default function Userslist(){
     const [messages, setMessages] = useState([]);
     useEffect(() => {
         const unsubscribe = Websocket.subscribe((msg) => {
-            console.log("Received message in Chatlistnew: from Chatlistnew.js", msg);
+            console.log("Received message in Userslist: from Userslist.js", msg);
             setMessages((prev) => [...prev, msg]);
         });
         const unsubscribeClose = Websocket.onClose(() => {
-            console.error("Disconnected from WS server! Chatlistnew.js");
+            console.error("Disconnected from WS server! Userslist.js");
         });
         return () => {
             unsubscribe();
@@ -19,7 +19,7 @@ export default function Userslist(){
     const sendMsg = () => {
     Websocket.send({
       type: "message",
-      text: "Hello from Chatlistnew.js functional component!",
+      text: "Hello from Userslist.js functional component!",
     });
   };
     return (

@@ -37,7 +37,7 @@ function Login() {
                 if (data.status == 200) {
                     REMOVE_SESSION('buserinfo')
                     SET_SESSION('buserinfo',JSON.stringify(data.user))
-                    //  Websocket.connect();
+                     Websocket.connect();
                     navigate('/web/home');
                 } else {
                     swal({
