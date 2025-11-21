@@ -19,6 +19,7 @@ export default function Findfriends(){
     const [lastpage, setlastpage] = useState(1);
     const [current_scroll_position, setCurrent_scroll_position] = useState(0);
     const [pre_scroll_position, setPre_scroll_position] = useState(0);
+    const [disabled_sendrequest, setdisabled_sendrequest] = useState(false);
       useEffect(() => {
             document.title = "MERN Technology || Find New Friends";
             if (LOGIN_USER === false) {
@@ -73,6 +74,265 @@ export default function Findfriends(){
         }
     }
 
+    async function SendRequest(to) {
+        try {
+            let url = `${API_URL}/send-request`;
+            let myform = JSON.stringify({from:LOGIN_USER._id,to:to});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            setdisabled_sendrequest(true);
+            let response = await Post_With_Htoken(myform, url, headers);
+            setdisabled_sendrequest(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    let newdatalist = datalist.map(item => {
+                        if (item._id === to) {
+                            return {
+                                ...item,
+                                friend_request: data.friend_request[0],
+                                check_friend_request:1,
+                            };
+                        }
+                        return item;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    // console.log(data.friend_request[0]);
+                  
+                } else {
+                    swal({
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+        } catch (error) {
+            setdisabled_sendrequest(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function CencelRequest(to,requestid) {
+        try {
+            swal({
+                title: "Are you sure?",
+                // text: "Are you sure that you want to delete the recode?",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"],
+                dangerMode: true,
+            }).then(async (d) => {
+                if (d) {
+                    let url = `${API_URL}/cencel-request`;
+                    let myform = JSON.stringify({from:LOGIN_USER._id,to:to,'requestid':requestid});
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    setdisabled_sendrequest(true);
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    setdisabled_sendrequest(false);
+                    if(response!==""){
+                        response = await response.json();
+                        const data = response;
+                        if (data.status == 200) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === to) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Success`,
+                                icon: "success",
+                            })
+                        }else if (data.status == 300) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === to) {
+                                    return {
+                                        ...item,
+                                        is_friend:1,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Already accepted!`,
+                                icon: "warning",
+                            })
+                        } else {
+                            swal({
+                                title: `${data?.message}`,
+                                icon: "warning",
+                            })
+                        }
+                    }
+                }
+                })
+        } catch (error) {
+            setdisabled_sendrequest(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
+    async function AcceptOrRejectRequest(row,status) {
+        try {
+            swal({
+                title: "Are you sure?",
+                // text: "Are you sure that you want to delete the recode?",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"],
+                dangerMode: true,
+            }).then(async (d) => {
+                if (d) {
+                    let url = `${API_URL}/accept-or-reject-request`;
+                    let myform = JSON.stringify({from:row.friend_request.from, to:row.friend_request.to, requestid:row.friend_request._id, accept_status:status });
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    setdisabled_sendrequest(true);
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    setdisabled_sendrequest(false);
+                    if(response!==""){
+                        response = await response.json();
+                        const data = response;
+                        if (data.status == 200) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === row.friend_request.from) {
+                                    return {
+                                        ...item,
+                                        is_friend:1,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Success`,
+                                icon: "success",
+                            })
+                        }else if (data.status == 300) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === row.friend_request.from) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                        is_friend:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Request rejected by sender.`,
+                                icon: "warning",
+                            })
+                        }else if (data.status == 600) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === row.friend_request.from) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                        is_friend:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Request has been rejected.`,
+                                icon: "success",
+                            })
+                        } else {
+                            swal({
+                                title: `${data?.message}`,
+                                icon: "warning",
+                            })
+                        }
+                    }
+                }
+                })
+        } catch (error) {
+            setdisabled_sendrequest(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function RemoveFriend(row) {
+        try {
+            swal({
+                title: "Are you sure?",
+                // text: "Are you sure that you want to delete the recode?",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"],
+                dangerMode: true,
+            }).then(async (d) => {
+                if (d) {
+                    let url = `${API_URL}/delete-friend`;
+                    let myform = JSON.stringify({requestid:row.friend_request._id});
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    setdisabled_sendrequest(true);
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    setdisabled_sendrequest(false);
+                    if(response!==""){
+                        response = await response.json();
+                        const data = response;
+                        if (data.status == 200) {
+                             let newdatalist = datalist.map(item => {
+                                if (item._id === row._id) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                        is_friend:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Success.`,
+                                icon: "success",
+                            })
+                        }else {
+                            swal({
+                                title: `${data?.message}`,
+                                icon: "warning",
+                            })
+                        }
+                    }
+                }
+                })
+        } catch (error) {
+            setdisabled_sendrequest(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
     return (
        <>
         <div className="container-fluid">
@@ -92,8 +352,32 @@ export default function Findfriends(){
                         </div>
                         <div className="card-body">
                         <h5 className="card-title">{item.name}</h5>
-                        <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" className="btn btn-primary">Go somewhere</a>
+                        {/* <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> */}
+                        {
+                        item.is_friend > 0 ? 
+                        <><button type="button" onClick={() => RemoveFriend(item)}  className="btn btn-warning send-request" disabled={disabled_sendrequest?true:false} >Remove Friend</button></> 
+                        :<>
+                            {item.check_friend_request > 0 ? 
+                                <>
+                                {
+                                    item.friend_request.from==LOGIN_USER._id?
+                                    <>
+                                    <button type="button" onClick={() => CencelRequest(item._id,item.friend_request._id)}  className="btn btn-secondary send-request" disabled={disabled_sendrequest?true:false} >Cencel Request</button>
+                                    </>
+                                    :
+                                    <>
+                                    <button type="button" onClick={() => AcceptOrRejectRequest(item,1)}  className="btn btn-info send-request" disabled={disabled_sendrequest?true:false} >Accept</button>
+                                    <button type="button" onClick={() => AcceptOrRejectRequest(item,2)}  className="btn btn-danger send-request" disabled={disabled_sendrequest?true:false} >Reject</button>
+                                    </>
+                                }
+                                </> 
+                                : 
+                                <><button type="button" onClick={() => SendRequest(item._id)}  className="btn btn-primary send-request" disabled={disabled_sendrequest?true:false} >Send Request</button></>
+                            }
+                        </>
+                        }
+                        
+
                         </div>
                     </div>
                 </div>

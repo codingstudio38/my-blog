@@ -51,9 +51,8 @@ export default function Editprofile() {
             response = await response.json();
             const data = response;
             if (data.status == 200) {
-                seteditdata((pre)=>{
-                        return {...pre,"photo": response.file_name, "file_view_path": response.result };
-                    });
+                let data =  {...editdata,"photo": response.file_name, "file_view_path": response.result };
+                seteditdata(data);
                 swal({
                     title: `Successfully uploaded`,
                     icon: "success",
@@ -304,7 +303,7 @@ export default function Editprofile() {
                                                 </div>
                                                 <div className="col-md-4">
                                                     <>
-                                                        {total>0 && editdata.file_dtl.filetype!==""
+                                                        {total>0 && editdata.file_view_path!==""
                                                             ?
                                                             <>
                                                                 <img src={editdata.file_view_path} style={{ "height": "120px", "width": "120px" }} />

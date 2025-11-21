@@ -8,6 +8,10 @@ export const WEBSITE_URL = "http://localhost:3000";
 export const WEBSITE_PUBLIC = "";
 export const WEBSITE_BASE_URL = "/";
 export const WS_URL = "ws://127.0.0.1:8000";
+export const new_client =1000;
+export const client_disconnected =2000;
+export const new_message_receive =3000;
+export const receive_binary_data = 4000;
 export const USER_DETAILS = () => {
     if (!window.sessionStorage.getItem("buserinfo")) {
         return false;
