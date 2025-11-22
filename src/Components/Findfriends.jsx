@@ -79,7 +79,7 @@ export default function Findfriends(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        // console.log(data);
+                        console.log(data);
                         setDatelist((prev) => [...prev, ...data.result.list]);
                         // setDatelist((dataid) => { return data.result.list });
                         settotal_rec((dataid) => { return data.result.total });
@@ -208,6 +208,7 @@ export default function Findfriends(){
                                         ...item,
                                         friend_request:null,
                                         check_friend_request:0,
+                                        is_friend:0,
                                     };
                                 }
                                 return item;
@@ -230,6 +231,23 @@ export default function Findfriends(){
                             setDatelist((prev) => {return newdatalist});
                             swal({
                                 title: `Already accepted!`,
+                                icon: "warning",
+                            })
+                        }else if (data.status == 600) {
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === to) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                        is_friend:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Friend request rejected!`,
                                 icon: "warning",
                             })
                         } else {
