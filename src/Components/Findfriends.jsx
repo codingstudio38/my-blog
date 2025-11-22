@@ -79,7 +79,7 @@ export default function Findfriends(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        console.log(data);
+                        // console.log(data);
                         setDatelist((prev) => [...prev, ...data.result.list]);
                         // setDatelist((dataid) => { return data.result.list });
                         settotal_rec((dataid) => { return data.result.total });
@@ -104,7 +104,7 @@ export default function Findfriends(){
     async function SendRequest(row) {
         try {
             let url = `${API_URL}/send-request`;
-            let myform = JSON.stringify({from:LOGIN_USER._id,to:row._id});
+            let myform = JSON.stringify({user_id:LOGIN_USER._id,to:row._id});
             let headers = {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -190,7 +190,7 @@ export default function Findfriends(){
             }).then(async (d) => {
                 if (d) {
                     let url = `${API_URL}/cencel-request`;
-                    let myform = JSON.stringify({from:LOGIN_USER._id,to:to,'requestid':requestid});
+                    let myform = JSON.stringify({user_id:LOGIN_USER._id,to:to,'requestid':requestid});
                     let headers = {
                         'Content-Type': 'application/json',
                         'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -261,7 +261,7 @@ export default function Findfriends(){
             }).then(async (d) => {
                 if (d) {
                     let url = `${API_URL}/accept-or-reject-request`;
-                    let myform = JSON.stringify({from:row.friend_request.from, to:row.friend_request.to, requestid:row.friend_request._id, accept_status:status });
+                    let myform = JSON.stringify({user_id:LOGIN_USER._id,from:row.friend_request.from, to:row.friend_request.to, requestid:row.friend_request._id, accept_status:status });
                     let headers = {
                         'Content-Type': 'application/json',
                         'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -348,8 +348,9 @@ export default function Findfriends(){
                 dangerMode: true,
             }).then(async (d) => {
                 if (d) {
+                    console.log(LOGIN_USER._id);
                     let url = `${API_URL}/delete-friend`;
-                    let myform = JSON.stringify({requestid:row.friend_request._id});
+                    let myform = JSON.stringify({requestid:row.friend_request._id,user_id:LOGIN_USER._id});
                     let headers = {
                         'Content-Type': 'application/json',
                         'authorization': `Bearer ${LOGIN_USER.token}`,

@@ -1,15 +1,49 @@
-import './../Css/Notifications.css';
+import './../Css/AllNotifications.css';
 import Websocket from "./../Services/WebSocketService";
 import React, { useState, useEffect,useRef } from 'react';
-import { new_friend_request,cencel_friend_request,accept_friend_request,reject_friend_request,remove_friend } from './Constant.jsx';
+import { useNavigate } from 'react-router-dom';
+import { Post_With_Htoken } from '../Services/Https.jsx';
+import $ from 'jquery';
+import { new_friend_request,cencel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL} from './Constant.jsx';
 export default function Allnotifications(){
     const [messages, setMessages] = useState([]);
+    const navigate = useNavigate();
+    const LOGIN_USER = USER_DETAILS();
+    const firstCall = useRef(true);
+    const [listloader, setlistloader] = useState(false);
+    const [datalist, setDatelist] = useState([]);
+    const [limit, setlimit] = useState(8);
+    const [total_rec, settotal_rec] = useState(0);
+    const [currentpage, setcurrentpage] = useState(1);
+    const [lastpage, setlastpage] = useState(1);
+    const [readstatusloader, setreadstatusloader] = useState(false);
     useEffect(() => {
+        if (LOGIN_USER === false) {
+                navigate('/');
+                return;
+            }
+             if (firstCall.current) {
+                firstCall.current = false;
+                return;
+            }
+            AllNotifications();
         const unsubscribe = Websocket.subscribe((msg) => {
             if(msg?.code==new_friend_request){
-                let resert_data = msg.friend_request[0]
-                resert_data = {...resert_data,category:new_friend_request,text:`${resert_data.from_user_detail} send to you friend request.`}
-                setMessages((prev) => [...prev, resert_data]);
+                let resert_data = msg.result
+                // setMessages((prev) => [...prev, resert_data]);
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==cencel_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==accept_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==reject_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==remove_friend){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
             }
             
         });
@@ -27,6 +61,92 @@ export default function Allnotifications(){
       text: "Hello from Allnotifications.js functional component!",
     });
   };
+    function onNewMessageSound() {
+        const audio = new Audio(`${WEBSITE_URL}/sound/Messenger_Notification.mp3`);
+        audio.play();
+    }
+    async function AllNotifications() {
+        try {
+            if (listloader) {
+                return false;
+            }
+            setlistloader(true);
+            setTimeout(async ()=>{
+
+            
+            let url = `${API_URL}/all-notifications?page=${currentpage}&limit=${limit}`;
+            let myform = JSON.stringify({user_id:LOGIN_USER._id});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setlistloader(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    setDatelist((prev) => [...prev, ...data.result.list]);
+                    // setDatelist((dataid) => { return data.result.list });
+                    settotal_rec((dataid) => { return data.result.total });
+                    setlastpage((dataid) => { return data.result.lastpage });
+                } else {
+                    console.error('notifications->',{
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+            },1000)
+        } catch (error) {
+            setlistloader(false);
+            console.error('notifications->',{
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function ReadThis(row) {
+        try {
+            if(row.read_status > 0){
+                 return false;
+            }
+            if (readstatusloader) {
+                return false;
+            }
+            setreadstatusloader(true);
+            let url = `${API_URL}/read-notification`;
+            let myform = JSON.stringify({id:row._id});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setreadstatusloader(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    // $(`#${row._id}`).fadeOut('slow');
+                  let newdatalist = datalist.filter((item) => {
+                        return item._id !== row._id;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                } else {
+                    console.error('notifications->',{
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+        } catch (error) {
+            setreadstatusloader(false);
+            console.error('notifications->',{
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
     return (
         <>
         <div className="container notifications-list">
@@ -36,27 +156,182 @@ export default function Allnotifications(){
                 <div className="tab-content p-0">
 
                     <div className="tab-pane fade active show" id="profile-friends">
-                        <div className="m-b-10"><b className='text-dark'>Notifications ({messages.length})</b></div>
-
-                        <ul className="friend-list clearfix">
-                            {messages.map((item, index) => 
+                        <div className="m-b-10"><b className='text-dark'>Notifications ({datalist.length})</b></div>
+                       
+ 
+                        {listloader==true ? <>
+                        <div className='text-center not-loader'>
+                            <div className="spinner-grow text-primary" role="status">
+                            <span className="sr-only"></span>
+                            </div>
+                        </div>
+                        </> : <></>}
+                        <ul className={readstatusloader==true ? 'readstatusloader friend-list clearfix':'friend-list clearfix'}>
+                            {datalist.map((item, index) => 
                              
     item.category == new_friend_request ? 
-        <li key={index}>
-            <a href="#">
-                <div className="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></div>
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='new-request-text-color'>New Friend Request</small><br/>
+                <div className="friend-img">
+                    {
+                        item.from_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    }
+                </div>
                 <div className="friend-info text-left">
                     <h4>{item.from_user_name}</h4>
-                    <p>Friend Request</p>
+                    <small>{item.created_at}</small>
                 </div>
             </a>
         </li>
     : item.category == cencel_friend_request  ? 
-        <></>
+         <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='cencel-request-text-color'>Cencel Friend Request</small><br/>
+                <div className="friend-img">
+                    {
+                        item.from_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>{item.from_user_name}</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
     : item.category == accept_friend_request  ?
-        <></>
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='accept-request-text-color'>Friend Request Accept</small><br/>
+                <div className="friend-img">
+                    {
+                        item.to_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>{item.to_user_name}</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
     : item.category == reject_friend_request  ?
-        <></>
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='reject-request-text-color'>Friend Request Rejected</small><br/>
+                <div className="friend-img">
+                    {
+                        item.to_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>{item.to_user_name}</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
+    : item.category == remove_friend  ?
+        item.remove_byid == item.from ?
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='reject-request-text-color'>Remove Friend</small><br/>
+                <div className="friend-img">
+                    {
+                        item.from_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>{item.from_user_name} remove {item.to_user_name}</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
+         :
+         <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThis(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='reject-request-text-color'>Remove Friend</small><br/>
+                <div className="friend-img">
+                    {
+                        item.to_user_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>{item.to_user_name} remove {item.from_user_name}</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
+    : item.category == 44  ?
+    <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='reject-request-text-color'>New Notification</small><br/>
+                <div className="friend-img">
+                     <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                </div>
+                <div className="friend-info text-left">
+                    <h4>Notification</h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
     : 
     <></> 
     
