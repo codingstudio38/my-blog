@@ -16,6 +16,8 @@ import Websocket from './Services/WebSocketService';
 import React, { useEffect} from 'react';
 import {  USER_DETAILS } from './Components/Constant'
 import Findfriends from './Components/Findfriends'
+import Friendrquestsendlist from './Components/Friendrquestsendlist'
+import Newfriendrequestlist from './Components/Newfriendrequestlist'
 function App() {
   const LOGIN_USER = USER_DETAILS()
    useEffect(() => {
@@ -35,6 +37,8 @@ function App() {
             <Route path='my-profile' element={<Protected Component={Profile} />} />
             <Route path='edit-profile' element={<Protected Component={Editprofile} />} />
             <Route path='find-friends' element={<Protected Component={Findfriends} />} />
+            <Route path='friend-rquest-send-list' element={<Protected Component={Friendrquestsendlist} />} />
+            <Route path='new-friend-request-list' element={<Protected Component={Newfriendrequestlist} />} />
           </Route>
           <Route path='*' element={<Page404 />} />
         </Routes>

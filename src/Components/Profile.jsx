@@ -136,7 +136,6 @@ import swal from 'sweetalert';
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        console.log(data);
                         setDatelist(data.result.list);
                         // setDatelist((dataid) => { return data.result.list });
                         settotal_friend_rec((dataid) => { return data.result.total });
@@ -386,7 +385,7 @@ import swal from 'sweetalert';
               </div>
             </li>
             <li>
-              <div className="field">Phone No.:</div>
+              <div className="field">Phone No:</div>
               <div className="value">{total > 0 ? editdata.phone : ''}</div>
             </li>
           

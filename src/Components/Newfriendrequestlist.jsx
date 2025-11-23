@@ -9,7 +9,7 @@ import Findfriendloader from './Findfriendloader.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
 import moment from "moment";
-export default function Findfriends(){
+export default function Newfriendrequestlist(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
     const firstCall = useRef(true);
@@ -23,7 +23,7 @@ export default function Findfriends(){
     const [pre_scroll_position, setPre_scroll_position] = useState(0);
     const [disabled_sendrequest, setdisabled_sendrequest] = useState(false);
       useEffect(() => {
-            document.title = "MERN Technology || Find New Friends";
+            document.title = "MERN Technology || Friend Rquest Send List";
             if (LOGIN_USER === false) {
                 navigate('/');
                 return;
@@ -67,7 +67,7 @@ export default function Findfriends(){
             }
             setlistloader(true);
             setTimeout(async ()=>{
-                let url = `${API_URL}/find-friends?page=${currentpage}&limit=${limit}`;
+                let url = `${API_URL}/new-friend-request-list?page=${currentpage}&limit=${limit}`;
                 let myform = JSON.stringify({user_id:LOGIN_USER._id,title:''});
                 let headers = {
                     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function Findfriends(){
                     //     }
                     //     return item;
                     // });
-                    let newdatalist = datalist.filter(item => {
+                      let newdatalist = datalist.filter(item => {
                         return item._id !== row._id;
                     });
                     setDatelist((prev) => {return newdatalist});
@@ -134,19 +134,16 @@ export default function Findfriends(){
                         icon: "success",
                     })
                 } else if (data.status == 300) {
-                    // let newdatalist = datalist.map(item => {
-                    //     if (item._id === row._id) {
-                    //         return {
-                    //             ...item,
-                    //             friend_request:data.friend_request[0],
-                    //             check_friend_request:1,
-                    //             is_friend:1,
-                    //         };
-                    //     }
-                    //     return item;
-                    // });
-                    let newdatalist = datalist.filter(item => {
-                        return item._id !== row._id;
+                    let newdatalist = datalist.map(item => {
+                        if (item._id === row._id) {
+                            return {
+                                ...item,
+                                friend_request:data.friend_request[0],
+                                check_friend_request:1,
+                                is_friend:1,
+                            };
+                        }
+                        return item;
                     });
                     setDatelist((prev) => {return newdatalist});
                     swal({
@@ -154,18 +151,15 @@ export default function Findfriends(){
                         icon: "warning",
                     })
                 } else if (data.status == 600) {
-                    // let newdatalist = datalist.map(item => {
-                    //     if (item._id === row._id) {
-                    //         return {
-                    //             ...item,
-                    //             friend_request:data.friend_request[0],
-                    //             check_friend_request:1,
-                    //         };
-                    //     }
-                    //     return item;
-                    // });
-                    let newdatalist = datalist.filter(item => {
-                        return item._id !== row._id;
+                    let newdatalist = datalist.map(item => {
+                        if (item._id === row._id) {
+                            return {
+                                ...item,
+                                friend_request:data.friend_request[0],
+                                check_friend_request:1,
+                            };
+                        }
+                        return item;
                     });
                     setDatelist((prev) => {return newdatalist});
                     swal({
@@ -210,16 +204,19 @@ export default function Findfriends(){
                         response = await response.json();
                         const data = response;
                         if (data.status == 200) {
-                            let newdatalist = datalist.map(item => {
-                                if (item._id === to) {
-                                    return {
-                                        ...item,
-                                        friend_request:null,
-                                        check_friend_request:0,
-                                        is_friend:0,
-                                    };
-                                }
-                                return item;
+                            // let newdatalist = datalist.map(item => {
+                            //     if (item._id === to) {
+                            //         return {
+                            //             ...item,
+                            //             friend_request:null,
+                            //             check_friend_request:0,
+                            //             is_friend:0,
+                            //         };
+                            //     }
+                            //     return item;
+                            // });
+                            let newdatalist = datalist.filter(item => {
+                                return item._id!==to;
                             });
                             setDatelist((prev) => {return newdatalist});
                             swal({
@@ -227,14 +224,17 @@ export default function Findfriends(){
                                 icon: "success",
                             })
                         }else if (data.status == 300) {
-                            let newdatalist = datalist.map(item => {
-                                if (item._id === to) {
-                                    return {
-                                        ...item,
-                                        is_friend:1,
-                                    };
-                                }
-                                return item;
+                            // let newdatalist = datalist.map(item => {
+                            //     if (item._id === to) {
+                            //         return {
+                            //             ...item,
+                            //             is_friend:1,
+                            //         };
+                            //     }
+                            //     return item;
+                            // });
+                            let newdatalist = datalist.filter(item => {
+                                return item._id!==to;
                             });
                             setDatelist((prev) => {return newdatalist});
                             swal({
@@ -242,16 +242,19 @@ export default function Findfriends(){
                                 icon: "warning",
                             })
                         }else if (data.status == 600) {
-                            let newdatalist = datalist.map(item => {
-                                if (item._id === to) {
-                                    return {
-                                        ...item,
-                                        friend_request:null,
-                                        check_friend_request:0,
-                                        is_friend:0,
-                                    };
-                                }
-                                return item;
+                            // let newdatalist = datalist.map(item => {
+                            //     if (item._id === to) {
+                            //         return {
+                            //             ...item,
+                            //             friend_request:null,
+                            //             check_friend_request:0,
+                            //             is_friend:0,
+                            //         };
+                            //     }
+                            //     return item;
+                            // });
+                            let newdatalist = datalist.filter(item => {
+                                return item._id!==to;
                             });
                             setDatelist((prev) => {return newdatalist});
                             swal({
@@ -299,57 +302,69 @@ export default function Findfriends(){
                         response = await response.json();
                         const data = response;
                         if (data.status == 200) {
-                            if(status==1){
-                                let newdatalist = datalist.filter(item => {
+                            let newdatalist = datalist.filter(item => {
                                     return item._id !== row._id;
                                 });
-                             setDatelist((prev) => {return newdatalist});
-                            } else {
-                                let newdatalist = datalist.map(item => {
-                                    if (item._id === row.friend_request.from) {
-                                        return {
-                                            ...item,
-                                            is_friend:1,
-                                        };
-                                    }
-                                    return item;
-                                });
-                                setDatelist((prev) => {return newdatalist});
-                            }
+                            setDatelist((prev) => {return newdatalist});
+                            // if(status==1){
+                            //     let newdatalist = datalist.filter(item => {
+                            //         return item._id !== row._id;
+                            //     });
+                            //     setDatelist((prev) => {return newdatalist});
+                            // } else {
+                            //     let newdatalist = datalist.map(item => {
+                            //         if (item._id === row.friend_request.from) {
+                            //             return {
+                            //                 ...item,
+                            //                 is_friend:1,
+                            //             };
+                            //         }
+                            //         return item;
+                            //     });
+                            //     setDatelist((prev) => {return newdatalist});
+                            // }
                             swal({
                                 title: `Success`,
                                 icon: "success",
                             })
                         }else if (data.status == 300) {
-                            let newdatalist = datalist.map(item => {
-                                if (item._id === row.friend_request.from) {
-                                    return {
-                                        ...item,
-                                        friend_request:null,
-                                        check_friend_request:0,
-                                        is_friend:0,
-                                    };
-                                }
-                                return item;
-                            });
-                            setDatelist((prev) => {return newdatalist});
+                            // let newdatalist = datalist.map(item => {
+                            //     if (item._id === row.friend_request.from) {
+                            //         return {
+                            //             ...item,
+                            //             friend_request:null,
+                            //             check_friend_request:0,
+                            //             is_friend:0,
+                            //         };
+                            //     }
+                            //     return item;
+                            // });
+                            // setDatelist((prev) => {return newdatalist});
+                            let newdatalist = datalist.filter(item => {
+                                    return item._id !== row._id;
+                                });
+                                setDatelist((prev) => {return newdatalist});
                             swal({
                                 title: `Request rejected by sender.`,
                                 icon: "warning",
                             })
                         }else if (data.status == 600) {
-                            let newdatalist = datalist.map(item => {
-                                if (item._id === row.friend_request.from) {
-                                    return {
-                                        ...item,
-                                        friend_request:null,
-                                        check_friend_request:0,
-                                        is_friend:0,
-                                    };
-                                }
-                                return item;
-                            });
-                            setDatelist((prev) => {return newdatalist});
+                            // let newdatalist = datalist.map(item => {
+                            //     if (item._id === row.friend_request.from) {
+                            //         return {
+                            //             ...item,
+                            //             friend_request:null,
+                            //             check_friend_request:0,
+                            //             is_friend:0,
+                            //         };
+                            //     }
+                            //     return item;
+                            // });
+                            // setDatelist((prev) => {return newdatalist});
+                            let newdatalist = datalist.filter(item => {
+                                    return item._id !== row._id;
+                                });
+                                setDatelist((prev) => {return newdatalist});
                             swal({
                                 title: `Request has been rejected.`,
                                 icon: "success",
@@ -453,7 +468,7 @@ export default function Findfriends(){
                 <Allnotifications/>
             </div>
             <div className="col-md-8 find-friends  mt-1">
-                <h3 className='text-decoration-underline'>Find New Friend</h3>
+                <h3 className='text-decoration-underline'>New Friend Request List</h3>
              <div className='row'>
 {datalist.map((item, index) =>
                 <div className='col-md-3' key={index}>

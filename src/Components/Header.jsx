@@ -54,12 +54,12 @@ export default function Header(){
                         }
                         
                     });
-                    const unsubscribeClose = Websocket.onClose(() => {
-                        console.error("Disconnected from WS server! Allnotifications.js");
-                    });
+                    // const unsubscribeClose = Websocket.onClose(() => {
+                    //     console.error("Disconnected from WS server! Allnotifications.js");
+                    // });
                     return () => {
                         unsubscribe();
-                        unsubscribeClose();
+                        // unsubscribeClose();
                     };
         }, []);
         async function AllNotifications(){
@@ -83,7 +83,8 @@ export default function Header(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        setDatelist((prev) => [...prev, ...data.result.list]);
+                        // setDatelist((prev) => [...prev, ...data.result.list]);
+                        setDatelist((prev) => {return data.result.list;});
                         settotal_rec((dataid) => { return data.result.total });
                         setlastpage((dataid) => { return data.result.lastpage });
                     } else {
@@ -178,6 +179,11 @@ export default function Header(){
                     })
                 }
             }
+            function Refresh(){
+                setlimit(10);
+                setcurrentpage(1);
+                AllNotifications();
+            }
     return (
         <Navbar bg="primary" variant="dark">
             <Container>
@@ -186,6 +192,8 @@ export default function Header(){
                     <NavLink className={"navlink"} to="/web/create-blog">My blog</NavLink>
                     <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink>
                     <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
+                    <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Send Request Status List</NavLink>
+                     <NavLink className={"navlink"} to="/web/new-friend-request-list">New Friend Request List</NavLink>
                 </Nav>
                 {
                     LOGIN_USER!==false?
@@ -196,8 +204,16 @@ export default function Header(){
                   <li className="nav-item dropdown notification-ui show">
                     <div className="dropdown-menu notification-ui_dd show" aria-labelledby="navbarDropdown">
                       <div className="notification-ui_dd-header">
-                        <h3 className="text-center">Notification</h3>
+                        <h3 className="text-center">Notification <button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>Refresh()}  >Refresh</button></h3> 
+                        
                       </div>
+                      {listloader==true ? <>
+                        <div className='text-center not-loader'>
+                            <div className="spinner-grow text-primary" role="status">
+                            <span className="sr-only"></span>
+                            </div>
+                        </div>
+                        </> : <>
                       <div className="notification-ui_dd-content">
 {datalist.map((item, index) => 
 item.category == new_friend_request ? 
@@ -438,6 +454,7 @@ item.category == new_friend_request ?
                     }
                          
                       </div>
+                        </>}
                       <div className="notification-ui_dd-footer">
                         <a href="#!" className="btn btn-success btn-block btn-view-all">View All</a>
                       </div>
