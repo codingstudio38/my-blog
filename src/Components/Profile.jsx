@@ -5,14 +5,23 @@ import { USER_DETAILS, API_URL,USER_LOGOUT } from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
  import moment from "moment";
+ import { Pagination } from 'antd';
  export default function Profile() {
    const firstCall = useRef(true);
-    const [currentpage, setcurrentpage] = useState(1);
+   const firstCallcheck = useRef(true);
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
-    const [loader, setLoader] = useState(false);
     const [total_rec, settotal_rec] = useState(0);
+    const [c_tabe, setc_tabe] = useState('profile-friends');
  
+    const [listloader, setlistloader] = useState(false);
+    const [datalist, setDatelist] = useState([]);
+    const [limit, setlimit] = useState(12);
+    const [total_friend_rec, settotal_friend_rec] = useState(0);
+    const [currentpage, setcurrentpage] = useState(1);
+    const [lastpage, setlastpage] = useState(1);
+    let [search_name, setsearch_name] = useState('');
+
     useEffect(() => {
         document.title = "MERN Technology || User - Profile";
         // document.body.style.backgroundColor = "aliceblue";
@@ -24,9 +33,17 @@ import swal from 'sweetalert';
               firstCall.current = false;
               return;
           }
+          // MyFriends();
          EditRow(LOGIN_USER._id);
     }, []);
 
+        useEffect(() => {
+        if (firstCallcheck.current) {
+              firstCallcheck.current = false;
+              return;
+          }
+          MyFriends();
+    }, [currentpage]);
     const [editdata,seteditdata] = useState({
     "_id": "",
     "wsstatus": 0,
@@ -49,6 +66,7 @@ import swal from 'sweetalert';
     "dob": "",
     "country": "",
     "address": "",
+    "about_us": "",
     "created_at": "",
     "updated_at": ""
     })
@@ -100,7 +118,53 @@ import swal from 'sweetalert';
         }
     }
   
+ async function MyFriends() {
+        try {
+            if (listloader) {
+                return false;
+            }
+            setlistloader(true);
+                let url = `${API_URL}/my-friends?page=${currentpage}&limit=${limit}`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,name:search_name});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setlistloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        console.log(data);
+                        setDatelist(data.result.list);
+                        // setDatelist((dataid) => { return data.result.list });
+                        settotal_friend_rec((dataid) => { return data.result.total });
+                        setlastpage((dataid) => { return data.result.lastpage });
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+            
+        } catch (error) {
+            setlistloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
 
+   function ChengeName(name){
+    search_name=name;
+    setsearch_name(name);
+      setcurrentpage(1);
+      setlimit(12);
+      MyFriends();
+    }
  
     return (
         <>
@@ -130,29 +194,60 @@ import swal from 'sweetalert';
       </div>
       <ul className="profile-header-tab nav nav-tabs">
         <li className="nav-item">
-          <a href="#profile-post" className="nav-link" data-toggle="tab">
+          <a href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                setc_tabe('my-post');
+            }}
+            className={c_tabe=='my-post' ? 'nav-link active show' : 'nav-link'}
+           data-toggle="tab">
             POSTS
           </a>
         </li>
         <li className="nav-item">
-          <a href="#profile-about" className="nav-link" data-toggle="tab">
+          <a 
+          href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                setc_tabe('about-us');
+            }}
+          className={c_tabe=='about-us' ? 'nav-link active show' : 'nav-link'}
+          data-toggle="tab">
             ABOUT
           </a>
         </li>
         <li className="nav-item">
-          <a href="#profile-photos" className="nav-link" data-toggle="tab">
+          <a 
+          href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                setc_tabe('my-photo');
+            }}
+          className={c_tabe=='my-photo' ? 'nav-link active show' : 'nav-link'}
+          data-toggle="tab">
             PHOTOS
           </a>
         </li>
         <li className="nav-item">
-          <a href="#profile-videos" className="nav-link" data-toggle="tab">
+          <a 
+          href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                setc_tabe('my-video');
+            }}
+             className={c_tabe=='my-video' ? 'nav-link active show' : 'nav-link'}
+             data-toggle="tab">
             VIDEOS
           </a>
         </li>
         <li className="nav-item">
           <a
-            href="#profile-friends"
-            className="nav-link active show"
+             href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                setc_tabe('profile-friends');
+            }}
+            className={c_tabe=='profile-friends' ? 'nav-link active show' : 'nav-link'}
             data-toggle="tab"
           >
             FRIENDS
@@ -164,9 +259,39 @@ import swal from 'sweetalert';
       <div className="row row-space-20">
         <div className="col-md-8">
           <div className="tab-content p-0">
-            <div className="tab-pane fade active show" id="profile-friends">
-              <div className="m-b-10">
-                <b>Friend List (9)</b>
+            <div className={c_tabe=='profile-friends' ? 'tab-pane fade active show' : 'tab-pane fade'} id="profile-friends">
+              <div className="m-b-10 text-dark">
+                <b>Friend List ({total_friend_rec})</b> <input type="text" id='search_name' placeholder='Search Name' onKeyUp={(e)=>{ChengeName(e.target.value)}} />
+              </div>
+              <ul className="friend-list clearfix">
+ {datalist.map((item, index) => 
+                <li key={index}>
+                  <a href="#">
+                    <div className="friend-img">
+                      {
+                        item.user_file_dtl.filename == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.name}  alt={item.name} loading="lazy"/></>
+                            :  
+                        <><img src={item.user_file_dtl.file_view_path} title={item.name}  alt={item.name} loading="lazy"/></>
+                    }
+                    </div>
+                    <div className="friend-info">
+                      <h4>{item.name}</h4>
+                      <p>{item.total_friend} friends</p>
+                    </div>
+                  </a>
+                </li>
+ )}
+              </ul>
+<div className='container ff-p mt-2'>
+<Pagination pageSize={limit} total={total_friend_rec} current={currentpage} onChange={(value) => setcurrentpage(value)} showQuickJumper={false} />
+</div>
+
+
+            </div>
+            <div className={c_tabe=='my-post' ? 'tab-pane fade active show' : 'tab-pane fade'} id="my-post">
+              <div className="m-b-10 text-dark">
+                <b>My Post (9)</b>
               </div>
               <ul className="friend-list clearfix">
                 <li>
@@ -183,104 +308,19 @@ import swal from 'sweetalert';
                     </div>
                   </a>
                 </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Jonty Augusto</h4>
-                      <p>128 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Androkles Allen</h4>
-                      <p>12 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Ithamar Silvio</h4>
-                      <p>1,923 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar6.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Denzel Annas</h4>
-                      <p>893 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Kamil Cree</h4>
-                      <p>983 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar8.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Fritjof Inderjit</h4>
-                      <p>3,321 friends</p>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <div className="friend-img">
-                      <img
-                        src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="friend-info">
-                      <h4>Sushil Trygve</h4>
-                      <p>921 friends</p>
-                    </div>
-                  </a>
-                </li>
+              </ul>
+            </div>
+            <div className={c_tabe=='about-us' ? 'tab-pane fade active show' : 'tab-pane fade'} id="about-us">
+              <div className="m-b-10 text-dark">
+                <b>About Us</b>
+              </div>
+              <div className='text-dark' dangerouslySetInnerHTML={{ __html: total > 0 ? editdata.about_us : '' }} />
+            </div>
+            <div className={c_tabe=='my-photo' ? 'tab-pane fade active show' : 'tab-pane fade'} id="my-photo">
+              <div className="m-b-10 text-dark">
+                <b>Photo</b>
+              </div>
+              <ul className="friend-list clearfix">
                 <li>
                   <a href="#">
                     <div className="friend-img">
@@ -290,8 +330,29 @@ import swal from 'sweetalert';
                       />
                     </div>
                     <div className="friend-info">
-                      <h4>Frans Gebhard</h4>
-                      <p>944 friends</p>
+                      <h4>Sancho Aldo</h4>
+                      <p>392 friends</p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className={c_tabe=='my-video' ? 'tab-pane fade active show' : 'tab-pane fade'} id="my-video">
+              <div className="m-b-10 text-dark">
+                <b>Vidoe</b>
+              </div>
+              <ul className="friend-list clearfix">
+                <li>
+                  <a href="#">
+                    <div className="friend-img">
+                      <img
+                        src="https://bootdey.com/img/Content/avatar/avatar2.png"
+                        alt=""
+                      />
+                    </div>
+                    <div className="friend-info">
+                      <h4>Sancho Aldo</h4>
+                      <p>392 friends</p>
                     </div>
                   </a>
                 </li>
@@ -328,63 +389,8 @@ import swal from 'sweetalert';
               <div className="field">Phone No.:</div>
               <div className="value">{total > 0 ? editdata.phone : ''}</div>
             </li>
-            <li className="title">FRIEND LIST (9)</li>
-            <li className="img-list">
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar3.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar4.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar5.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar6.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar8.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                  alt=""
-                />
-              </a>
-              <a href="#" className="m-b-5">
-                <img
-                  src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                  alt=""
-                />
-              </a>
-            </li>
+          
+            
           </ul>
         </div>
       </div>

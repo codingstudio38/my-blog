@@ -305,3 +305,13 @@ body .profile  .fc-widget-header a {
 .profile .active {
     background-color:#f0f4ff ;
 }
+
+.profile .ff-p {
+    display: flex;
+    justify-content: center;
+}
+.profile .ff-p ul.ant-pagination {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}

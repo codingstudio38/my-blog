@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { USER_DETAILS, API_URL,USER_LOGOUT } from './Constant.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
+import Ckeditor from './Ckeditor.jsx';
 export default function Editprofile() {
     const [currentpage, setcurrentpage] = useState(1);
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
     const [loader, setLoader] = useState(false);
     const [total_rec, settotal_rec] = useState(0);
-
+    const childRef = useRef();
     const [blog_details, setBdetails] = useState({
     "id":LOGIN_USER._id,
     "name": "",
@@ -21,6 +22,7 @@ export default function Editprofile() {
     "dob": "",
     "country": "",
     "address": "",
+    "about_us":"",
     });
  
     useEffect(() => {
@@ -120,8 +122,12 @@ export default function Editprofile() {
                             "dob": blog.dob,
                             "country": blog.country,
                             "address": blog.address,
+                            "about_us": blog.about_us,
                         }
                     })
+                    if (childRef.current) {
+                        childRef.current.setckeditor('about_us',blog.about_us);
+                    }
                    } else {
                         swal({
                             title: `Record not found!`,
@@ -180,7 +186,9 @@ export default function Editprofile() {
         }
     }
 
- 
+  const getEditorData = (data) => {
+    setBdetails(prev => ({ ...prev, about_us: data }))
+  };
     return (
         <>
             {/* <Header /> */}
@@ -253,6 +261,15 @@ export default function Editprofile() {
                                         </div>
                                         <div className="col-md-9 pe-5">
                                             <input type="text" id='address' value={blog_details.address} className="form-control form-control-lg" onChange={(e) => setBdetails({ ...blog_details, address: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="row align-items-center pt-4 pb-3">
+                                        <div className="col-md-3 ps-5">
+                                            <h6 className="mb-0">About Us</h6>
+                                        </div>
+                                        <div className="col-md-9 pe-5">
+                                             <Ckeditor getcontent={getEditorData} ckid={"about_us"} ref={childRef}/>
+                                            {/* <input type="text" id='about_us' value={blog_details.about_us} className="form-control form-control-lg" onChange={(e) => setBdetails({ ...blog_details, about_us: e.target.value })} /> */}
                                         </div>
                                     </div>
                                     <div className="row align-items-center pt-4 pb-3">

@@ -1,40 +1,40 @@
-.notifications-list .friend-list,
-.notifications-list .img-grid-list {
+.left-notifications-list .friend-list,
+.left-notifications-list .img-grid-list {
     margin: -1px;
     list-style-type: none;
 }
  
 
-.notifications-list .friend-list .friend-img img{
+.left-notifications-list .friend-list .friend-img img{
     max-width: 100%;
 }
  
 @media (max-width: 767px) {
      
-    .notifications-list .friend-list > li {
+    .left-notifications-list .friend-list > li {
         float: none;
         width: auto;
     }
 }
  
-.notifications-list .friend-list,
-.notifications-list .img-grid-list {
+.left-notifications-list .friend-list,
+.left-notifications-list .img-grid-list {
     margin: -1px;
     list-style-type: none;
 }
  
-.notifications-list .friend-list .friend-img img {
+.left-notifications-list .friend-list .friend-img img {
     max-width: 100%;
 }
  
-.notifications-list .friend-list {
+.left-notifications-list .friend-list {
     padding: 0;
 }
-.notifications-list .friend-list > li {
+.left-notifications-list .friend-list > li {
     /* float: left;
     width: 50%; */
 }
-.notifications-list .friend-list > li > a {
+.left-notifications-list .friend-list > li > a {
     display: block;
     text-decoration: none;
     color: #000;
@@ -42,37 +42,37 @@
     margin: 1px;
     background: #fff;
 }
-.notifications-list .friend-list > li > a:after,
-.notifications-list .friend-list > li > a:before {
+.left-notifications-list .friend-list > li > a:after,
+.left-notifications-list .friend-list > li > a:before {
     content: "";
     display: table;
     clear: both;
 }
-.notifications-list .friend-list .friend-img {
+.left-notifications-list .friend-list .friend-img {
     float: left;
     width: 3rem;
     height: 3rem;
     overflow: hidden;
     background: #efeff4;
 }
-.notifications-list .friend-list .friend-info {
+.left-notifications-list .friend-list .friend-info {
     margin-left: 3.625rem;
 }
-.notifications-list .friend-list .friend-info h4 {
+.left-notifications-list .friend-list .friend-info h4 {
     margin: 0.3125rem 0;
     font-size: 0.875rem;
     font-weight: 600;
 }
-.notifications-list .friend-list .friend-info p {
+.left-notifications-list .friend-list .friend-info p {
     color: #666;
     margin: 0;
 }
 
-.notifications-list .active {
+.left-notifications-list .active {
     background-color:#f0f4ff ;
 }
 
-.notifications-list  {
+.left-notifications-list  {
     background-color:#f0f4ff ;
     margin: 0px;
     padding: 0px;
@@ -83,18 +83,18 @@
     border: 1px solid #ccc;
 }
 
-.notifications-list .text-left{
+.left-notifications-list .text-left{
     text-align: left;
 }
-.notifications-list .not-read{
+.left-notifications-list .not-read{
 background-color: #c9e0ff !important;
 }
 
 .readstatusloader{
     opacity: 0.5;
 }
-.notifications-list .friend-list > li > a:after, 
-.notifications-list .friend-list > li > a:before{
+.left-notifications-list .friend-list > li > a:after, 
+.left-notifications-list .friend-list > li > a:before{
     box-sizing: unset !important;
 }
 
@@ -117,4 +117,12 @@ background-color: #c9e0ff !important;
 }
 .reject-request-text-color{
     color:#be0606;
+}
+
+.Refresh{
+padding: 2px;
+}
+.All{
+    padding: 1px;
+    width: 54px;
 }

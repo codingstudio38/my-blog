@@ -79,7 +79,6 @@ export default function Findfriends(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        console.log(data);
                         setDatelist((prev) => [...prev, ...data.result.list]);
                         // setDatelist((dataid) => { return data.result.list });
                         settotal_rec((dataid) => { return data.result.total });
@@ -366,7 +365,6 @@ export default function Findfriends(){
                 dangerMode: true,
             }).then(async (d) => {
                 if (d) {
-                    console.log(LOGIN_USER._id);
                     let url = `${API_URL}/delete-friend`;
                     let myform = JSON.stringify({requestid:row.friend_request._id,user_id:LOGIN_USER._id});
                     let headers = {
@@ -395,6 +393,23 @@ export default function Findfriends(){
                             swal({
                                 title: `Success.`,
                                 icon: "success",
+                            })
+                        }else if (data.status == 300) {
+                             let newdatalist = datalist.map(item => {
+                                if (item._id === row._id) {
+                                    return {
+                                        ...item,
+                                        friend_request:null,
+                                        check_friend_request:0,
+                                        is_friend:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                            swal({
+                                title: `Not in friend list. May be already removed.`,
+                                icon: "warning",
                             })
                         }else {
                             swal({

@@ -1,18 +1,17 @@
 import './../Css/AllNotifications.css';
-import Websocket from "./../Services/WebSocketService";
+// import Websocket from "./../Services/WebSocketService";
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import $ from 'jquery';
-import { new_friend_request,cencel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status} from './Constant.jsx';
 export default function Allnotifications(){
-    const [messages, setMessages] = useState([]);
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
     const firstCall = useRef(true);
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
-    const [limit, setlimit] = useState(8);
+    const [limit, setlimit] = useState(15);
     const [total_rec, settotal_rec] = useState(0);
     const [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
@@ -27,44 +26,40 @@ export default function Allnotifications(){
                 return;
             }
             AllNotifications();
-        const unsubscribe = Websocket.subscribe((msg) => {
-            if(msg?.code==new_friend_request){
-                let resert_data = msg.result
-                // setMessages((prev) => [...prev, resert_data]);
-                setDatelist((prev) => [resert_data,...prev]);
-            } else if(msg?.code==cencel_friend_request){
-                let resert_data = msg.result
-                setDatelist((prev) => [resert_data,...prev]);
-            } else if(msg?.code==accept_friend_request){
-                let resert_data = msg.result
-                setDatelist((prev) => [resert_data,...prev]);
-            } else if(msg?.code==reject_friend_request){
-                let resert_data = msg.result
-                setDatelist((prev) => [resert_data,...prev]);
-            } else if(msg?.code==remove_friend){
-                let resert_data = msg.result
-                setDatelist((prev) => [resert_data,...prev]);
-            }
+        // const unsubscribe = Websocket.subscribe((msg) => {
+        //     if(msg?.code==new_friend_request){
+        //         let resert_data = msg.result
+        //         setDatelist((prev) => [resert_data,...prev]);
+        //     } else if(msg?.code==cancel_friend_request){
+        //         let resert_data = msg.result
+        //         setDatelist((prev) => [resert_data,...prev]);
+        //     } else if(msg?.code==accept_friend_request){
+        //         let resert_data = msg.result
+        //         setDatelist((prev) => [resert_data,...prev]);
+        //     } else if(msg?.code==reject_friend_request){
+        //         let resert_data = msg.result
+        //         setDatelist((prev) => [resert_data,...prev]);
+        //     } else if(msg?.code==remove_friend){
+        //         let resert_data = msg.result
+        //         setDatelist((prev) => [resert_data,...prev]);
+        //     }
             
-        });
-        const unsubscribeClose = Websocket.onClose(() => {
-            console.error("Disconnected from WS server! Allnotifications.js");
-        });
-        return () => {
-            unsubscribe();
-            unsubscribeClose();
-        };
+        // });
+        // const unsubscribeClose = Websocket.onClose(() => {
+        //     console.error("Disconnected from WS server! Allnotifications.js");
+        // });
+        // return () => {
+        //     unsubscribe();
+        //     unsubscribeClose();
+        // };
     },[]);
-    const sendMsg = () => {
-    Websocket.send({
-      type: "message",
-      text: "Hello from Allnotifications.js functional component!",
-    });
-  };
-    function onNewMessageSound() {
-        const audio = new Audio(`${WEBSITE_URL}/sound/Messenger_Notification.mp3`);
-        audio.play();
-    }
+//     const sendMsg = () => {
+//     Websocket.send({
+//       type: "message",
+//       text: "Hello from Allnotifications.js functional component!",
+//     });
+//   };
+  
     async function AllNotifications() {
         try {
             if (listloader) {
@@ -86,8 +81,8 @@ export default function Allnotifications(){
                 response = await response.json();
                 const data = response;
                 if (data.status == 200) {
-                    setDatelist((prev) => [...prev, ...data.result.list]);
-                    // setDatelist((dataid) => { return data.result.list });
+                    // setDatelist((prev) => [...prev, ...data.result.list]);
+                    setDatelist((dataid) => { return data.result.list });
                     settotal_rec((dataid) => { return data.result.total });
                     setlastpage((dataid) => { return data.result.lastpage });
                 } else {
@@ -147,16 +142,33 @@ export default function Allnotifications(){
             })
         }
     }
+    function Refresh(){
+        setcurrentpage(1);
+        setlimit(15);
+        AllNotifications();
+    }
     return (
         <>
-        <div className="container notifications-list">
+        <div className="container left-notifications-list">
 <div className="profile-container">
         <div className="row row-space-20">
     <div className="col-md-12">
                 <div className="tab-content p-0">
 
                     <div className="tab-pane fade active show" id="profile-friends">
-                        <div className="m-b-10"><b className='text-dark'>Notifications ({datalist.length})</b></div>
+                        <div className="m-b-10">
+                            <div className='row'>
+                                <div className='col-md-8'>
+ <b className='text-dark'>Notifications ({datalist.length})</b> 
+                                </div>
+                                <div className='col-md-4'>
+ <button type='button' className='btn btn-primary btn-sm All'>All</button>
+<button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>Refresh()} >Refresh</button>
+                                </div>
+                            </div>
+                       
+                       
+                        </div>
                        
  
                         {listloader==true ? <>
@@ -165,7 +177,7 @@ export default function Allnotifications(){
                             <span className="sr-only"></span>
                             </div>
                         </div>
-                        </> : <></>}
+                        </> : <>
                         <ul className={readstatusloader==true ? 'readstatusloader friend-list clearfix':'friend-list clearfix'}>
                             {datalist.map((item, index) => 
                              
@@ -193,7 +205,7 @@ export default function Allnotifications(){
                 </div>
             </a>
         </li>
-    : item.category == cencel_friend_request  ? 
+    : item.category == cancel_friend_request  ? 
          <li className='li-class' key={index} id={item._id}>
             <a 
             href="#"
@@ -202,7 +214,7 @@ export default function Allnotifications(){
                 ReadThis(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
-                <small className='cencel-request-text-color'>Cencel Friend Request</small><br/>
+                <small className='cencel-request-text-color'>Cancel Friend Request</small><br/>
                 <div className="friend-img">
                     {
                         item.from_user_file_view_path == "" ? 
@@ -226,7 +238,7 @@ export default function Allnotifications(){
                 ReadThis(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
-                <small className='accept-request-text-color'>Friend Request Accept</small><br/>
+                <small className='accept-request-text-color'>Friend Request Accepted</small><br/>
                 <div className="friend-img">
                     {
                         item.to_user_file_view_path == "" ? 
@@ -314,23 +326,48 @@ export default function Allnotifications(){
                 </div>
             </a>
         </li>
-    : item.category == 44  ?
+    : item.category == blog_post_status  ?
     <li className='li-class' key={index} id={item._id}>
+
             <a 
             href="#"
             onClick={(e) => {
                 e.preventDefault();
+                 ReadThis(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
-                <small className='reject-request-text-color'>New Notification</small><br/>
+                <small className='text-success'>New Bolg Post</small><br/>
                 <div className="friend-img">
-                     <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+                        item.blog_file_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                            :  
+                        <><img src={item.blog_file_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                    : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+                        item.blog_thumbnail_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                            :  
+                        <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                    : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+                        item.blog_thumbnail_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/>1</>
+                            :  
+                        <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                    : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+                        item.blog_thumbnail_view_path == "" ? 
+                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                            :  
+                        <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></> 
+                    : 
+                    <></> 
+                    }
                 </div>
                 <div className="friend-info text-left">
-                    <h4>Notification</h4>
+                    <h4>{item.from_user_name} post a new blog</h4>
                     <small>{item.created_at}</small>
                 </div>
             </a>
+
         </li>
     : 
     <></> 
@@ -341,6 +378,10 @@ export default function Allnotifications(){
                     }
                             
                         </ul>
+
+
+</>}
+
                     </div>
                 </div>
             </div>
