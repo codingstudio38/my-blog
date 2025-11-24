@@ -21,7 +21,7 @@ import swal from 'sweetalert';
     const [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
     let [search_name, setsearch_name] = useState('');
-
+const [disabled_sendrequest, setdisabled_sendrequest] = useState(false);
     useEffect(() => {
         document.title = "MERN Technology || User - Profile";
         // document.body.style.backgroundColor = "aliceblue";
@@ -165,6 +165,88 @@ import swal from 'sweetalert';
       MyFriends();
     }
  
+    async function RemoveFriend(row) {
+            try {
+                swal({
+                    title: "Are you sure?",
+                    // text: "Are you sure that you want to delete the recode?",
+                    icon: "warning",
+                    buttons: ["Cancel", "Yes"],
+                    dangerMode: true,
+                }).then(async (d) => {
+                    if (d) {
+                        let url = `${API_URL}/delete-friend`;
+                        let myform = JSON.stringify({requestid:row.friend_request._id,user_id:LOGIN_USER._id});
+                        let headers = {
+                            'Content-Type': 'application/json',
+                            'authorization': `Bearer ${LOGIN_USER.token}`,
+                        };
+                        setdisabled_sendrequest(true);
+                        let response = await Post_With_Htoken(myform, url, headers);
+                        setdisabled_sendrequest(false);
+                        if(response!==""){
+                            response = await response.json();
+                            const data = response;
+                            if (data.status == 200) {
+                                //  let newdatalist = datalist.map(item => {
+                                //     if (item._id === row._id) {
+                                //         return {
+                                //             ...item,
+                                //             friend_request:null,
+                                //             check_friend_request:0,
+                                //             is_friend:0,
+                                //         };
+                                //     }
+                                //     return item;
+                                // });
+                                // setDatelist((prev) => {return newdatalist});
+                                let newdatalist = datalist.filter(item => {
+                                    return item._id !== row._id;
+                                });
+                                setDatelist((prev) => {return newdatalist});
+                                swal({
+                                    title: `Success.`,
+                                    icon: "success",
+                                })
+                            }else if (data.status == 300) {
+                                //  let newdatalist = datalist.map(item => {
+                                //     if (item._id === row._id) {
+                                //         return {
+                                //             ...item,
+                                //             friend_request:null,
+                                //             check_friend_request:0,
+                                //             is_friend:0,
+                                //         };
+                                //     }
+                                //     return item;
+                                // });
+                                // setDatelist((prev) => {return newdatalist});
+                                 let newdatalist = datalist.filter(item => {
+                                    return item._id !== row._id;
+                                });
+                                setDatelist((prev) => {return newdatalist});
+                                swal({
+                                    title: `Not in friend list. May be already removed.`,
+                                    icon: "warning",
+                                })
+                            }else {
+                                swal({
+                                    title: `${data?.message}`,
+                                    icon: "warning",
+                                })
+                            }
+                        }
+                    }
+                    })
+            } catch (error) {
+                setdisabled_sendrequest(false);
+                swal({
+                    title: `Unknow error:- ${error.message}`,
+                    icon: "error",
+                })
+            }
+        }
+
     return (
         <>
             <div className="container profile">
@@ -277,6 +359,8 @@ import swal from 'sweetalert';
                     <div className="friend-info">
                       <h4>{item.name}</h4>
                       <p>{item.total_friend} friends</p>
+                      <button disabled={disabled_sendrequest?true : false} type="button" onClick={() => RemoveFriend(item)}  className="btn btn-warning">Remove</button>
+                      <button disabled={disabled_sendrequest?true : false} type="button" className="btn btn-primary ml-4">View Profile</button>
                     </div>
                   </a>
                 </li>

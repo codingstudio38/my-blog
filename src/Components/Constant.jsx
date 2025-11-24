@@ -101,6 +101,6 @@ export const decrypt = (encryptedData) => {
 export const Truncatetext = ({text='',maxLength=10}) => {
         const str = String(text);
         const max = Number(maxLength) || 100;
-        if (str.length <= max) return <p>{str}</p>;
+        if (str.length <= max) return str;
         return str.slice(0, max) + '...';
     }

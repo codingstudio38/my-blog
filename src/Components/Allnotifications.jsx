@@ -1,5 +1,5 @@
 import './../Css/AllNotifications.css';
-// import Websocket from "./../Services/WebSocketService";
+import Websocket from "./../Services/WebSocketService";
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Post_With_Htoken } from '../Services/Https.jsx';
@@ -26,40 +26,75 @@ export default function Allnotifications(){
                 return;
             }
             AllNotifications();
-        // const unsubscribe = Websocket.subscribe((msg) => {
-        //     if(msg?.code==new_friend_request){
-        //         let resert_data = msg.result
-        //         setDatelist((prev) => [resert_data,...prev]);
-        //     } else if(msg?.code==cancel_friend_request){
-        //         let resert_data = msg.result
-        //         setDatelist((prev) => [resert_data,...prev]);
-        //     } else if(msg?.code==accept_friend_request){
-        //         let resert_data = msg.result
-        //         setDatelist((prev) => [resert_data,...prev]);
-        //     } else if(msg?.code==reject_friend_request){
-        //         let resert_data = msg.result
-        //         setDatelist((prev) => [resert_data,...prev]);
-        //     } else if(msg?.code==remove_friend){
-        //         let resert_data = msg.result
-        //         setDatelist((prev) => [resert_data,...prev]);
-        //     }
+        const unsubscribe = Websocket.subscribe((msg) => {
+            if(msg?.code==new_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==cancel_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==accept_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==reject_friend_request){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            } else if(msg?.code==remove_friend){
+                let resert_data = msg.result
+                setDatelist((prev) => [resert_data,...prev]);
+            }else if(msg?.code==blog_post_status){
+                GetBlogNotification(msg.result)
+            }
             
-        // });
+        });
         // const unsubscribeClose = Websocket.onClose(() => {
         //     console.error("Disconnected from WS server! Allnotifications.js");
         // });
-        // return () => {
-        //     unsubscribe();
-        //     unsubscribeClose();
-        // };
+        return () => {
+            unsubscribe();
+            // unsubscribeClose();
+        };
     },[]);
-//     const sendMsg = () => {
-//     Websocket.send({
-//       type: "message",
-//       text: "Hello from Allnotifications.js functional component!",
-//     });
-//   };
-  
+    const sendMsg = () => {
+    Websocket.send({
+      type: "message",
+      text: "Hello from Allnotifications.js functional component!",
+    });
+  };
+  async function GetBlogNotification(blogid){
+        try {
+            let url = `${API_URL}/all-notifications?page=${currentpage}&limit=${limit}`;
+            let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:blogid});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setlistloader(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    // console.log(data);
+                    // console.log(data.result.total);
+                    if(data.result.total > 0){
+                        settotal_rec((pre) => { return pre+1 });
+                        setDatelist((prev) => [data.result.list[0],...prev]);
+                    }
+                } else {
+                    console.error('notifications->',{
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+        } catch (error) {
+            console.error('notifications->',{
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
     async function AllNotifications() {
         try {
             if (listloader) {

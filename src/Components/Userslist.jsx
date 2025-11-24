@@ -48,6 +48,7 @@ export default function Userslist(){
                   return false;
               }
               setlistloader(true);
+              setTimeout(async ()=>{
                   let url = `${API_URL}/my-friends?page=${currentpage}&limit=${limit}`;
                   let myform = JSON.stringify({user_id:LOGIN_USER._id,name:search_name});
                   let headers = {
@@ -71,7 +72,7 @@ export default function Userslist(){
                           })
                       }
                   }
-              
+                },1000);
           } catch (error) {
               setlistloader(false);
               swal({
@@ -119,6 +120,19 @@ export default function Userslist(){
                 )}
                             
                         </ul>
+                        {listloader==true ? <>
+                        <div className='text-center not-loader'>
+                            <div className="spinner-grow text-primary" role="status">
+                            <span className="sr-only"></span>
+                            </div>
+                        </div>
+                        </> :
+                        <>
+                        <div className='mt-1 text-center'>
+                            <button type='button' className='btn btn-sm btn-success'>Load more.</button>
+                        </div>
+                        </>
+                        }
                     </div>
                 </div>
             </div>

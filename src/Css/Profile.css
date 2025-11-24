@@ -315,3 +315,6 @@ body .profile  .fc-widget-header a {
     justify-content: center;
     width: 100%;
 }
+.profile .ml-4{
+    margin-left: 4px;
+}

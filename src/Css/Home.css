@@ -93,3 +93,6 @@ img{
     overflow: hidden;
     text-overflow: ellipsis; */
 }
+.blog-title{
+  font-size: inherit;
+}
