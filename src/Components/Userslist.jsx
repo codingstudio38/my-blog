@@ -1,6 +1,7 @@
 import './../Css/Userslist.css';
 import Websocket from "./../Services/WebSocketService";
-import { USER_DETAILS, API_URL,USER_LOGOUT } from './Constant.jsx';
+ 
+import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
@@ -22,11 +23,29 @@ export default function Userslist(){
         if (firstCall.current) {
                 firstCall.current = false;
                 return;
-            }
+            } 
             MyFriends();
         const unsubscribe = Websocket.subscribe((msg) => {
-            console.log("Received message in Userslist: from Userslist.js", msg);
-            setMessages((prev) => [...prev, msg]);
+            // console.log("Received message in Userslist: from Userslist.js", msg);
+            // setMessages((prev) => [...prev, msg]);
+            // if(msg?.code==remove_friend){
+            //     let resert_data = msg.result;
+            //     console.log(resert_data);
+            //     console.log('connected '+remove_friend,resert_data);
+            //     // remove_friend(resert_data)
+            //     // setDatelist((prev) => [resert_data,...prev]);
+            // } 
+            // else if(msg?.code==accept_friend_request){
+            //     // let resert_data = msg.result;
+            //     // setDatelist((prev) => [resert_data,...prev]);
+            // } else 
+            if(msg?.code==new_client){
+                let resert_data = msg.result;
+                userconnection(resert_data,new_client);
+            }else if(msg?.code==client_disconnected){
+                let resert_data = msg.result;
+                userconnection(resert_data,client_disconnected);
+            }
         });
         // const unsubscribeClose = Websocket.onClose(() => {
         //     console.error("Disconnected from WS server! Userslist.js");
@@ -42,6 +61,20 @@ export default function Userslist(){
       text: "Hello from Userslist.js functional component!",
     });
   };
+ function userconnection(user,status){
+    setDatelist((prev) => {
+         let newdatalist = prev.map(item => {
+            if (item._id === user) {
+                return {
+                    ...item,
+                    wsstatus:status==1000 ? 1 : 0,
+                };
+            }
+            return item;
+        });
+        return newdatalist;
+    });
+  }
    async function MyFriends() {
           try {
               if (listloader) {

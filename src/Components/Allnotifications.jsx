@@ -27,6 +27,7 @@ export default function Allnotifications(){
             }
             AllNotifications();
         const unsubscribe = Websocket.subscribe((msg) => {
+            // console.log(12212,msg);
             if(msg?.code==new_friend_request){
                 let resert_data = msg.result
                 setDatelist((prev) => [resert_data,...prev]);
@@ -43,6 +44,7 @@ export default function Allnotifications(){
                 let resert_data = msg.result
                 setDatelist((prev) => [resert_data,...prev]);
             }else if(msg?.code==blog_post_status){
+                // console.log('dsdsd',blog_post_status);
                 GetBlogNotification(msg.result)
             }
             
@@ -63,6 +65,7 @@ export default function Allnotifications(){
   };
   async function GetBlogNotification(blogid){
         try {
+            // console.log('blogid',blogid);
             let url = `${API_URL}/all-notifications?page=${currentpage}&limit=${limit}`;
             let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:blogid});
             let headers = {
@@ -74,10 +77,12 @@ export default function Allnotifications(){
             if(response!==""){
                 response = await response.json();
                 const data = response;
+                // console.log('data',data);
                 if (data.status == 200) {
                     // console.log(data);
                     // console.log(data.result.total);
                     if(data.result.total > 0){
+                        // console.log('ata.result',data.result);
                         settotal_rec((pre) => { return pre+1 });
                         setDatelist((prev) => [data.result.list[0],...prev]);
                     }

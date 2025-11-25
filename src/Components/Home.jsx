@@ -7,6 +7,7 @@ import Userslist from './Userslist.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
 import moment from "moment";
+import Allnotifications from './Allnotifications.jsx';
 function Home(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -106,8 +107,8 @@ function Home(){
         <>
         <div className="container-fluid">
             <div className="row">
-            <div className="col-md-3 text-center">
-               <h3>post list</h3>
+            <div className="col-md-3">
+               <Allnotifications/>
             </div>
             <div className="col-md-6 blog">
             {datalist.map((item, index) =>

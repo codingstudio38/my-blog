@@ -1,5 +1,6 @@
 import swal from 'sweetalert';
 import { WEBSITE_URL,USER_LOGOUT } from './../Components/Constant';
+import Websocket from "./../Services/WebSocketService";
 export async function Post_Without_Htoken(myform, url, headers) {
   // return new Promise((resolve, reject) => {
   //     try {
@@ -88,6 +89,7 @@ export async function Post_With_Htoken(myform, url, headers) {
         title: `401:- Unauthorized. ${response.statusText}!`,
         icon: "error",
       })
+      Websocket.disconnect();
       window.location.href=WEBSITE_URL;
       break;
     case 404:

@@ -13,14 +13,19 @@ import Adminindex from './Components/Index';
 import Profile from './Components/Profile';
 import Editprofile from './Components/Editprofile';
 import Websocket from './Services/WebSocketService';
-import React, { useEffect} from 'react';
+import React, { useEffect,useRef} from 'react';
 import {  USER_DETAILS } from './Components/Constant'
 import Findfriends from './Components/Findfriends'
 import Friendrquestsendlist from './Components/Friendrquestsendlist'
 import Newfriendrequestlist from './Components/Newfriendrequestlist'
 function App() {
+   const firstCall = useRef(true);
   const LOGIN_USER = USER_DETAILS()
    useEffect(() => {
+    if (firstCall.current) {
+        firstCall.current = false;
+        return;
+    }
     if (LOGIN_USER !== false) {
             Websocket.connect();
         }

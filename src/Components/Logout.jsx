@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { API_URL, USER_DETAILS, USER_LOGOUT } from './Constant';
 import { Post_With_Htoken } from './../Services/Https';
 import swal from 'sweetalert';
+import Websocket from "./../Services/WebSocketService";
 export default function Logout() {
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -38,6 +39,7 @@ export default function Logout() {
                         if (data.status == 200) {
                             USER_LOGOUT()
                             navigate('/');
+                            Websocket.disconnect();
                             swal({
                                 title: `You have successfully logged out!`,
                                 icon: "success",

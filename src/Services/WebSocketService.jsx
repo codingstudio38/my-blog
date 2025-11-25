@@ -5,7 +5,8 @@ let listeners = [];
 let closeListeners = [];
 let isConnected = false;
 let reconnectIn = 0;
-let connection= false;
+let isManualClose = false;
+let reconnectTimer = null;
 const connect = () => {
     const LOGIN_USER = USER_DETAILS();
   if (socket && socket.readyState === 1) {
@@ -14,25 +15,26 @@ const connect = () => {
   }
  
   socket = new W3CWebSocket(`${WS_URL}?Authorization=${LOGIN_USER._id ? LOGIN_USER._id : ""}`);
- 
+  isManualClose = false;
   socket.onopen = () => {
-    connection = true;
     isConnected = true;
     reconnectIn = 0;
+    clearTimeout(reconnectTimer);
     console.log("WebSocket connected");
   };
   socket.onclose = () => {
     closeListeners.forEach((cb) => cb());
     console.log("WebSocket disconnected..");
     isConnected = false;
-    connection = false;
-    if (!isConnected) {
-        setTimeout(connect(), 1000);
-        reconnectIn++;
-        console.warn('echo-protocol Client Closed! Trying to reconnect in '+reconnectIn+` sec.`, );
-        if (isConnected) {
-            connect('');
-        }
+    if (!isManualClose) {
+      if (!isConnected) {
+          reconnectTimer = setTimeout(connect(), 1000);
+          reconnectIn++;
+          console.warn('echo-protocol Client Closed! Trying to reconnect in '+reconnectIn+` sec.`, );
+          // if (isConnected) {
+          //     connect();
+          // }
+      }
     }
   };
   socket.onmessage = (msg) => {
@@ -67,9 +69,17 @@ const onClose = (callback) => {
   };
 };
  
+const disconnect = () => {
+  isManualClose = true;
+  reconnectIn=0;
+  clearTimeout(reconnectTimer);
+  socket.close();
+  socket = null;
+};
 export default {
   connect,
   send,
   subscribe,
-  onClose
+  onClose,
+  disconnect
 };

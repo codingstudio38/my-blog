@@ -120,9 +120,9 @@ background-color: #c9e0ff !important;
 }
 
 .Refresh{
-padding: 2px;
+padding: 2px !important;
 }
 .All{
-    padding: 1px;
-    width: 54px;
+    padding: 1px !important;
+    width: 54px !important;
 }
