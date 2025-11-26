@@ -1,7 +1,7 @@
 import './../Css/Findfriend.css';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_DETAILS, API_URL,Truncatetext } from './Constant.jsx';
+import { USER_DETAILS, API_URL,Truncatetext,call_auto_reload_friendlist } from './Constant.jsx';
 import Blogloader from './Blogloader.jsx';
 import Userslist from './Userslist.jsx';
 import Allnotifications from './Allnotifications.jsx';
@@ -302,6 +302,7 @@ export default function Newfriendrequestlist(){
                         response = await response.json();
                         const data = response;
                         if (data.status == 200) {
+                            call_auto_reload_friendlist();
                             let newdatalist = datalist.filter(item => {
                                     return item._id !== row._id;
                                 });

@@ -4,7 +4,7 @@ import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import $ from 'jquery';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFn,call_auto_read_notificationsFnHeader} from './Constant.jsx';
 export default function Allnotifications(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -25,6 +25,7 @@ export default function Allnotifications(){
                 firstCall.current = false;
                 return;
             }
+            subscribe_auto_read_notificationsFn(ReadThis)
             AllNotifications();
         const unsubscribe = Websocket.subscribe((msg) => {
             // console.log(12212,msg);
@@ -163,10 +164,14 @@ export default function Allnotifications(){
                 const data = response;
                 if (data.status == 200) {
                     // $(`#${row._id}`).fadeOut('slow');
-                  let newdatalist = datalist.filter((item) => {
-                        return item._id !== row._id;
+                    call_auto_read_notificationsFnHeader(row);
+                    setDatelist((prev) => {
+                           let newdatalist = prev.filter((item) => {
+                                return item._id !== row._id;
+                            });
+                        return newdatalist
                     });
-                    setDatelist((prev) => {return newdatalist});
+                    settotal_rec((pre) => { return pre-1 });
                 } else {
                     console.error('notifications->',{
                         title: `${data?.message}`,
@@ -199,7 +204,7 @@ export default function Allnotifications(){
                         <div className="m-b-10">
                             <div className='row'>
                                 <div className='col-md-8'>
- <b className='text-dark'>Notifications ({datalist.length})</b> 
+ <b className='text-dark'>Notifications ({total_rec})</b> 
                                 </div>
                                 <div className='col-md-4'>
  <button type='button' className='btn btn-primary btn-sm All'>All</button>

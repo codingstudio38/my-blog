@@ -1,7 +1,7 @@
 import './../Css/Userslist.css';
 import Websocket from "./../Services/WebSocketService";
  
-import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected} from './Constant.jsx';
+import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ export default function Userslist(){
      const firstCall = useRef(true);
     const [messages, setMessages] = useState([]);
     const LOGIN_USER = USER_DETAILS();
-    const [total_rec, settotal_rec] = useState(0);
+ 
  
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
@@ -19,27 +19,24 @@ export default function Userslist(){
     const [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
     let [search_name, setsearch_name] = useState('');
+    let [auto_reload_in, setauto_reload_in] = useState(3);
+    let [show_auto_reload_in, setshow_auto_reload_in] = useState(false);
+    let [auto_reloadsetInterval, setauto_reloadsetInterval] = useState(null);
+    let [disabled_loadermore_btn, setdisabled_loadermore_btn] = useState(false);
     useEffect(() => {
         if (firstCall.current) {
                 firstCall.current = false;
                 return;
             } 
+            subscribe_auto_reload_friendlist(auto_reload_inFn);
             MyFriends();
         const unsubscribe = Websocket.subscribe((msg) => {
-            // console.log("Received message in Userslist: from Userslist.js", msg);
-            // setMessages((prev) => [...prev, msg]);
-            // if(msg?.code==remove_friend){
-            //     let resert_data = msg.result;
-            //     console.log(resert_data);
-            //     console.log('connected '+remove_friend,resert_data);
-            //     // remove_friend(resert_data)
-            //     // setDatelist((prev) => [resert_data,...prev]);
-            // } 
-            // else if(msg?.code==accept_friend_request){
-            //     // let resert_data = msg.result;
-            //     // setDatelist((prev) => [resert_data,...prev]);
-            // } else 
-            if(msg?.code==new_client){
+            if(msg?.code==remove_friend){
+                let resert_data = msg.result;
+                remove_friend_from_lisr(resert_data);
+            } else if(msg?.code==accept_friend_request){
+                auto_reload_inFn();
+            } else if(msg?.code==new_client){
                 let resert_data = msg.result;
                 userconnection(resert_data,new_client);
             }else if(msg?.code==client_disconnected){
@@ -75,12 +72,50 @@ export default function Userslist(){
         return newdatalist;
     });
   }
+  function remove_friend_from_lisr(row){
+    setDatelist((prev) => {
+         let newdatalist = prev.filter(item => {
+            if(item._id == row.to){
+                return false;
+            } else if(item._id == row.from){
+                return false;
+            } else {
+                return true;
+            }
+        });
+        return newdatalist;
+    });
+    settotal_friend_rec((pre)=>{return pre-1});
+  }
+  
+function auto_reload_inFn() {
+    if (auto_reloadsetInterval) {
+        clearInterval(auto_reloadsetInterval);
+    }
+    if (!show_auto_reload_in) {
+        setshow_auto_reload_in(true);
+    }
+    const interval = setInterval(() => {
+        setauto_reload_in((prev) => {
+            if (prev === 0) {
+                RefreshMyFriends();
+                clearInterval(interval);
+                setshow_auto_reload_in(false);
+                return 3;   // reset value
+            }
+            return prev - 1; // countdown
+        });
+    }, 1000);
+
+    setauto_reloadsetInterval(interval);
+}
    async function MyFriends() {
           try {
               if (listloader) {
                   return false;
               }
               setlistloader(true);
+              setdisabled_loadermore_btn(true);
               setTimeout(async ()=>{
                   let url = `${API_URL}/my-friends?page=${currentpage}&limit=${limit}`;
                   let myform = JSON.stringify({user_id:LOGIN_USER._id,name:search_name});
@@ -90,6 +125,7 @@ export default function Userslist(){
                   };
                   let response = await Post_With_Htoken(myform, url, headers);
                   setlistloader(false);
+                  setdisabled_loadermore_btn(false);
                   if(response!==""){
                       response = await response.json();
                       const data = response;
@@ -107,7 +143,52 @@ export default function Userslist(){
                   }
                 },1000);
           } catch (error) {
+              setdisabled_loadermore_btn(false);
               setlistloader(false);
+              swal({
+                  title: `Unknow error:- ${error.message}`,
+                  icon: "error",
+              })
+          }
+      }
+
+      async function RefreshMyFriends() {
+        setlimit(12);
+        setcurrentpage(1);
+        setsearch_name('');
+          try {
+              if (listloader) {
+                  return false;
+              }
+              setdisabled_loadermore_btn(true);
+              setTimeout(async ()=>{
+                  let url = `${API_URL}/my-friends?page=${currentpage}&limit=${limit}`;
+                  let myform = JSON.stringify({user_id:LOGIN_USER._id,name:search_name});
+                  let headers = {
+                      'Content-Type': 'application/json',
+                      'authorization': `Bearer ${LOGIN_USER.token}`,
+                  };
+                  let response = await Post_With_Htoken(myform, url, headers);
+                  setdisabled_loadermore_btn(false);
+                  if(response!==""){
+                      response = await response.json();
+                      const data = response;
+                      if (data.status == 200) {
+                        //   console.log(data);
+                          setDatelist([]);
+                          setDatelist(data.result.list);
+                          settotal_friend_rec((dataid) => { return data.result.total });
+                          setlastpage((dataid) => { return data.result.lastpage });
+                      } else {
+                          swal({
+                              title: `${data?.message}`,
+                              icon: "warning",
+                          })
+                      }
+                  }
+                },1000);
+          } catch (error) {
+              setdisabled_loadermore_btn(false);
               swal({
                   title: `Unknow error:- ${error.message}`,
                   icon: "error",
@@ -124,8 +205,13 @@ export default function Userslist(){
 
                     <div className="tab-pane fade active show" id="profile-friends">
                         <div className="m-b-10"><b className='text-dark'>My Friend List ({total_friend_rec})</b></div>
+                        {show_auto_reload_in==true?
+                        <div className="m-b-10"><b className='text-dark'>Auto reload in {auto_reload_in} sec</b></div>
+                        :<></>
+                        }
+                        
 
-                        <ul className="friend-list clearfix">
+                        <ul className="friend-list clearfix" style={disabled_loadermore_btn ? {opacity:0.5} : {}}>
 
                              {datalist.map((item, index) => 
                 <li key={index}>
@@ -162,7 +248,8 @@ export default function Userslist(){
                         </> :
                         <>
                         <div className='mt-1 text-center'>
-                            <button type='button' className='btn btn-sm btn-success'>Load more.</button>
+                            {/* onClick={()=>auto_reload_inFn()} */}
+                            <button type='button' className='btn btn-sm btn-success' disabled={disabled_loadermore_btn ? true : false}>Load more.</button>
                         </div>
                         </>
                         }

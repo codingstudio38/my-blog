@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import Logout from './Logout';
 import Container from 'react-bootstrap/Container';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn} from './Constant.jsx';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavDropdown } from 'react-bootstrap';
@@ -27,6 +27,7 @@ export default function Header(){
                 firstCall.current = false;
                 return;
             }
+            subscribe_auto_read_notificationsFnHeader(ReadThisCallFromAllnotification)
             AllNotifications();
              const unsubscribe = Websocket.subscribe((msg) => {
                         if(msg?.code==new_friend_request){
@@ -159,11 +160,58 @@ export default function Header(){
                         const data = response;
                         if (data.status == 200) {
                             // $(`#${row._id}`).fadeOut('slow');
-                          let newdatalist = datalist.filter((item) => {
-                                return item._id !== row._id;
+                            call_auto_read_notificationsFn(row);
+                            setDatelist((prev) => {
+                                let newdatalist = prev.filter((item) => {
+                                        return item._id !== row._id;
+                                    });
+                                return newdatalist
                             });
                             settotal_rec((pre) => { return pre-1 });
-                            setDatelist((prev) => {return newdatalist});
+                        } else {
+                            console.error('notifications->',{
+                                title: `${data?.message}`,
+                                icon: "warning",
+                            })
+                        }
+                    }
+                } catch (error) {
+                    setreadstatusloader(false);
+                    console.error('notifications->',{
+                        title: `Unknow error:- ${error.message}`,
+                        icon: "error",
+                    })
+                }
+            }
+            async function ReadThisCallFromAllnotification(row) {
+                try {
+                    if(row.read_status > 0){
+                         return false;
+                    }
+                    if (readstatusloader) {
+                        return false;
+                    }
+                    setreadstatusloader(true);
+                    let url = `${API_URL}/read-notification`;
+                    let myform = JSON.stringify({id:row._id});
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    setreadstatusloader(false);
+                    if(response!==""){
+                        response = await response.json();
+                        const data = response;
+                        if (data.status == 200) {
+                            // $(`#${row._id}`).fadeOut('slow');
+                            setDatelist((prev) => {
+                                let newdatalist = prev.filter((item) => {
+                                        return item._id !== row._id;
+                                    });
+                                return newdatalist
+                            });
+                            settotal_rec((pre) => { return pre-1 });
                         } else {
                             console.error('notifications->',{
                                 title: `${data?.message}`,
