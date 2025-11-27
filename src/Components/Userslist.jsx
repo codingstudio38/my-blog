@@ -8,13 +8,14 @@ import { useNavigate,Link } from 'react-router-dom';
 import swal from 'sweetalert';
 export default function Userslist(){
      const firstCall = useRef(true);
+     const firstCallN = useRef(true);
     const [messages, setMessages] = useState([]);
     const LOGIN_USER = USER_DETAILS();
  
  
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
-    const [limit, setlimit] = useState(12);
+    const [limit, setlimit] = useState(10);
     const [total_friend_rec, settotal_friend_rec] = useState(0);
     const [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
@@ -29,7 +30,6 @@ export default function Userslist(){
                 return;
             } 
             subscribe_auto_reload_friendlist(auto_reload_inFn);
-            MyFriends();
         const unsubscribe = Websocket.subscribe((msg) => {
             if(msg?.code==remove_friend){
                 let resert_data = msg.result;
@@ -52,6 +52,13 @@ export default function Userslist(){
             // unsubscribeClose();
         };
     },[]);
+    useEffect(() => {
+        if (firstCallN.current) {
+                firstCallN.current = false;
+                return;
+            } 
+            MyFriends();
+    },[currentpage]);
     const sendMsg = () => {
     Websocket.send({
       type: "message",
@@ -109,6 +116,10 @@ function auto_reload_inFn() {
 
     setauto_reloadsetInterval(interval);
 }
+function LoadMore(){
+    setcurrentpage((pre)=>{return pre+1});
+    // MyFriends();
+}
    async function MyFriends() {
           try {
               if (listloader) {
@@ -153,7 +164,7 @@ function auto_reload_inFn() {
       }
 
       async function RefreshMyFriends() {
-        setlimit(12);
+        setlimit(10);
         setcurrentpage(1);
         setsearch_name('');
           try {
@@ -195,6 +206,12 @@ function auto_reload_inFn() {
               })
           }
       }
+      async function Refresh() {
+        setlimit(10);
+        setcurrentpage(1);
+        setsearch_name('');
+        setDatelist([]);
+      }
     return ( 
         <>
         <div className="container user-list">
@@ -204,7 +221,14 @@ function auto_reload_inFn() {
                 <div className="tab-content p-0">
 
                     <div className="tab-pane fade active show" id="profile-friends">
-                        <div className="m-b-10"><b className='text-dark'>My Friend List ({total_friend_rec})</b></div>
+                        <div className="m-b-10"><b className='text-dark'>My Friend List ({total_friend_rec}) </b> 
+                        <a href="#"  className='Refresh'
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    Refresh();
+                                }}
+                                >Refresh</a>
+                         </div>
                         {show_auto_reload_in==true?
                         <div className="m-b-10"><b className='text-dark'>Auto reload in {auto_reload_in} sec</b></div>
                         :<></>
@@ -215,7 +239,11 @@ function auto_reload_inFn() {
 
                              {datalist.map((item, index) => 
                 <li key={index}>
-                                <a href="#">
+                                <a href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                }}
+                                >
                                     <div className="friend-img">
                                          {
                                             item.user_file_dtl.filename == "" ? 
@@ -248,8 +276,10 @@ function auto_reload_inFn() {
                         </> :
                         <>
                         <div className='mt-1 text-center'>
-                            {/* onClick={()=>auto_reload_inFn()} */}
-                            <button type='button' className='btn btn-sm btn-success' disabled={disabled_loadermore_btn ? true : false}>Load more.</button>
+                            {
+                                currentpage == lastpage ? <></> : <><button type='button' className='btn btn-sm btn-success' disabled={disabled_loadermore_btn ? true : false} onClick={()=>LoadMore()}>Load more.</button></>
+                            }
+                            
                         </div>
                         </>
                         }

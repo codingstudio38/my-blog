@@ -31,18 +31,23 @@ export default function Allnotifications(){
             // console.log(12212,msg);
             if(msg?.code==new_friend_request){
                 let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
             } else if(msg?.code==cancel_friend_request){
                 let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
             } else if(msg?.code==accept_friend_request){
                 let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
             } else if(msg?.code==reject_friend_request){
                 let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
             } else if(msg?.code==remove_friend){
                 let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
             }else if(msg?.code==blog_post_status){
                 // console.log('dsdsd',blog_post_status);
@@ -142,7 +147,7 @@ export default function Allnotifications(){
             })
         }
     }
-    async function ReadThis(row) {
+    async function ReadThisNoti(row) {
         try {
             if(row.read_status > 0){
                  return false;
@@ -165,6 +170,50 @@ export default function Allnotifications(){
                 if (data.status == 200) {
                     // $(`#${row._id}`).fadeOut('slow');
                     call_auto_read_notificationsFnHeader(row);
+                    setDatelist((prev) => {
+                           let newdatalist = prev.filter((item) => {
+                                return item._id !== row._id;
+                            });
+                        return newdatalist
+                    });
+                    settotal_rec((pre) => { return pre-1 });
+                } else {
+                    console.error('notifications->',{
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+        } catch (error) {
+            setreadstatusloader(false);
+            console.error('notifications->',{
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function ReadThis(row) {
+        try {
+            if(row.read_status > 0){
+                 return false;
+            }
+            if (readstatusloader) {
+                return false;
+            }
+            setreadstatusloader(true);
+            let url = `${API_URL}/read-notification`;
+            let myform = JSON.stringify({id:row._id});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+            setreadstatusloader(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    // $(`#${row._id}`).fadeOut('slow');
                     setDatelist((prev) => {
                            let newdatalist = prev.filter((item) => {
                                 return item._id !== row._id;
@@ -232,7 +281,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='new-request-text-color'>New Friend Request</small><br/>
@@ -256,7 +305,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='cencel-request-text-color'>Cancel Friend Request</small><br/>
@@ -280,7 +329,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='accept-request-text-color'>Friend Request Accepted</small><br/>
@@ -304,7 +353,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='reject-request-text-color'>Friend Request Rejected</small><br/>
@@ -329,7 +378,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='reject-request-text-color'>Remove Friend</small><br/>
@@ -353,7 +402,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                ReadThis(item);
+                ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='reject-request-text-color'>Remove Friend</small><br/>
@@ -378,7 +427,7 @@ export default function Allnotifications(){
             href="#"
             onClick={(e) => {
                 e.preventDefault();
-                 ReadThis(item);
+                 ReadThisNoti(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='text-success'>New Bolg Post</small><br/>

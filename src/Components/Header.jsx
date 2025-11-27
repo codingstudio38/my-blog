@@ -140,6 +140,7 @@ export default function Header(){
         }
         async function ReadThis(row) {
                 try {
+                    console.log(1111,'Header.jsx');
                     if(row.read_status > 0){
                          return false;
                     }
