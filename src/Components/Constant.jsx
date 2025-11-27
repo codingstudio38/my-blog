@@ -139,3 +139,15 @@ export const call_auto_read_notificationsFnHeader = (data) => {
   auto_read_notificationsForn.forEach((cb) => cb(data))
   return true;
 };
+
+var auto_refresh_notifications = [];
+export const subscribe_auto_refresh_notifications = (callback) => {
+  auto_refresh_notifications.push(callback);
+  return () => {
+    auto_read_notificationsForn = auto_read_notificationsForn.filter((fn) => fn !== callback);
+  };
+};
+export const call_auto_refresh_notifications = () => {
+  auto_refresh_notifications.forEach((cb) => cb())
+  return true;
+};

@@ -8,20 +8,18 @@ import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
 import moment from "moment";
 import Allnotifications from './Allnotifications.jsx';
-function Home(){
+import { useParams } from "react-router-dom";
+function Blogdetails(){
+    const { id } = useParams();
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
     const firstCall = useRef(true);
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
-    const [limit, setlimit] = useState(5);
-    const [total_rec, settotal_rec] = useState(0);
-    const [currentpage, setcurrentpage] = useState(1);
-    const [lastpage, setlastpage] = useState(1);
-    const [current_scroll_position, setCurrent_scroll_position] = useState(0);
-    const [pre_scroll_position, setPre_scroll_position] = useState(0);
+    
+     
     useEffect(() => {
-            document.title = "MERN Technology || Blogs";
+            document.title = "MERN Technology || Blog Details";
             if (LOGIN_USER === false) {
                 navigate('/');
                 return;
@@ -30,35 +28,11 @@ function Home(){
                 firstCall.current = false;
                 return;
             }
+            // console.log(id);
             Allblogs();
-        }, [currentpage]);
+        }, []);
 
-     useEffect(() => {
-        window.addEventListener("scroll", handelInfiniteScroll);
-        return () => window.removeEventListener("scroll", handelInfiniteScroll);
-    }, [current_scroll_position, listloader, pre_scroll_position]);
-    const handelInfiniteScroll = async () => {
-        setCurrent_scroll_position((pre) => {
-            return document.documentElement.scrollTop;
-        });
-        // console.clear();
-        try {
-            if ((window.innerHeight + document.documentElement.scrollTop + 1) > document.documentElement.scrollHeight) {
-                if (currentpage < lastpage) {
-                    if (!listloader) {
-                        if (current_scroll_position > pre_scroll_position) {
-                            let nextPage = currentpage === 1 ? 2 : currentpage + 1;
-                            setcurrentpage(nextPage);
-                            setPre_scroll_position(document.documentElement.scrollTop);
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.log(error.message);
-            return false;
-        }
-    };
+     
     async function Allblogs() {
         try {
             if (listloader) {
@@ -66,8 +40,8 @@ function Home(){
             }
             setlistloader(true);
             setTimeout(async ()=>{
-                let url = `${API_URL}/all-blogs?page=${currentpage}&limit=${limit}`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,title:''});
+                let url = `${API_URL}/blog-byalias/${id}`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,id:id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -78,11 +52,11 @@ function Home(){
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        // console.log(data);
-                        setDatelist((prev) => [...prev, ...data.result.list]);
-                        // setDatelist((dataid) => { return data.result.list });
-                        settotal_rec((dataid) => { return data.result.total });
-                        setlastpage((dataid) => { return data.result.lastpage });
+                        if( data.result.total > 0){
+                            setDatelist((pre)=>{
+                                return data.result.result;
+                            });
+                        }
                     } else {
                         swal({
                             title: `${data?.message}`,
@@ -99,13 +73,8 @@ function Home(){
             })
         }
     }
-    function changePage(page){
-        setcurrentpage(page)
-    }
-    function BlogDetails(row){
-         navigate(`/web/blog-details/${row.content_alias}`);
-         return true;
-    }
+     
+
     return (
         <>
         <div className="container-fluid">
@@ -156,12 +125,7 @@ function Home(){
                         <div className='sort-desc'>
                             <Truncatetext text={item.sort_description} maxLength={200} />
                         </div>
-                        <a href="" 
-                         onClick={(e) => {
-                            e.preventDefault();
-                            BlogDetails(item);
-                        }}
-                        >Read More</a>
+                        <a href="">Read More</a>
                         </section>
             )
         }    
@@ -176,4 +140,4 @@ function Home(){
     )
 }
 
-export default Home;
+export default Blogdetails;

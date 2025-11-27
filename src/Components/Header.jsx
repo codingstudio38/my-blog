@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import Logout from './Logout';
 import Container from 'react-bootstrap/Container';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications} from './Constant.jsx';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavDropdown } from 'react-bootstrap';
@@ -28,6 +28,7 @@ export default function Header(){
                 return;
             }
             subscribe_auto_read_notificationsFnHeader(ReadThisCallFromAllnotification)
+            subscribe_auto_refresh_notifications(Refresh)
             AllNotifications();
              const unsubscribe = Websocket.subscribe((msg) => {
                         if(msg?.code==new_friend_request){
@@ -138,6 +139,12 @@ export default function Header(){
                 })
             }
         }
+        function BlogDetails(row){
+            if(row.remove_byid!==""){
+                navigate(`/web/blog-details/${row.remove_byid}`);
+            }
+            return true;
+        }
         async function ReadThis(row) {
                 try {
                     console.log(1111,'Header.jsx');
@@ -238,7 +245,7 @@ export default function Header(){
             <Container>
                 <Nav className="me-auto">
                     <NavLink className={"navlink"} to="/web/home">Home</NavLink>
-                    <NavLink className={"navlink"} to="/web/create-blog">My blog</NavLink>
+                    <NavLink className={"navlink"} to="/web/create-blog">New BLog</NavLink>
                     <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink>
                     <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
                     <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Send Request Status List</NavLink>
@@ -253,7 +260,7 @@ export default function Header(){
                   <li className="nav-item dropdown notification-ui show">
                     <div className="dropdown-menu notification-ui_dd show" aria-labelledby="navbarDropdown">
                       <div className="notification-ui_dd-header">
-                        <h3 className="text-center">Notification <button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>Refresh()}  >Refresh</button></h3> 
+                        <h3 className="text-center">Notification <button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>{Refresh();call_auto_refresh_notifications()}}  >Refresh</button></h3> 
                         
                       </div>
                       {listloader==true ? <>
@@ -455,6 +462,7 @@ item.category == new_friend_request ?
             onClick={(e) => {
                 e.preventDefault();
                 ReadThis(item);
+                BlogDetails(item);
             }}
             key={index}
             className={item.read_status <= 0 ? 'notification-list notification-list--unread':'notification-list'}>

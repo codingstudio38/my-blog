@@ -4,7 +4,7 @@ import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import $ from 'jquery';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFn,call_auto_read_notificationsFnHeader} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFn,call_auto_read_notificationsFnHeader,subscribe_auto_refresh_notifications,call_auto_refresh_notifications} from './Constant.jsx';
 export default function Allnotifications(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -26,6 +26,7 @@ export default function Allnotifications(){
                 return;
             }
             subscribe_auto_read_notificationsFn(ReadThis)
+            subscribe_auto_refresh_notifications(RefreshNotification)
             AllNotifications();
         const unsubscribe = Websocket.subscribe((msg) => {
             // console.log(12212,msg);
@@ -105,6 +106,12 @@ export default function Allnotifications(){
                 icon: "error",
             })
         }
+    }
+    function BlogDetails(row){
+          if(row.remove_byid!==""){
+                navigate(`/web/blog-details/${row.remove_byid}`);
+            }
+         return true;
     }
     async function AllNotifications() {
         try {
@@ -236,7 +243,7 @@ export default function Allnotifications(){
             })
         }
     }
-    function Refresh(){
+    function RefreshNotification(){
         setcurrentpage(1);
         setlimit(15);
         AllNotifications();
@@ -257,7 +264,7 @@ export default function Allnotifications(){
                                 </div>
                                 <div className='col-md-4'>
  <button type='button' className='btn btn-primary btn-sm All'>All</button>
-<button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>Refresh()} >Refresh</button>
+<button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>{RefreshNotification();call_auto_refresh_notifications()}} >Refresh</button>
                                 </div>
                             </div>
                        
@@ -428,6 +435,7 @@ export default function Allnotifications(){
             onClick={(e) => {
                 e.preventDefault();
                  ReadThisNoti(item);
+                 BlogDetails(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='text-success'>New Bolg Post</small><br/>

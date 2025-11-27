@@ -18,6 +18,7 @@ export default function Createblog() {
     const [datalist, setDatelist] = useState([]);
     const [limit, setlimit] = useState(5);
     const [total_rec, settotal_rec] = useState(0);
+    const [file_type, setfile_type] = useState('image/*');
 
     const [blog_details, setBdetails] = useState({
         "id":"",
@@ -305,6 +306,11 @@ export default function Createblog() {
                             "edit_thumbnail":blog.thumbnail,
                         }
                     })
+                    if(blog.blog_type=='691beef0c2cfd41cc117ef70'){
+                        setfile_type('image/*');
+                    } else {
+                        setfile_type('video/*,.mkv');
+                    }
                     if (childRef.current) {
                         childRef.current.setckeditor('editor',blog.content);
                     }
@@ -428,7 +434,16 @@ async function BlogCetegoryList() {
             })
         }
     }
-  
+
+    function chenge_blog_type(e){
+ setBdetails({ ...blog_details, blog_type: e}); 
+        if(e=='691beef0c2cfd41cc117ef70'){
+            setfile_type('image/*');
+        } else {
+            setfile_type('video/*,.mkv');
+        }
+
+    }
     return (
         <>
            
@@ -444,7 +459,7 @@ async function BlogCetegoryList() {
                                             <h6 className="mb-0">Blog Type</h6>
                                         </div>
                                         <div className="col-md-9 pe-5">
-                                        <select value={blog_details.blog_type} id='blog_type' name='blog_type' onChange={(e) => setBdetails({ ...blog_details, blog_type: e.target.value })} className="form-select form-select-lg">
+                                        <select value={blog_details.blog_type} id='blog_type' name='blog_type' onChange={(e) =>{chenge_blog_type(e.target.value)}} className="form-select form-select-lg">
                                             <option value="">Type</option>
                                             {category.map((city,key) => (
                                             <option key={key} value={city._id}>
@@ -483,12 +498,12 @@ async function BlogCetegoryList() {
                                     <hr className="mx-n3" />
                                     <div className="row align-items-center py-3">
                                         <div className="col-md-3 ps-5">
-                                            <h6 className="mb-0">Upload Photo</h6>
+                                            <h6 className="mb-0">Upload File</h6>
                                         </div>
                                         <div className="col-md-9 pe-5">
                                             <div className='row'>
                                                 <div className="col-md-8">
-                                                    <input className="form-control form-control-lg" id="photo" type="file" accept="image/*" onChange={(e) => UploadPhoto(e)} disabled={loader == true ? "disabled" : null} />
+                                                    <input className="form-control form-control-lg" id="photo" type="file" accept={file_type} onChange={(e) => UploadPhoto(e)} disabled={loader == true ? "disabled" : null} />
                                                     <div className="small text-muted mt-2">Allow only images. Max file size 2 MB</div>
                                                 </div>
                                                 <div className="col-md-4">

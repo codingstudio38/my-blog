@@ -17,7 +17,7 @@ export default function Userslist(){
     const [datalist, setDatelist] = useState([]);
     const [limit, setlimit] = useState(10);
     const [total_friend_rec, settotal_friend_rec] = useState(0);
-    const [currentpage, setcurrentpage] = useState(1);
+    let [currentpage, setcurrentpage] = useState(1);
     const [lastpage, setlastpage] = useState(1);
     let [search_name, setsearch_name] = useState('');
     let [auto_reload_in, setauto_reload_in] = useState(3);
@@ -208,9 +208,11 @@ function LoadMore(){
       }
       async function Refresh() {
         setlimit(10);
+        currentpage = 1;
         setcurrentpage(1);
         setsearch_name('');
         setDatelist([]);
+        MyFriends();
       }
     return ( 
         <>
