@@ -245,7 +245,7 @@ export default function Header(){
             <Container>
                 <Nav className="me-auto">
                     <NavLink className={"navlink"} to="/web/home">Home</NavLink>
-                    <NavLink className={"navlink"} to="/web/create-blog">New BLog</NavLink>
+                    <NavLink className={"navlink"} to="/web/create-blog">New Blog</NavLink>
                     <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink>
                     <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
                     <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Send Request Status List</NavLink>
@@ -282,7 +282,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                     {
                     item.from_user_file_view_path == "" ?
-                    <><img src='/images/image-not-found.png' title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
                     </>
                     :
                     <><img src={item.from_user_file_view_path} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
@@ -296,7 +296,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                     {
                     item.to_user_file_view_path == "" ?
-                    <><img src='/images/image-not-found.png' title={item.to_user_name} alt={item.to_user_name}
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name} alt={item.to_user_name}
                             loading="lazy" /></>
                     :
                     <><img src={item.to_user_file_view_path} title={item.to_user_name} alt={item.to_user_name}
@@ -314,7 +314,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                     {
                     item.from_user_file_view_path == "" ?
-                    <><img src='/images/image-not-found.png' title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
                     </>
                     :
                     <><img src={item.from_user_file_view_path} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
@@ -328,7 +328,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                     {
                     item.to_user_file_view_path == "" ?
-                    <><img src='/images/image-not-found.png' title={item.to_user_name} alt={item.to_user_name}
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name} alt={item.to_user_name}
                             loading="lazy" /></>
                     :
                     <><img src={item.to_user_file_view_path} title={item.to_user_name} alt={item.to_user_name}
@@ -346,7 +346,7 @@ item.category == new_friend_request ?
                     <div className="notification-list_img">
                         {
                         item.to_user_file_view_path == "" ?
-                        <><img src='/images/image-not-found.png' title={item.to_user_name} alt={item.to_user_name} loading="lazy" />
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name} alt={item.to_user_name} loading="lazy" />
                         </>
                         :
                         <><img src={item.to_user_file_view_path} title={item.to_user_name} alt={item.to_user_name} loading="lazy" />
@@ -360,7 +360,7 @@ item.category == new_friend_request ?
                     <div className="notification-list_feature-img">
                         {
                         item.from_user_file_view_path == "" ?
-                        <><img src='/images/image-not-found.png' title={item.from_user_name} alt={item.from_user_name}
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name} alt={item.from_user_name}
                                 loading="lazy" /></>
                         :
                         <><img src={item.from_user_file_view_path} title={item.from_user_name} alt={item.from_user_name}
@@ -379,7 +379,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                 {
                     item.to_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                 }
@@ -391,7 +391,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                 {
                     item.from_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                 }
@@ -409,7 +409,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                 {
                     item.from_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                 }
@@ -421,7 +421,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                 {
                     item.to_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                 }
@@ -438,7 +438,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                 {
                     item.to_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                 }
@@ -450,7 +450,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                 {
                     item.from_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                 }
@@ -469,7 +469,7 @@ item.category == new_friend_request ?
                 <div className="notification-list_img">
                 {
                     item.from_user_file_view_path == "" ? 
-                    <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                         :  
                     <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                 }
@@ -481,22 +481,22 @@ item.category == new_friend_request ?
                 <div className="notification-list_feature-img">
                     {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                         item.blog_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_file_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/>1</>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/>1</>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></> 
                     : 

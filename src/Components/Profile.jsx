@@ -1,11 +1,12 @@
 import './../Css/Profile.css';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
-import { USER_DETAILS, API_URL,USER_LOGOUT,Truncatetext } from './Constant.jsx';
+import { USER_DETAILS, API_URL,USER_LOGOUT,Truncatetext ,WEBSITE_URL} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
  import moment from "moment";
  import { Pagination } from 'antd';
+ import VideoCard from './VideoCard.jsx';
  export default function Profile() {
   const firstCall = useRef(true);
   const firstCallcheck = useRef(true);
@@ -551,7 +552,7 @@ import swal from 'sweetalert';
             FRIENDS
           </a>
         </li>
-      </ul>
+      </ul>           
     </div>
     <div className="profile-container">
       <div className="row row-space-20">
@@ -576,24 +577,24 @@ import swal from 'sweetalert';
                 <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
                       :  
                   <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
               : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/>1</>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></> 
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
               : 
               <></> 
               }
@@ -637,24 +638,24 @@ import swal from 'sweetalert';
                 <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
                       :  
                   <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
               : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/>1</>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></> 
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
               : 
               <></> 
               }
@@ -698,24 +699,24 @@ import swal from 'sweetalert';
                 <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
                       :  
                   <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
               : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/>1</>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></> 
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
               : 
               <></> 
               }
@@ -759,24 +760,24 @@ import swal from 'sweetalert';
                 <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
                       :  
                   <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
               : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/>1</>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
               : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.thumbnail_dtl.filesize == "" ? 
-                  <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+                  item.file_dtl.file_view_path == "" ? 
+                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
                       :  
-                  <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></> 
+                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
               : 
               <></> 
               }
@@ -820,7 +821,7 @@ import swal from 'sweetalert';
                     <div className="friend-img">
                       {
                         item.user_file_dtl.filename == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.name}  alt={item.name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.name}  alt={item.name} loading="lazy"/></>
                             :  
                         <><img src={item.user_file_dtl.file_view_path} title={item.name}  alt={item.name} loading="lazy"/></>
                     }

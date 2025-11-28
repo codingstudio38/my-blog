@@ -295,7 +295,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.from_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                     }
@@ -319,7 +319,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.from_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                     }
@@ -343,7 +343,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.to_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                     }
@@ -367,7 +367,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.to_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                     }
@@ -392,7 +392,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.from_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
                     }
@@ -416,7 +416,7 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {
                         item.to_user_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                             :  
                         <><img src={item.to_user_file_view_path} title={item.to_user_name}  alt={item.to_user_name} loading="lazy"/></>
                     }
@@ -442,22 +442,22 @@ export default function Allnotifications(){
                 <div className="friend-img">
                     {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                         item.blog_file_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_file_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/>1</>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/>1</>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                     : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
                         item.blog_thumbnail_view_path == "" ? 
-                        <><img src='/images/image-not-found.png' title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></>
                             :  
                         <><img src={item.blog_thumbnail_view_path} title={item.blog_title}  alt={item.blog_title} loading="lazy"/></> 
                     : 

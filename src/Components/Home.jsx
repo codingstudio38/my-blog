@@ -1,13 +1,14 @@
 import './../Css/Home.css';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_DETAILS, API_URL,Truncatetext } from './Constant.jsx';
+import { USER_DETAILS, API_URL,Truncatetext,decrypt,encrypt,WEBSITE_URL } from './Constant.jsx';
 import Blogloader from './Blogloader.jsx';
 import Userslist from './Userslist.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import swal from 'sweetalert';
 import moment from "moment";
 import Allnotifications from './Allnotifications.jsx';
+import VideoCard from './VideoCard.jsx';
 function Home(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -120,31 +121,31 @@ function Home(){
                         <div className='blog-image'>
 {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
     item.file_dtl.filesize == "" ? 
-    <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
         :  
     <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
 : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-    item.thumbnail_dtl.filesize == "" ? 
-    <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+    item.file_dtl.file_view_path == "" ? 
+    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
         :  
-    <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
 : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-    item.thumbnail_dtl.filesize == "" ? 
-    <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/>1</>
+    item.file_dtl.file_view_path == "" ? 
+    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
         :  
-    <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></>
+    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
 : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-    item.thumbnail_dtl.filesize == "" ? 
-    <><img src='/images/image-not-found.png' title={item.title} loading="lazy"/></>
+    item.file_dtl.file_view_path == "" ? 
+    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
         :  
-    <><img src={item.thumbnail_dtl.file_view_path} title={item.title} loading="lazy"/></> 
+    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
 : 
 <></> 
 }
 </div>
                         <div className="user">
                             {item.user_file_dtl.filesize == "" ? 
-                            <><img src='/images/no-profile-picture-15257.png' loading="lazy"/></>
+                            <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
                                 :  
                             <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
                             }
