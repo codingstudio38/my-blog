@@ -250,6 +250,7 @@ export default function Header(){
                     <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
                     <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Send Request Status List</NavLink>
                     <NavLink className={"navlink"} to="/web/new-friend-request-list">New Friend Request List</NavLink>
+                    <NavLink className={"navlink"} to="/web/chat">Chat</NavLink>
                 </Nav>
                 {
                     LOGIN_USER!==false?

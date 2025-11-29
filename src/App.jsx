@@ -19,6 +19,7 @@ import Findfriends from './Components/Findfriends';
 import Friendrquestsendlist from './Components/Friendrquestsendlist';
 import Newfriendrequestlist from './Components/Newfriendrequestlist';
 import Blogdetails from './Components/Blogdetails';
+import Chatlist from './Components/Chatlist';
 function App() {
    const firstCall = useRef(true);
   const LOGIN_USER = USER_DETAILS()
@@ -39,13 +40,14 @@ function App() {
           <Route path='register' element={<Register />} />
           <Route path='/web' element={<Protected Component={Adminindex} />}>
             <Route path='home' element={<Protected Component={Home} />} />
-             <Route path='blog-details/:id' element={<Protected Component={Blogdetails} />} />
+            <Route path='blog-details/:id' element={<Protected Component={Blogdetails} />} />
             <Route path='create-blog' element={<Protected Component={Createblog} />} />
             <Route path='my-profile' element={<Protected Component={Profile} />} />
             <Route path='edit-profile' element={<Protected Component={Editprofile} />} />
             <Route path='find-friends' element={<Protected Component={Findfriends} />} />
             <Route path='friend-rquest-send-list' element={<Protected Component={Friendrquestsendlist} />} />
             <Route path='new-friend-request-list' element={<Protected Component={Newfriendrequestlist} />} />
+            <Route path='chat' element={<Protected Component={Chatlist} />} />
           </Route>
           <Route path='*' element={<Page404 />} />
         </Routes>

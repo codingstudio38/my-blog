@@ -6,7 +6,8 @@ import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,n
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
 import swal from 'sweetalert';
-export default function Userslist(){
+import $ from 'jquery';
+export default function Userslist(props){
      const firstCall = useRef(true);
      const firstCallN = useRef(true);
     const [messages, setMessages] = useState([]);
@@ -164,6 +165,7 @@ function LoadMore(){
       }
 
       async function RefreshMyFriends() {
+        $('.name-search').val('');
         setlimit(10);
         setcurrentpage(1);
         setsearch_name('');
@@ -207,13 +209,27 @@ function LoadMore(){
           }
       }
       async function Refresh() {
+        $('.name-search').val('');
         setlimit(10);
         currentpage = 1;
         setcurrentpage(1);
-        setsearch_name('');
+        search_name='';
+        setsearch_name((pre)=>{ return ""; });
         setDatelist([]);
         MyFriends();
       }
+      async function Search() {
+        setlimit(10);
+        currentpage = 1;
+        setcurrentpage(1);
+        setDatelist([]);
+        MyFriends();
+    }
+    function CurrentUser(user){
+        if(props.getuser){
+            props.getuser(user);
+        }
+    }
     return ( 
         <>
         <div className="container user-list">
@@ -236,7 +252,14 @@ function LoadMore(){
                         :<></>
                         }
                         
-
+                        <div className='row'>
+                            <div className='col-md-8'>
+                                <input type='text' className='name-search' placeholder='Search Name' onKeyUp={(e)=>{setsearch_name(e.target.value)}} />
+                            </div>
+                            <div className='col-md-4'>
+                                <button className='btn btn-sm btn-primary' type='button' onClick={()=>Search()}>Search</button>
+                            </div>
+                        </div>
                         <ul className="friend-list clearfix" style={disabled_loadermore_btn ? {opacity:0.5} : {}}>
 
                              {datalist.map((item, index) => 
@@ -244,6 +267,7 @@ function LoadMore(){
                                 <a href="#"
                                 onClick={(e) => {
                                     e.preventDefault();
+                                    CurrentUser(item)
                                 }}
                                 >
                                     <div className="friend-img">
@@ -277,12 +301,16 @@ function LoadMore(){
                         </div>
                         </> :
                         <>
-                        <div className='mt-1 text-center'>
-                            {
-                                currentpage == lastpage ? <></> : <><button type='button' className='btn btn-sm btn-success' disabled={disabled_loadermore_btn ? true : false} onClick={()=>LoadMore()}>Load more.</button></>
+                            { 
+                            total_friend_rec > 0 ?
+                                <div className='mt-1 text-center'>
+                                    {
+                                        currentpage == lastpage ? <></> : <><button type='button' className='btn btn-sm btn-success' disabled={disabled_loadermore_btn ? true : false} onClick={()=>LoadMore()}>Load more.</button></>
+                                    }
+                                </div>
+                            :
+                            <></>
                             }
-                            
-                        </div>
                         </>
                         }
                     </div>
