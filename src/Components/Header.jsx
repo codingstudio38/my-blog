@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import Logout from './Logout';
 import Container from 'react-bootstrap/Container';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message} from './Constant.jsx';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavDropdown } from 'react-bootstrap';
@@ -53,6 +53,10 @@ export default function Header(){
                             setDatelist((prev) => [resert_data,...prev]);
                         }else if(msg?.code==blog_post_status){
                             GetBlogNotification(msg.result)
+                        }else if(msg?.code==new_chat_message){
+                            let resert_data = msg.result
+                            settotal_rec((pre) => { return pre+1 });
+                            setDatelist((prev) => [resert_data,...prev]);
                         }
                         
                     });
@@ -147,7 +151,6 @@ export default function Header(){
         }
         async function ReadThis(row) {
                 try {
-                    console.log(1111,'Header.jsx');
                     if(row.read_status > 0){
                          return false;
                     }
@@ -506,7 +509,39 @@ item.category == new_friend_request ?
                
                 </div>
             </div>
-    : 
+    :item.category == new_chat_message  ?
+            <div onClick={(e)=> {
+            e.preventDefault();
+            ReadThis(item);
+            }}
+            key={index}
+            className={item.read_status <= 0 ? 'notification-list notification-list--unread' :'notification-list'}>
+                <div className="notification-list_img">
+                    {
+                    item.from_user_file_view_path == "" ?
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    </>
+                    :
+                    <><img src={item.from_user_file_view_path} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    </>
+                    }
+                </div>
+                <div className="notification-list_detail">
+                    <p><b className='text-primary'>{item.from_user_name}</b> {item.text}</p>
+                    <p><small>{item.created_at}</small></p>
+                </div>
+                <div className="notification-list_feature-img">
+                    {
+                    item.to_user_file_view_path == "" ?
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.to_user_name} alt={item.to_user_name}
+                            loading="lazy" /></>
+                    :
+                    <><img src={item.to_user_file_view_path} title={item.to_user_name} alt={item.to_user_name}
+                            loading="lazy" /></>
+                    }
+                </div>
+        </div>
+        : 
     <></>
  )
                     }

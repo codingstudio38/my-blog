@@ -1,13 +1,14 @@
 import './../Css/chat-box.css';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { API_URL, WEBSITE_PUBLIC, API_STORAGE_URL, USER_DETAILS, SET_LOCAL, GET_LOCAL, REMOVE_LOCAL } from './Constant';
+import { API_URL, WEBSITE_PUBLIC, API_STORAGE_URL, USER_DETAILS, SET_LOCAL, GET_LOCAL, REMOVE_LOCAL, new_chat_message } from './Constant';
 import Messagefilefilter from './Messagefilefilter';
 import $ from 'jquery';
 import Userslist from './Userslist.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 // import { WebsocketController } from './WebsocketController';
 // import { w3cwebsocket } from "websocket";
+import Websocket from "./../Services/WebSocketService";
 import swal from 'sweetalert';
 function Chatlist() {
     const navigate = useNavigate();
@@ -52,6 +53,20 @@ function Chatlist() {
             navigate('./../../');
             return;
         }
+        const unsubscribe = Websocket.subscribe((msg) => {
+            if (msg?.code == new_chat_message) {
+                let resert_data = msg.chat
+                getNewmessage(resert_data)
+            }
+        });
+        // const unsubscribeClose = Websocket.onClose(() => {
+        //     console.error("Disconnected from WS server! Allnotifications.js");
+        // });
+        return () => {
+            unsubscribe();
+            // unsubscribeClose();
+        };
+
         // getUserlist("");
         // setTimeout(() => {
         //     WSclient_()
@@ -64,7 +79,32 @@ function Chatlist() {
         // }, 3000)
         // console.log(WebsocketController({ 'onopen': WSonopen, 'onmessage': WSonmessage, 'onerror': WSonerror, 'onclose': WSonclose }));
     }, []);
-
+    async function getNewmessage(row) {
+        let push = false;
+        setactivechatuser((pre) => {
+            if (pre !== false) {
+                console.log(row.from_user == pre._id);
+                if (row.from_user == pre._id) {
+                    setChatlist((prev) => [...prev, row]);
+                    const element = $('#chat-history');
+                    element.animate({
+                        scrollTop: element.prop("scrollHeight")
+                    }, 500);
+                    push = true;
+                } else {
+                    push = false;
+                }
+            }
+            return pre;
+        })
+        // if (push) {
+        //     setChatlist((prev) => [...prev, row]);
+        //     const element = $('#chat-history');
+        //     element.animate({
+        //         scrollTop: element.prop("scrollHeight")
+        //     }, 500);
+        // }
+    }
     ////////////////////for WebsocketController start////////////////////
     ////////////////////for WebsocketController start////////////////////
     ////////////////////for WebsocketController start////////////////////
@@ -116,132 +156,132 @@ function Chatlist() {
 
     // }
 
-    function WSonerror(e) {
-        console.log(e);
-    }
+    // function WSonerror(e) {
+    //     console.log(e);
+    // }
 
-    function WSonclose(e) {
-        console.log(e);
-    }
+    // function WSonclose(e) {
+    //     console.log(e);
+    // }
 
-    const childRef = useRef(null);
-    function CloseWSClient() {
-        if (childRef.current) {
-            childRef.current.CloseWSClientFn(false);
-        }
-    }
+    // const childRef = useRef(null);
+    // function CloseWSClient() {
+    //     if (childRef.current) {
+    //         childRef.current.CloseWSClientFn(false);
+    //     }
+    // }
 
-    const childDataSendRef = useRef(null);
-    function clientSend(data) {
-        if (childDataSendRef.current) {
-            childDataSendRef.current.WSsendFn(data);
-        }
-    }
+    // const childDataSendRef = useRef(null);
+    // function clientSend(data) {
+    //     if (childDataSendRef.current) {
+    //         childDataSendRef.current.WSsendFn(data);
+    //     }
+    // }
 
-    const _WSclient = useRef(null);
-    function WSclient_() {
-        if (_WSclient.current) {
-            return _WSclient.current.MyWSclient();
-        } else {
-            return null;
-        }
-    }
+    // const _WSclient = useRef(null);
+    // function WSclient_() {
+    //     if (_WSclient.current) {
+    //         return _WSclient.current.MyWSclient();
+    //     } else {
+    //         return null;
+    //     }
+    // }
     ////////////////////for WebsocketController end////////////////////
     ////////////////////for WebsocketController end////////////////////
     ////////////////////for WebsocketController end////////////////////
     ////////////////////for WebsocketController end////////////////////
     ////////////////////for WebsocketController end////////////////////
 
-    function onKeyDownFN(data) {
-        let chatuser_datais = activechatuser;
-        chatuser_datais = chatuser_datais == false ? {} : JSON.parse(chatuser_datais);
-        // console.clear();
-        // console.log(data);
-        // console.log(chatuser_datais);
-        if (data.user != undefined) {
-            if (chatuser_datais._id != undefined) {
-                // console.log(chatuser_datais.chatuser, data.user);
-                if (chatuser_datais._id == data.user) {
-                    setTypinglabel(true);
-                    // console.log(typinglabel, `${chatuser_datais.chatuser} user is typing..`);
-                }
-            }
-        }
-    }
-    function onKeyUpFN(data) {
-        let chatuser_datais = activechatuser;
-        chatuser_datais = chatuser_datais == false ? {} : JSON.parse(chatuser_datais);
-        // console.clear();
-        // console.log(data);
-        // console.log(chatuser_datais);
-        if (data.user != undefined) {
-            if (chatuser_datais._id != undefined) {
-                console.log(chatuser_datais._id, data.user);
-                if (chatuser_datais._id == data.user) {
-                    setTimeout(() => {
-                        setTypinglabel(false);
-                    }, 1000)
-                    // console.log(typinglabel, `${chatuser_datais.chatuser} user is typing stop.`);
-                }
-            }
-        }
-    }
-    function TypeinggMassageFN(type) {
-        if (type) {
-            clientSend(JSON.stringify({
-                type: { message: "user is typing..", code: 300 },
-                msg: "typing",
-                user: LOGIN_USER._id
-            }));
-        } else {
-            clientSend(JSON.stringify({
-                type: { message: "user typing stop.", code: 400 },
-                msg: "typing stop",
-                user: LOGIN_USER._id
-            }));
-        }
-    }
-    async function UpdateUserWeStatus(userid, status) {
-        const myform = new FormData();
-        myform.append('userid', userid);
-        myform.append('status', status);
-        let result = await fetch(`${API_URL}/update-user-wsstatus`, {
-            method: 'POST',
-            body: myform,
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        if (result.status == 200) {
-            console.log(result.message);
-        } else {
-            console.error(result.message);
-        }
-    }
+    // function onKeyDownFN(data) {
+    //     let chatuser_datais = activechatuser;
+    //     chatuser_datais = chatuser_datais == false ? {} : JSON.parse(chatuser_datais);
+    //     // console.clear();
+    //     // console.log(data);
+    //     // console.log(chatuser_datais);
+    //     if (data.user != undefined) {
+    //         if (chatuser_datais._id != undefined) {
+    //             // console.log(chatuser_datais.chatuser, data.user);
+    //             if (chatuser_datais._id == data.user) {
+    //                 setTypinglabel(true);
+    //                 // console.log(typinglabel, `${chatuser_datais.chatuser} user is typing..`);
+    //             }
+    //         }
+    //     }
+    // }
+    // function onKeyUpFN(data) {
+    //     let chatuser_datais = activechatuser;
+    //     chatuser_datais = chatuser_datais == false ? {} : JSON.parse(chatuser_datais);
+    //     // console.clear();
+    //     // console.log(data);
+    //     // console.log(chatuser_datais);
+    //     if (data.user != undefined) {
+    //         if (chatuser_datais._id != undefined) {
+    //             console.log(chatuser_datais._id, data.user);
+    //             if (chatuser_datais._id == data.user) {
+    //                 setTimeout(() => {
+    //                     setTypinglabel(false);
+    //                 }, 1000)
+    //                 // console.log(typinglabel, `${chatuser_datais.chatuser} user is typing stop.`);
+    //             }
+    //         }
+    //     }
+    // }
+    // function TypeinggMassageFN(type) {
+    //     if (type) {
+    //         clientSend(JSON.stringify({
+    //             type: { message: "user is typing..", code: 300 },
+    //             msg: "typing",
+    //             user: LOGIN_USER._id
+    //         }));
+    //     } else {
+    //         clientSend(JSON.stringify({
+    //             type: { message: "user typing stop.", code: 400 },
+    //             msg: "typing stop",
+    //             user: LOGIN_USER._id
+    //         }));
+    //     }
+    // }
+    // async function UpdateUserWeStatus(userid, status) {
+    //     const myform = new FormData();
+    //     myform.append('userid', userid);
+    //     myform.append('status', status);
+    //     let result = await fetch(`${API_URL}/update-user-wsstatus`, {
+    //         method: 'POST',
+    //         body: myform,
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     if (result.status == 200) {
+    //         console.log(result.message);
+    //     } else {
+    //         console.error(result.message);
+    //     }
+    // }
 
-    async function getNumberofActiveUser() {
-        const myform = new FormData();
-        myform.append('status', 1);
-        let result = await fetch(`${API_URL}/users/number-of-active-user`, {
-            method: 'POST',
-            body: myform,
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        if (result.status == 200) {
-            // console.log(result);
-            // setActivewsclients();
-            activewsclients = [];
-            activewsclients = result.data;
-            // console.log(activewsclients);
-            checkOnlineOrOfflineArr();
-        } else {
-            console.error(result.message);
-        }
-    }
+    // async function getNumberofActiveUser() {
+    //     const myform = new FormData();
+    //     myform.append('status', 1);
+    //     let result = await fetch(`${API_URL}/users/number-of-active-user`, {
+    //         method: 'POST',
+    //         body: myform,
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     if (result.status == 200) {
+    //         // console.log(result);
+    //         // setActivewsclients();
+    //         activewsclients = [];
+    //         activewsclients = result.data;
+    //         // console.log(activewsclients);
+    //         checkOnlineOrOfflineArr();
+    //     } else {
+    //         console.error(result.message);
+    //     }
+    // }
 
 
     async function SendChat() {
@@ -320,89 +360,89 @@ function Chatlist() {
         }
     }
 
-    async function FindChat(id) {
-        var chatuser_datais, user_is, to_user;
-        chatuser_datais = GET_LOCAL('activechatuser');
-        user_is = JSON.parse(chatuser_datais);
-        to_user = user_is._id;
-        let result = await fetch(`${API_URL}/find-chat?chatid=${id}&from_user=${LOGIN_USER._id}&to_user=${to_user}`, {
-            method: 'GET',
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        // console.clear();
-        if (result.status == 200) {
-            setTotalchat((pre) => {
-                //return result.total;
-                return pre + 1;
-            });
-            var pre_list = [];
-            setChatlist((pre) => {
-                // console.log("pre", pre);
-                pre_list = pre;
-                pre_list.push(result.chat);
-                return pre_list;
-            });
+    // async function FindChat(id) {
+    //     var chatuser_datais, user_is, to_user;
+    //     chatuser_datais = GET_LOCAL('activechatuser');
+    //     user_is = JSON.parse(chatuser_datais);
+    //     to_user = user_is._id;
+    //     let result = await fetch(`${API_URL}/find-chat?chatid=${id}&from_user=${LOGIN_USER._id}&to_user=${to_user}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     // console.clear();
+    //     if (result.status == 200) {
+    //         setTotalchat((pre) => {
+    //             //return result.total;
+    //             return pre + 1;
+    //         });
+    //         var pre_list = [];
+    //         setChatlist((pre) => {
+    //             // console.log("pre", pre);
+    //             pre_list = pre;
+    //             pre_list.push(result.chat);
+    //             return pre_list;
+    //         });
 
-            // setTotalchat((pre) => {
-            //     if (result.chat.from_user == LOGIN_USER._id) {
-            //         return t;
-            //     } else {
-            //         return pre;
-            //     }
-            // });
-
-
-            const element = $('#chat-history');
-            element.animate({
-                scrollTop: element.prop("scrollHeight")
-            }, 500);
+    //         // setTotalchat((pre) => {
+    //         //     if (result.chat.from_user == LOGIN_USER._id) {
+    //         //         return t;
+    //         //     } else {
+    //         //         return pre;
+    //         //     }
+    //         // });
 
 
-        } else {
-            alert(result.message);
-        }
-    }
+    //         const element = $('#chat-history');
+    //         element.animate({
+    //             scrollTop: element.prop("scrollHeight")
+    //         }, 500);
 
 
-    async function getUserlist(key) {
-        if (LOGIN_USER === false) {
-            window.localStorage.clear();
-            navigate('./../../');
-            return;
-        }
-        if (key === undefined) {
-            key = "";
-        }
-        let result = await fetch(`${API_URL}/users-chat-list?name=${key}`, {
-            method: 'GET',
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        // console.log(result);
-        if (result.status === 200) {
-            let letarray = result.data.filter((item) => {
-                return item._id !== LOGIN_USER._id;
-            });
-            letarray.forEach(user => {
-                getnoofunseenchat(user._id, LOGIN_USER._id);
-            });
-            // console.log(letarray);
-            setList(letarray);
-            allusers = [];
-            allusers = letarray;
-        } else {
-            alert(result.message);
-        }
-    }
-    function searchUser(k) {
-        setSearchkey(k);
-        getUserlist(k);
-    }
+    //     } else {
+    //         alert(result.message);
+    //     }
+    // }
+
+
+    // async function getUserlist(key) {
+    //     if (LOGIN_USER === false) {
+    //         window.localStorage.clear();
+    //         navigate('./../../');
+    //         return;
+    //     }
+    //     if (key === undefined) {
+    //         key = "";
+    //     }
+    //     let result = await fetch(`${API_URL}/users-chat-list?name=${key}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     // console.log(result);
+    //     if (result.status === 200) {
+    //         let letarray = result.data.filter((item) => {
+    //             return item._id !== LOGIN_USER._id;
+    //         });
+    //         letarray.forEach(user => {
+    //             getnoofunseenchat(user._id, LOGIN_USER._id);
+    //         });
+    //         // console.log(letarray);
+    //         setList(letarray);
+    //         allusers = [];
+    //         allusers = letarray;
+    //     } else {
+    //         alert(result.message);
+    //     }
+    // }
+    // function searchUser(k) {
+    //     setSearchkey(k);
+    //     getUserlist(k);
+    // }
     async function ActiveChatUser(user) {
         setChatlist([]);
         setTotalchat(0);
@@ -542,88 +582,88 @@ function Chatlist() {
     //         alert(result.message);
     //     }
     // }
-    function onNewMessage(data) {
+    // function onNewMessage(data) {
 
-        var chatuser_datais, user_is, user_id, active;
-        chatuser_datais = activechatuser;
-        if (chatuser_datais !== false) {
-            user_is = JSON.parse(chatuser_datais);
-            user_id = user_is.chatuser;
-            active = user_is.chatboxopen;
-        } else {
-            user_id = "";
-            active = false;
-        }
-        if (data.to_user == LOGIN_USER._id) {
-            onNewMessageSound();
-            if (data.type.code == 200) {
-                let off = document.getElementById(`off_${data.user}`);
-                if (off != null && off != undefined) {
-                    off.style.display = "none";
-                }
-                let on = document.getElementById(`on_${data.user}`);
-                if (on != null && on != undefined) {
-                    on.style.display = "block";
-                }
+    //     var chatuser_datais, user_is, user_id, active;
+    //     chatuser_datais = activechatuser;
+    //     if (chatuser_datais !== false) {
+    //         user_is = JSON.parse(chatuser_datais);
+    //         user_id = user_is.chatuser;
+    //         active = user_is.chatboxopen;
+    //     } else {
+    //         user_id = "";
+    //         active = false;
+    //     }
+    //     if (data.to_user == LOGIN_USER._id) {
+    //         onNewMessageSound();
+    //         if (data.type.code == 200) {
+    //             let off = document.getElementById(`off_${data.user}`);
+    //             if (off != null && off != undefined) {
+    //                 off.style.display = "none";
+    //             }
+    //             let on = document.getElementById(`on_${data.user}`);
+    //             if (on != null && on != undefined) {
+    //                 on.style.display = "block";
+    //             }
 
-                if (data.user == user_id && active == true) {
-                    FindChat(data.message_id);
-                    UpdateReadStatus(data.message_id, data.user, data.to_user, 1);
+    //             if (data.user == user_id && active == true) {
+    //                 FindChat(data.message_id);
+    //                 UpdateReadStatus(data.message_id, data.user, data.to_user, 1);
 
-                } else {
-                    getnoofunseenchat(data.user, data.to_user);
-                    // alert(`new message id ${data.message_id}`);
-                }
-            }
-        }
-    }
+    //             } else {
+    //                 getnoofunseenchat(data.user, data.to_user);
+    //                 // alert(`new message id ${data.message_id}`);
+    //             }
+    //         }
+    //     }
+    // }
 
-    async function UpdateReadStatus(id, from, to, status) {
-        const myform = new FormData();
-        myform.append('status', status);
-        myform.append('objid', id);
-        myform.append('from_id', from);
-        myform.append('to_id', to);
-        let result = await fetch(`${API_URL}/update-read-status`, {
-            method: 'POST',
-            body: myform,
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        if (result.status === 200) {
-            console.log(result.message);
-        } else {
-            alert(result.message);
-        }
-    }
+    // async function UpdateReadStatus(id, from, to, status) {
+    //     const myform = new FormData();
+    //     myform.append('status', status);
+    //     myform.append('objid', id);
+    //     myform.append('from_id', from);
+    //     myform.append('to_id', to);
+    //     let result = await fetch(`${API_URL}/update-read-status`, {
+    //         method: 'POST',
+    //         body: myform,
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     if (result.status === 200) {
+    //         console.log(result.message);
+    //     } else {
+    //         alert(result.message);
+    //     }
+    // }
 
-    async function getnoofunseenchat(from, to) {
-        const myform = new FormData();
-        myform.append('from_id', from);
-        myform.append('to_id', to);
-        let result = await fetch(`${API_URL}/get-no-of-unseen-chat`, {
-            method: 'POST',
-            body: myform,
-            headers: {
-                'authorization': `Bearer ${LOGIN_USER.token}`,
-            }
-        });
-        result = await result.json();
-        if (result.status === 200) {
-            let total = result.total;
-            let chat = result.total > 0 ? result.data.message : '';
-            if (total > 0) {
-                $(`#unsceendiv_${from}`).html(
-                    `<p id="unsceenp_${from}">${textlength(chat, 12)} </p>
-                  <span id="unsceenspan_${from}" style="width: 60px;"class="btn btn-danger btn-sm">${total} New</span>`
-                );
-            }
-        } else {
-            alert(result.message);
-        }
-    }
+    // async function getnoofunseenchat(from, to) {
+    //     const myform = new FormData();
+    //     myform.append('from_id', from);
+    //     myform.append('to_id', to);
+    //     let result = await fetch(`${API_URL}/get-no-of-unseen-chat`, {
+    //         method: 'POST',
+    //         body: myform,
+    //         headers: {
+    //             'authorization': `Bearer ${LOGIN_USER.token}`,
+    //         }
+    //     });
+    //     result = await result.json();
+    //     if (result.status === 200) {
+    //         let total = result.total;
+    //         let chat = result.total > 0 ? result.data.message : '';
+    //         if (total > 0) {
+    //             $(`#unsceendiv_${from}`).html(
+    //                 `<p id="unsceenp_${from}">${textlength(chat, 12)} </p>
+    //               <span id="unsceenspan_${from}" style="width: 60px;"class="btn btn-danger btn-sm">${total} New</span>`
+    //             );
+    //         }
+    //     } else {
+    //         alert(result.message);
+    //     }
+    // }
 
 
     function textlength(text, l) {
@@ -636,20 +676,20 @@ function Chatlist() {
         }
     }
 
-    function checkOnlineOrOfflineArr(data) {
-        // console.log(activewsclients);
-        // console.log(allusers);
-        allusers.forEach((item) => {
-            // console.log(item._id, checkuserId(item._id), $(`#on_${item._id}`));
-            if (checkuserId(item._id)) {
-                $(`#off_${item._id}`).css('display', 'none');
-                $(`#on_${item._id}`).css('display', 'block');
-            } else {
-                $(`#on_${item._id}`).css('display', 'none');
-                $(`#off_${item._id}`).css('display', 'block');
-            }
-        })
-    }
+    // function checkOnlineOrOfflineArr(data) {
+    //     // console.log(activewsclients);
+    //     // console.log(allusers);
+    //     allusers.forEach((item) => {
+    //         // console.log(item._id, checkuserId(item._id), $(`#on_${item._id}`));
+    //         if (checkuserId(item._id)) {
+    //             $(`#off_${item._id}`).css('display', 'none');
+    //             $(`#on_${item._id}`).css('display', 'block');
+    //         } else {
+    //             $(`#on_${item._id}`).css('display', 'none');
+    //             $(`#off_${item._id}`).css('display', 'block');
+    //         }
+    //     })
+    // }
 
     function checkuserId(id) {
         let check = false;
@@ -749,12 +789,32 @@ function Chatlist() {
         audio.play();
     }
     function getuserFromChild(user) {
-        if (chat_details.to_user !== user._id) {
-            setactivechatuser((pre_user) => { return user; });
+        if (!user) {
+            setChatlist([]);
+            setTotalchat(0);
+            setTotalpage(0);
+            setPage(1);
+            setChatuser("");
+            setChatboxopen("");
+            setChatusername("Live Chat");
+            setChatuserphoto(`${WEBSITE_PUBLIC}/images/no-img.jpg`);
+            setactivechatuser((pre) => { return false; });
             setchat_details((pre) => {
-                return { ...pre, "to_user": user._id, "from_user": LOGIN_USER._id }
+                return {
+                    "from_user": LOGIN_USER._id,
+                    "to_user": '',
+                    "message": '',
+                    "file_name": "",
+                }
             })
-            ActiveChatUser(user);
+        } else {
+            if (chat_details.to_user !== user._id) {
+                setactivechatuser((pre_user) => { return user; });
+                setchat_details((pre) => {
+                    return { ...pre, "to_user": user._id, "from_user": LOGIN_USER._id }
+                })
+                ActiveChatUser(user);
+            }
         }
     }
     return (
@@ -775,7 +835,7 @@ function Chatlist() {
                                 <img src={chatuserphoto} alt="avatar" className='chat-avatar' />
                                 <div className="chat-about">
                                     <div className="chat-with">{chatusername}</div>
-                                    <div className="chat-num-messages">already {totalchat} messages</div>
+                                    <div className="chat-num-messages">already {totalchat} messages you sent</div>
                                 </div>
                                 <i className="fa fa-star" />
                             </div>

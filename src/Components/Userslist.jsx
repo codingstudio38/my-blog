@@ -1,7 +1,7 @@
 import './../Css/Userslist.css';
 import Websocket from "./../Services/WebSocketService";
  
-import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist} from './Constant.jsx';
+import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
@@ -43,6 +43,9 @@ export default function Userslist(props){
             }else if(msg?.code==client_disconnected){
                 let resert_data = msg.result;
                 userconnection(resert_data,client_disconnected);
+            }else if (msg?.code == new_chat_message) {
+                let resert_data = msg.chat
+                getNewmessage(resert_data)
             }
         });
         // const unsubscribeClose = Websocket.onClose(() => {
@@ -66,6 +69,20 @@ export default function Userslist(props){
       text: "Hello from Userslist.js functional component!",
     });
   };
+  function getNewmessage(row) {
+    setDatelist((prev) => {
+         let newdatalist = prev.map(item => {
+            if (item._id === row.from_user) {
+                return {
+                    ...item,
+                    total_unread_message:item.total_unread_message+1,
+                };
+            }
+            return item;
+        });
+        return newdatalist;
+    });
+    }
  function userconnection(user,status){
     setDatelist((prev) => {
          let newdatalist = prev.map(item => {
@@ -164,11 +181,53 @@ function LoadMore(){
           }
       }
 
+       async function UpdateUnreadMessage(user) {
+          try {
+            let form = {from:user._id,to:LOGIN_USER._id};
+            let url = `${API_URL}/update-read-status`;
+                let myform = JSON.stringify(form);
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        setDatelist((prev) => {
+                            let newdatalist = prev.map(item => {
+                                if (item._id === user._id) {
+                                    return {
+                                        ...item,
+                                        total_unread_message:0,
+                                    };
+                                }
+                                return item;
+                            });
+                            return newdatalist;
+                        })
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+          } catch (error) {
+              swal({
+                  title: `Unknow error:- ${error.message}`,
+                  icon: "error",
+              })
+          }
+      }
+
       async function RefreshMyFriends() {
         $('.name-search').val('');
         setlimit(10);
         setcurrentpage(1);
         setsearch_name('');
+        props.getuser(false);
           try {
               if (listloader) {
                   return false;
@@ -217,6 +276,7 @@ function LoadMore(){
         setsearch_name((pre)=>{ return ""; });
         setDatelist([]);
         MyFriends();
+        props.getuser(false);
       }
       async function Search() {
         setlimit(10);
@@ -224,6 +284,7 @@ function LoadMore(){
         setcurrentpage(1);
         setDatelist([]);
         MyFriends();
+        props.getuser(false);
     }
     function CurrentUser(user){
         if(props.getuser){
@@ -286,7 +347,9 @@ function LoadMore(){
                                         :
                                         <><small className='text-danger'>Offline</small></>
                                         }
-                                        
+                                        {
+                                            item.total_unread_message > 0 ? <><br/><p className='btn btn-sm btn-primary text-white' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message} Unread Message</p></> : <></>
+                                        }
                                     </div>
                                 </a>
                             </li>
