@@ -1,11 +1,12 @@
 import React, { useState, useEffect,useRef } from 'react';
 import { USER_DETAILS, API_URL,decrypt,encrypt,WEBSITE_URL } from './Constant.jsx';
-
+ import './../Css/VideoCard.css';
 export default function VideoCard({ blog }) {
   const LOGIN_USER = USER_DETAILS();
   const [videoUrl, setVideoUrl] = useState(null);
   const [playvideo, setplayvideo] = useState(false);
   const videoRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(true);
 
   // Auto-pause when video is out of view
  // Auto pause when video leaves screen
@@ -18,6 +19,7 @@ export default function VideoCard({ blog }) {
           if (!entry.isIntersecting) {
             // out of view → pause
             videoRef.current.pause();
+            setIsPaused(true);
           }
         });
       },
@@ -46,10 +48,41 @@ export default function VideoCard({ blog }) {
     // setVideoUrl(url);
     setVideoUrl(`${API_URL}/video?watch=${idis}`);
     setplayvideo(true);
-  }
+    setIsPaused(false);
 
+     // Toggle play/pause
+    
+     if(videoRef.current){
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPaused(false);
+      } else {
+        videoRef.current.pause();
+        setIsPaused(true);
+      }
+     } else {
+      setTimeout(()=>{
+        if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPaused(false);
+      } else {
+        videoRef.current.pause();
+        setIsPaused(true);
+      }
+      },200)
+     }
+     console.log(isPaused);
+  }
+ 
   return (
     <div className="video-card" onClick={playVideo}>
+      {isPaused ? (
+        <div className="play-btn">►</div>
+      ) : (
+        <div className="pause-btn">❚❚</div>
+      )
+      }
+
       {
       playvideo==true ? 
         <video

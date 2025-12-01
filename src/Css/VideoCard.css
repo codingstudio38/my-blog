@@ -1,6 +1,51 @@
-   .video-card video {
-       width: 100%;
-       height: 100%;
-       object-fit: cover;
-       object-position: center;
-   }
+   /* .video-card {
+  width: 100%;
+  max-width: 900px;  
+  margin: auto;
+} */
+
+.video-card video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;   /* maintain 16:9 ratio */
+  border-radius: 10px;  /* optional */
+  background: #000;
+}
+
+
+.video-card {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.video-card .thumbnail-image,
+.video-card .video-player {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Play/Pause button overlay */
+.video-card .play-btn,
+.video-card .pause-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 55px;
+  color: white;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  padding: 18px 26px;
+  pointer-events: none; /* allow click to pass through */
+  transition: 0.3s ease;
+}
+
+.video-card .pause-btn {
+  padding: 18px 32px;
+}
+
+.video-card .video-card:hover .play-btn {
+  background: rgba(0, 0, 0, 0.75);
+}
