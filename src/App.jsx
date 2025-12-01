@@ -20,6 +20,7 @@ import Friendrquestsendlist from './Components/Friendrquestsendlist';
 import Newfriendrequestlist from './Components/Newfriendrequestlist';
 import Blogdetails from './Components/Blogdetails';
 import Chatlist from './Components/Chatlist';
+import VideoCall from './Components/VideoCall';
 function App() {
    const firstCall = useRef(true);
   const LOGIN_USER = USER_DETAILS()
@@ -48,6 +49,7 @@ function App() {
             <Route path='friend-rquest-send-list' element={<Protected Component={Friendrquestsendlist} />} />
             <Route path='new-friend-request-list' element={<Protected Component={Newfriendrequestlist} />} />
             <Route path='chat' element={<Protected Component={Chatlist} />} />
+            <Route path='video-call' element={<Protected Component={VideoCall} />} />
           </Route>
           <Route path='*' element={<Page404 />} />
         </Routes>

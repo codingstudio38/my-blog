@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import './../Css/chat-box.css';
 import { API_URL, WEBSITE_PUBLIC, API_STORAGE_URL } from './Constant';
 export default function Messagefilefilter(props) {
-    var file = props.row.file_dtl.filename;
+    var file =props.row.file_dtl.filename;
     var file_view_path = props.row.file_dtl.file_view_path;
     var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
     var noimage = `${WEBSITE_PUBLIC}/images/no-img.jpg`;

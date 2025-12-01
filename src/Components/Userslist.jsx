@@ -227,7 +227,9 @@ function LoadMore(){
         setlimit(10);
         setcurrentpage(1);
         setsearch_name('');
-        props.getuser(false);
+        if(props.getuser){
+            props.getuser(false);
+        }
           try {
               if (listloader) {
                   return false;
@@ -276,7 +278,9 @@ function LoadMore(){
         setsearch_name((pre)=>{ return ""; });
         setDatelist([]);
         MyFriends();
-        props.getuser(false);
+        if(props.getuser){
+            props.getuser(false);
+        }
       }
       async function Search() {
         setlimit(10);
@@ -284,7 +288,9 @@ function LoadMore(){
         setcurrentpage(1);
         setDatelist([]);
         MyFriends();
-        props.getuser(false);
+        if(props.getuser){
+            props.getuser(false);
+        }
     }
     function CurrentUser(user){
         if(props.getuser){

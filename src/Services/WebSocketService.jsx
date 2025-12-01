@@ -73,7 +73,9 @@ const disconnect = () => {
   isManualClose = true;
   reconnectIn=0;
   clearTimeout(reconnectTimer);
-  socket.close();
+  if(socket!==null){
+    socket.close();
+  }
   socket = null;
 };
 export default {

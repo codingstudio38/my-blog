@@ -31,6 +31,7 @@ export default function Header(){
             subscribe_auto_refresh_notifications(Refresh)
             AllNotifications();
              const unsubscribe = Websocket.subscribe((msg) => {
+                console.log(msg);
                         if(msg?.code==new_friend_request){
                             let resert_data = msg.result
                             settotal_rec((pre) => { return pre+1 });
@@ -243,6 +244,37 @@ export default function Header(){
                 setcurrentpage(1);
                 AllNotifications();
             }
+            // Request permission and show notification
+// function showNotification() {
+//   // 1. Ask for permission
+//   if (Notification.permission === "granted") {
+//     notifyUser();
+//   } else if (Notification.permission !== "denied") {
+//     Notification.requestPermission().then(permission => {
+//       if (permission === "granted") {
+//         notifyUser();
+//       }
+//     });
+//   }
+// }
+
+// // 2. Actual notification function
+// function notifyUser() {
+   
+//   const notification = new Notification("New Message!", {
+//     body: "You received a new message.",
+//     icon: "https://cdn-icons-png.flaticon.com/512/1827/1827314.png" // optional
+//   });
+//  console.log(notification,Notification.permission);
+//   // When user clicks notification
+//   notification.onclick = function () {
+//     window.focus();
+//     console.log("Notification clicked!");
+//   };
+// }
+
+// Call function
+
     return (
         <Navbar bg="primary" variant="dark">
             <Container>
@@ -254,6 +286,7 @@ export default function Header(){
                     <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Send Request Status List</NavLink>
                     <NavLink className={"navlink"} to="/web/new-friend-request-list">New Friend Request List</NavLink>
                     <NavLink className={"navlink"} to="/web/chat">Chat</NavLink>
+                    <NavLink className={"navlink"} to="/web/video-call">Video CAll</NavLink>
                 </Nav>
                 {
                     LOGIN_USER!==false?
