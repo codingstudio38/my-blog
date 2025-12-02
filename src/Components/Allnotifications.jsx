@@ -186,6 +186,16 @@ export default function Allnotifications(){
                         return newdatalist
                     });
                     settotal_rec((pre) => { return pre-1 });
+                    if(row.category==blog_post_status){
+                        navigate(`/web/blog-details/${row.remove_byid}`);
+                        return true;
+                    } else if(row.category==new_chat_message){
+                        // navigate(`/web/chat`);
+                        // return true;
+                    }else if(row.category==new_friend_request){
+                        navigate(`/web/new-friend-request-list`);
+                        return true;
+                    }
                 } else {
                     console.error('notifications->',{
                         title: `${data?.message}`,
@@ -437,7 +447,7 @@ export default function Allnotifications(){
             onClick={(e) => {
                 e.preventDefault();
                  ReadThisNoti(item);
-                 BlogDetails(item);
+                //  BlogDetails(item);
             }}
             className={item.read_status <= 0 ? 'not-read':'read'} >
                 <small className='text-success'>New Bolg Post</small><br/>

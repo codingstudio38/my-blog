@@ -7,9 +7,6 @@ export default function VideoCard({ blog }) {
   const [playvideo, setplayvideo] = useState(false);
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(true);
-
-  // Auto-pause when video is out of view
- // Auto pause when video leaves screen
   useEffect(() => {
     if (!videoRef.current) return;
 
@@ -36,7 +33,7 @@ export default function VideoCard({ blog }) {
   async function playVideo() {
     if (playvideo) return;
     const idis = encodeURIComponent(encrypt(blog.content_alias));
-    // let response = await fetch(`${API_URL}/video?watch=${idis}`, {
+    // let response = await fetch(`${API_URL}/video-player?watch=${idis}`, {
     //   method: "GET",
     //   headers: {
     //     Authorization: `Bearer ${LOGIN_USER.token}`,
@@ -48,62 +45,72 @@ export default function VideoCard({ blog }) {
     // setVideoUrl(url);
     setVideoUrl(`${API_URL}/video?watch=${idis}`);
     setplayvideo(true);
-    setIsPaused(false);
+    setIsPaused(false); 
+   }
 
-     // Toggle play/pause
-    
-     if(videoRef.current){
-      if (videoRef.current.paused) {
-        videoRef.current.play();
+
+   function VideoPlayOrPause(){
+    // Toggle play/pause
+    if(videoRef.current){
+    const video = videoRef.current;
+      video.addEventListener("play", (e)=>{
         setIsPaused(false);
-      } else {
-        videoRef.current.pause();
+      });
+      video.addEventListener("pause",  (e)=>{
         setIsPaused(true);
-      }
-     } else {
-      setTimeout(()=>{
-        if (videoRef.current.paused) {
-        videoRef.current.play();
-        setIsPaused(false);
-      } else {
-        videoRef.current.pause();
-        setIsPaused(true);
-      }
-      },200)
-     }
-     console.log(isPaused);
-  }
- 
+      });
+    }
+    //  if(videoRef.current){
+    //   console.log(1,videoRef.current.paused);
+    //   if (videoRef.current.paused) {
+    //     console.log(11,videoRef.current);
+    //     videoRef.current.play();
+    //     setIsPaused(false);
+    //   } else {
+    //     console.log(22,videoRef.current);
+    //     videoRef.current.pause();
+    //     setIsPaused(true);
+    //   }
+   }
   return (
-    <div className="video-card" onClick={playVideo}>
+    <>
+    {playvideo == true ? 
+    <div className="video-card" onClick={VideoPlayOrPause}>
       {isPaused ? (
-        <div className="play-btn">►</div>
-      ) : (
-        <div className="pause-btn">❚❚</div>
-      )
+          <div className="play-btn">►</div>
+        ) : (
+          <div className="pause-btn hidden">❚❚</div>
+        )
       }
-
+      <video
+        ref={videoRef}
+        src={videoUrl}
+        controls
+        autoPlay
+        className="video-player"
+        poster={blog.thumbnail_view_path == "" ? `${WEBSITE_URL}/images/image-not-found.png`:`${blog.thumbnail_view_path}`}
+        controlsList="nodownload"
+        onContextMenu={(e) => e.preventDefault()}
+      />
+      {/*controlsList="nodownload noplaybackrate"
+       disablePictureInPicture*/}
+    </div>
+    :
+     <div className="video-card" onClick={playVideo}>
+      {isPaused ? (
+          <div className="play-btn">►</div>
+        ) : (
+          <div className="pause-btn">❚❚</div>
+        )
+      }
       {
-      playvideo==true ? 
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          controls
-          autoPlay
-          className="video-player"
-          poster={
-                blog.thumbnail_view_path == "" ? `${WEBSITE_URL}/images/image-not-found.png`
-                    :
-                    `${blog.thumbnail_view_path}`
-            }
-        />
-      : 
-       blog.thumbnail_view_path == "" ? 
-    <img src={`${WEBSITE_URL}/images/image-not-found.png`} className="thumbnail-image" title={blog.title} loading="lazy"/>
+        blog.thumbnail_view_path == "" ? 
+          <img src={`${WEBSITE_URL}/images/image-not-found.png`} className="thumbnail-image" title={blog.title} loading="lazy"/>
         :  
-    <img src={blog.thumbnail_view_path} className="thumbnail-image" title={blog.title} loading="lazy"/>
-      
+          <img src={blog.thumbnail_view_path} className="thumbnail-image" title={blog.title} loading="lazy"/>
       }
     </div>
+    }
+    </>
   );
 }

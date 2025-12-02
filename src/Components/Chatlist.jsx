@@ -44,6 +44,14 @@ function Chatlist() {
             navigate('./../../');
             return;
         }
+        const sessionchatuser = window.sessionStorage.getItem('sessionchatuser');
+        if(sessionchatuser!==null){
+            if(sessionchatuser!==''){
+                let user= JSON.parse(sessionchatuser);
+                getuserFromChild(user);
+                window.sessionStorage.removeItem('sessionchatuser');
+            }
+        }
         const unsubscribe = Websocket.subscribe((msg) => {
             if (msg?.code == new_chat_message) {
                 let resert_data = msg.chat
@@ -83,15 +91,25 @@ function Chatlist() {
         try {
             let chatuser_datais = activechatuser;
             if (!chatuser_datais) {
-                alert("Please select a user from user list.");
+                swal({
+                        title: "Please select a friend from friend list.",
+                        icon: "warning",
+                    });
                 return;
             }
             let user_is = chatuser_datais;
             if (user_is.to_user == "") {
-                alert("Please select a user from user list.");
+                swal({
+                        title: "Please select a friend from friend list.",
+                        icon: "warning",
+                    });
                 return;
             }
             if (chat_details.message == "") {
+                swal({
+                    title: "Please type some message.",
+                    icon: "warning",
+                });
                 document.getElementById("message-to-send").focus();
                 return;
             }

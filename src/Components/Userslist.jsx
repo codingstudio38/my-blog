@@ -4,10 +4,12 @@ import Websocket from "./../Services/WebSocketService";
 import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate,Link,useLocation  } from 'react-router-dom';
 import swal from 'sweetalert';
 import $ from 'jquery';
 export default function Userslist(props){
+    const location = useLocation();
+    const navigate = useNavigate();
      const firstCall = useRef(true);
      const firstCallN = useRef(true);
     const [messages, setMessages] = useState([]);
@@ -293,6 +295,13 @@ function LoadMore(){
         }
     }
     function CurrentUser(user){
+        UpdateUnreadMessage(user);
+        if(location.pathname!=='/web/chat'){
+            navigate('/web/chat');
+            window.sessionStorage.removeItem('sessionchatuser');
+            window.sessionStorage.setItem('sessionchatuser',JSON.stringify(user));
+            return false;
+        }
         if(props.getuser){
             props.getuser(user);
         }
@@ -354,7 +363,8 @@ function LoadMore(){
                                         <><small className='text-danger'>Offline</small></>
                                         }
                                         {
-                                            item.total_unread_message > 0 ? <><br/><p className='btn btn-sm btn-primary text-white' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message} Unread Message</p></> : <></>
+                                            //  onClick={()=>UpdateUnreadMessage(item)} 
+                                            item.total_unread_message > 0 ? <><br/><p className='btn btn-sm btn-primary text-white'>{item.total_unread_message} Unread Message</p></> : <></>
                                         }
                                     </div>
                                 </a>

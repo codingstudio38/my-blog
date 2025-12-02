@@ -131,3 +131,12 @@
   .header-notifications a{
         color: white !important;
   }
+  .alert-close{
+    cursor: pointer;
+position: fixed;      /* use fixed so it stays on screen */
+  bottom: 20px;         /* distance from bottom */
+  right: 20px;          /* distance from right */
+  width: 20%;          /* let content decide width */
+  z-index: 9999;        /* keep it on top */
+  padding: 11px;
+  }

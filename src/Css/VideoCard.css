@@ -1,12 +1,6 @@
-   /* .video-card {
-  width: 100%;
-  max-width: 900px;  
-  margin: auto;
-} */
-
 .video-card video {
   width: 100%;
-  height: auto;
+  height: 100%;
   aspect-ratio: 16/9;   /* maintain 16:9 ratio */
   border-radius: 10px;  /* optional */
   background: #000;
@@ -16,13 +10,14 @@
 .video-card {
   position: relative;
   width: 100%;
+  height: 100%;
   cursor: pointer;
 }
 
 .video-card .thumbnail-image,
 .video-card .video-player {
   width: 100%;
-  height: auto;
+  height:  100%;
   border-radius: 10px;
 }
 
@@ -45,7 +40,23 @@
 .video-card .pause-btn {
   padding: 18px 32px;
 }
-
+/* Hover effect */
+.video-card:hover .play-btn,
+.video-card:hover .pause-btn {
+  background: rgba(0, 0, 0, 0.75);
+}
 .video-card .video-card:hover .play-btn {
   background: rgba(0, 0, 0, 0.75);
+}
+
+/* Hide element */
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Hover to show pause button when video playing */
+.video-card:hover .pause-btn.hidden {
+  opacity: 1;
+  visibility: visible;
 }

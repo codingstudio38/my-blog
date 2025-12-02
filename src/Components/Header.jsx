@@ -1,11 +1,11 @@
 import React, { useState, useEffect,useRef } from 'react';
 import Logout from './Logout';
 import Container from 'react-bootstrap/Container';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message,Truncatetext} from './Constant.jsx';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavDropdown } from 'react-bootstrap';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { useNavigate, NavLink,useLocation } from 'react-router-dom';
 import Websocket from "./../Services/WebSocketService";
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import './../Css/Header.css';
@@ -21,6 +21,7 @@ export default function Header(){
     const [lastpage, setlastpage] = useState(1);
     const [readstatusloader, setreadstatusloader] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const LOGIN_USER = USER_DETAILS();
         useEffect(() => {
             if (firstCall.current) {
@@ -31,31 +32,36 @@ export default function Header(){
             subscribe_auto_refresh_notifications(Refresh)
             AllNotifications();
              const unsubscribe = Websocket.subscribe((msg) => {
-                console.log(msg);
                         if(msg?.code==new_friend_request){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         } else if(msg?.code==cancel_friend_request){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         } else if(msg?.code==accept_friend_request){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         } else if(msg?.code==reject_friend_request){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         } else if(msg?.code==remove_friend){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         }else if(msg?.code==blog_post_status){
                             GetBlogNotification(msg.result)
                         }else if(msg?.code==new_chat_message){
-                            let resert_data = msg.result
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         }
@@ -69,6 +75,66 @@ export default function Header(){
                         // unsubscribeClose();
                     };
         }, []);
+
+        let [hide_time, sethide_time] = useState(2);
+        let [check_notification_time, secheck_notification_time] = useState(false);
+        const check_notification_timeRef = useRef(check_notification_time);
+        const [shownotify_div, setshownotify_div] = useState(false);
+        const [notify_data, setnotify_data] = useState(null);
+        let [auto_hideNotifydivInterval, setauto_hideNotifydivInterval] = useState(null);
+
+        function shownotifydivFn(resert_data){
+            if(check_notification_timeRef.current){
+                return false;
+            }
+            setnotify_data(resert_data);
+            check_notification_timeRef.current = true;
+            setshownotify_div(true);
+            secheck_notification_time(true);
+            playNotificationSound();
+            const interval = setInterval(() => {
+                sethide_time((prev) => {
+                    if (prev === 0) {
+                        clearInterval(interval);
+                        setshownotify_div(false);
+                        check_notification_timeRef.current = false;
+                        secheck_notification_time(false);
+                        return 2;   // reset value
+                    }
+                    return prev - 1; // countdown
+                });
+            }, 1000);
+            setauto_hideNotifydivInterval(interval);
+        }
+        function playNotificationSound() {
+        const audio = new Audio(`${WEBSITE_URL}/sound/Messenger_Notification.mp3`);
+            audio.volume = 1.0; // optional
+            audio.play().catch(err => {
+                console.log("Sound blocked until user interacts with page");
+            });
+        }
+        function hidediv(){
+            check_notification_timeRef.current = false;
+            setshownotify_div(false);
+            secheck_notification_time(false);
+            sethide_time(2);
+            if(auto_hideNotifydivInterval){
+                clearInterval(auto_hideNotifydivInterval);
+            }
+            if(notify_data.category==blog_post_status){
+                navigate(`/web/blog-details/${notify_data.remove_byid}`);
+                return true;
+            } else if(notify_data.category==new_chat_message){
+                if(location.pathname!=='/web/chat'){
+                    navigate(`/web/chat`);
+                    return true;
+                }
+            }else if(notify_data.category==new_friend_request){
+                navigate(`/web/new-friend-request-list`);
+                return true;
+            }
+        }
+
         async function AllNotifications(){
             try {
                 if (listloader) {
@@ -129,6 +195,7 @@ export default function Header(){
                         if(data.result.total > 0){
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [data.result.list[0],...prev]);
+                            shownotifydivFn(data.result.list[0]);
                         }
                     } else {
                         console.error('notifications->',{
@@ -180,6 +247,16 @@ export default function Header(){
                                 return newdatalist
                             });
                             settotal_rec((pre) => { return pre-1 });
+                            if(row.category==blog_post_status){
+                                navigate(`/web/blog-details/${row.remove_byid}`);
+                                return true;
+                            } else if(row.category==new_chat_message){
+                                // navigate(`/web/chat`);
+                                // return true;
+                            }else if(row.category==new_friend_request){
+                                navigate(`/web/new-friend-request-list`);
+                                return true;
+                            }
                         } else {
                             console.error('notifications->',{
                                 title: `${data?.message}`,
@@ -244,38 +321,40 @@ export default function Header(){
                 setcurrentpage(1);
                 AllNotifications();
             }
-            // Request permission and show notification
-// function showNotification() {
-//   // 1. Ask for permission
-//   if (Notification.permission === "granted") {
-//     notifyUser();
-//   } else if (Notification.permission !== "denied") {
-//     Notification.requestPermission().then(permission => {
-//       if (permission === "granted") {
-//         notifyUser();
-//       }
-//     });
-//   }
-// }
-
-// // 2. Actual notification function
-// function notifyUser() {
-   
-//   const notification = new Notification("New Message!", {
-//     body: "You received a new message.",
-//     icon: "https://cdn-icons-png.flaticon.com/512/1827/1827314.png" // optional
-//   });
-//  console.log(notification,Notification.permission);
-//   // When user clicks notification
-//   notification.onclick = function () {
-//     window.focus();
-//     console.log("Notification clicked!");
-//   };
-// }
-
-// Call function
+        
+       async function ClearAll(){
+                try {
+                let url = `${API_URL}/clear-all-notifications`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        Refresh();
+                        call_auto_refresh_notifications();
+                    } else {
+                        console.error('notifications->',{
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+            } catch (error) {
+                setlistloader(false);
+                console.error('notifications->',{
+                    title: `Unknow error:- ${error.message}`,
+                    icon: "error",
+                })
+            }
+        }
 
     return (
+         <>
         <Navbar bg="primary" variant="dark">
             <Container>
                 <Nav className="me-auto">
@@ -297,7 +376,7 @@ export default function Header(){
                   <li className="nav-item dropdown notification-ui show">
                     <div className="dropdown-menu notification-ui_dd show" aria-labelledby="navbarDropdown">
                       <div className="notification-ui_dd-header">
-                        <h3 className="text-center">Notification <button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>{Refresh();call_auto_refresh_notifications()}}  >Refresh</button></h3> 
+                        <h3 className="text-center">Notification <button type='button' className='btn btn-success btn-sm Refresh' onClick={()=>{Refresh();call_auto_refresh_notifications()}}  >Refresh</button> <button type='button' className='btn btn-warning btn-sm Refresh' onClick={()=>{ClearAll()}}  >Clear All</button></h3> 
                         
                       </div>
                       {listloader==true ? <>
@@ -499,7 +578,7 @@ item.category == new_friend_request ?
             onClick={(e) => {
                 e.preventDefault();
                 ReadThis(item);
-                BlogDetails(item);
+                // BlogDetails(item);
             }}
             key={index}
             className={item.read_status <= 0 ? 'notification-list notification-list--unread':'notification-list'}>
@@ -601,5 +680,36 @@ item.category == new_friend_request ?
                 }
             </Container>
         </Navbar>
+       
+  {
+    shownotify_div==true ? <>
+    <div className="alert alert-success alert-dismissible fade show  alert-close" role="alert" onClick={hidediv}>
+       {
+        notify_data.category == new_friend_request ? 
+            <><strong>{notify_data.from_user_name}.</strong> Send friend request.</>
+        : notify_data.category == cancel_friend_request  ? 
+            <><strong>{notify_data.from_user_name}.</strong> Cancel friend request</>
+        : notify_data.category == accept_friend_request  ?
+            <><strong>{notify_data.to_user_name}.</strong> Accept friend request.</>
+        : notify_data.category == reject_friend_request  ?
+            <><strong>{notify_data.to_user_name}.</strong> Reject friend request.</>
+        : notify_data.category == remove_friend  ?
+            notify_data.remove_byid == notify_data.from ?
+            <><strong>{notify_data.from_user_name}.</strong> Remove you from friend list.</>
+            :
+            <><strong>{notify_data.to_user_name}.</strong> Remove you from friend list.</>
+        : notify_data.category == blog_post_status  ?
+            <><strong>{notify_data.from_user_name}.</strong> Post a new blog</>
+        :notify_data.category == new_chat_message  ?
+            <><strong>{notify_data.from_user_name}.</strong> <Truncatetext text={notify_data.text} maxLength={50} /></>
+        : 
+            <></>
+        }
+    </div>
+    </> : 
+    <></>
+  }  
+
+        </>
     )
 }
