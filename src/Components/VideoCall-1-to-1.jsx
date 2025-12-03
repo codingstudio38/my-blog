@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, USER_DETAILS, USER_LOGOUT,WEBSITE_URL } from './Constant';
-import { Post_With_Htoken } from './../Services/Https';
+import { Post_With_Htoken } from '../Services/Https';
 import swal from 'sweetalert';
-import Websocket from "./../Services/WebSocketService";
+import Websocket from "../Services/WebSocketService";
  import './../Css/VideoCall.css';
 var configuration = {
             iceServers: [{ urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }],
@@ -24,7 +24,7 @@ export default function VideoCall() {
     // const answermadeRef = useRef(false);
     // const icecandidateRef = useRef(false);
     const unsubRef = useRef(null);
-    const pcRef = useRef(new Map());
+    const pcRef = useRef(null);
     const remoteIdRef = useRef(null);
     const localStreamRef = useRef(null);
   const candidateBufferRef = useRef([]); // buffer ICE candidates until remoteDesc set
@@ -67,15 +67,12 @@ export default function VideoCall() {
  
   // create and hook a new RTCPeerConnection (one per call)
   function createPeerConnection(remoteId) {
-    if (pcRef.current.has(remoteId)) {
-      return pcRef.current.get(remoteId);
-    }
     // if existing, close it first
     if (pcRef.current) {
       try {
         pcRef.current.close();
       } catch (e) {}
-      pcRef.current = new Map();
+      pcRef.current = null;
       candidateBufferRef.current = [];
     }
 
@@ -97,33 +94,15 @@ export default function VideoCall() {
     };
 
     pc.ontrack = (ev) => {
-      attachRemoteVideo(remoteId, ev.streams[0]);
+      // console.log('ev',ev)
+      // attach remote stream
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
     };
-    pcRef.current.set(remoteId, pc);
+
+    pcRef.current = pc;
+    remoteIdRef.current = remoteId;
     return pc;
-    
-    // pc.ontrack = (ev) => {
-    //   // console.log('ev',ev)
-    //   // attach remote stream
-    //   if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
-    // };
-
-    // pcRef.current = pc;
-    // remoteIdRef.current = remoteId;
-    // return pc;
-
   }
-  function attachRemoteVideo(remoteId, stream) {
-  let video = document.getElementById(`remoteVideoRef${remoteId}`);
-  if (!video) {
-    video = document.createElement("video");
-    video.id = `remoteVideoRef${remoteId}`;
-    video.autoplay = true;
-    video.controls = true;
-    document.getElementById("remoteVideos").appendChild(video);
-  }
-  video.srcObject = stream;
-}
 async function startCall(receiverId) {
     try {
       // ensure local stream available
@@ -167,8 +146,8 @@ async function handleIncomingOffer(msg){
     } catch (error) {
         console.error(error)
     }
+   
 }
-
 function remoteOfferRef() {
     return cllofferRef.current;
   }
@@ -216,15 +195,14 @@ async function callreceive(){
 }
 
 async function handleIncomingAnswer(msg){
+   
     try {
          console.log("Incoming answer");
       if (!pcRef.current) {
         console.warn("No peer connection to attach answer to");
         return;
       }
-      const pc = pcRef.current.get(msg.from);
-      if (!pc) return;
-      await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+      await pcRef.current.setRemoteDescription(new RTCSessionDescription(msg.answer));
       // flush buffered candidates now that remoteDesc is set
       flushCandidateBuffer();
     } catch (e) {
@@ -243,10 +221,7 @@ async function handleIncomingIce(msg){
         console.log("Buffered ICE candidate");//, candidateInit 
         return;
       }
-      const pc = pcRef.current.get(msg.from);
-      if (!pc) return;
-      await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
-
+      await pcRef.current.addIceCandidate(new RTCIceCandidate(candidateInit));
       console.log("Added remote ICE candidate");
     
   } catch (e) {
@@ -286,13 +261,12 @@ async function handleIncomingIce(msg){
     return (
         <>
         <div className='row video-call'>
-          <div className='col-md-12 video-card' id='remoteVideos'>
-             {/* ref={remoteVideoRef}  */}
-             {/* <video
+          <div className='col-md-12 video-card'>
+             <video ref={remoteVideoRef} 
              id='remoteVideoRef' 
              autoPlay controls
              poster={`${WEBSITE_URL}/images/image-not-found.png`}
-             onContextMenu={(e) => e.preventDefault()}/> */}
+             onContextMenu={(e) => e.preventDefault()}/>
           </div>
           <div className='col-md-3'>
              <button onClick={() => startCall('691dd5a69a33be0cc9c93c15')}>First User Video Call</button>

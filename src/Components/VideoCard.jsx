@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from 'react';
 import { USER_DETAILS, API_URL,decrypt,encrypt,WEBSITE_URL } from './Constant.jsx';
- import './../Css/VideoCard.css';
+import './../Css/VideoCard.css';
 export default function VideoCard({ blog }) {
   const LOGIN_USER = USER_DETAILS();
   const [videoUrl, setVideoUrl] = useState(null);
