@@ -153,3 +153,14 @@ export const call_auto_refresh_notifications = () => {
   auto_refresh_notifications.forEach((cb) => cb())
   return true;
 };
+
+var myusers = [];
+export const subscribe_FindUserById = (alluser) => {
+  myusers = alluser;
+  return true;
+};
+export const call_FindUserById = (id) => {
+  return myusers.filter((user)=>{
+        return user._id==id;
+    })
+};

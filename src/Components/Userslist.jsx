@@ -1,7 +1,7 @@
 import './../Css/Userslist.css';
 import Websocket from "./../Services/WebSocketService";
  
-import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message} from './Constant.jsx';
+import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message,subscribe_FindUserById} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link,useLocation  } from 'react-router-dom';
@@ -140,6 +140,7 @@ function LoadMore(){
     setcurrentpage((pre)=>{return pre+1});
     // MyFriends();
 }
+
    async function MyFriends() {
           try {
               if (listloader) {
@@ -165,6 +166,10 @@ function LoadMore(){
                           setDatelist((prev) => [...prev, ...data.result.list]);
                           settotal_friend_rec((dataid) => { return data.result.total });
                           setlastpage((dataid) => { return data.result.lastpage });
+                          setDatelist((prev) =>{
+                            subscribe_FindUserById(prev);
+                            return prev;
+                          });
                       } else {
                           swal({
                               title: `${data?.message}`,
@@ -295,7 +300,6 @@ function LoadMore(){
         }
     }
     function CurrentUser(user){
-        UpdateUnreadMessage(user);
         if(location.pathname!=='/web/chat'){
             navigate('/web/chat');
             window.sessionStorage.removeItem('sessionchatuser');
@@ -304,6 +308,18 @@ function LoadMore(){
         }
         if(props.getuser){
             props.getuser(user);
+        }
+    }
+    function VideoCall(user){
+        if(location.pathname!=='/web/video-call'){
+            window.sessionStorage.removeItem('sessioncalluser');
+            window.sessionStorage.setItem('sessioncalluser',JSON.stringify(user));
+            navigate(`/web/video-call`);
+            return false;
+        } else {
+            if(props.getuser){
+                props.getuser(user);
+            }
         }
     }
     return ( 
@@ -341,12 +357,9 @@ function LoadMore(){
                              {datalist.map((item, index) => 
                 <li key={index}>
                                 <a href="#"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    CurrentUser(item)
-                                }}
+                                onClick={(e) => { e.preventDefault(); }}
                                 >
-                                    <div className="friend-img">
+                                    <div className="friend-img" onClick={(e) => { CurrentUser(item) }}>
                                          {
                                             item.user_file_dtl.filename == "" ? 
                                             <><img src='/images/image-not-found.png' title={item.name}  alt={item.name} loading="lazy"/></>
@@ -358,13 +371,14 @@ function LoadMore(){
                                         <h4>{item.name}</h4>
                                         <p>{item.total_friend} friends  </p>
                                         {item.wsstatus ==1 ?
-                                        <><small className='text-success'>Online</small></> 
+                                        <><small className='text-success'>Online</small><br/>
+                                        <button className='text-white btn btn-sm btn-info' onClick={(e) => { CurrentUser(item) }}>Message</button> 
+                                        <button className='text-white btn btn-sm btn-primary ms-1' onClick={(e) => { VideoCall(item) }}>Video Call</button></> 
                                         :
                                         <><small className='text-danger'>Offline</small></>
                                         }
                                         {
-                                            //  onClick={()=>UpdateUnreadMessage(item)} 
-                                            item.total_unread_message > 0 ? <><br/><p className='btn btn-sm btn-primary text-white'>{item.total_unread_message} Unread Message</p></> : <></>
+                                            item.total_unread_message > 0 ? <><p className='btn btn-sm btn-warning text-white ms-1' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message} Unread Message</p></> : <></>
                                         }
                                     </div>
                                 </a>

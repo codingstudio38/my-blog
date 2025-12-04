@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef} from 'react';
-import { useNavigate,useSearchParams } from 'react-router-dom';
-import { API_URL, USER_DETAILS, USER_LOGOUT,WEBSITE_URL,call_FindUserById } from './Constant';
+import { useNavigate } from 'react-router-dom';
+import { API_URL, USER_DETAILS, USER_LOGOUT,WEBSITE_URL } from './Constant';
 import { Post_With_Htoken } from '../Services/Https';
 import swal from 'sweetalert';
 import Websocket from "../Services/WebSocketService";
-import Userslist from './Userslist.jsx';
  import './../Css/VideoCall.css';
 var configuration = {
             iceServers: [{ urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }],
             iceCandidatePoolSize: 10,
         };
 export default function VideoCall() {
-  const [searchParams] = useSearchParams();
-  const query_call = searchParams.get("call");
-
-    const firstCall = useRef(true); 
+    const firstCall = useRef(true);
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
     const localVideoRef = useRef(null);
@@ -28,32 +24,18 @@ export default function VideoCall() {
     // const answermadeRef = useRef(false);
     // const icecandidateRef = useRef(false);
     const unsubRef = useRef(null);
-    const pcRef = useRef(null);
+    const pcRef = useRef(new Map());
     const remoteIdRef = useRef(null);
     const localStreamRef = useRef(null);
-    const candidateBufferRef = useRef([]); // buffer ICE candidates until remoteDesc set
-    let [activechatuser, setactivechatuser] = useState(false);
-    const activeUserRef = useRef(activechatuser);
-    let [callreceive, setcallreceive] = useState(false);
-    let [callreject, setcallreject] = useState(false);
-    const checkuserincall = useRef(false);
+  const candidateBufferRef = useRef([]); // buffer ICE candidates until remoteDesc set
     useEffect(() => {
         if (LOGIN_USER === false) {
-            navigate('/');
-            return;
-        }
+        navigate('/');
+        return;
+    }
         if (firstCall.current) {
             firstCall.current = false;
             return;
-        }
-        checkuserincall.current=false;
-         const sessioncalluser = window.sessionStorage.getItem('sessioncalluser');
-        if(sessioncalluser!==null){
-            if(sessioncalluser!==''){
-                let user= JSON.parse(sessioncalluser);
-                getuserFromChild(user);
-                window.sessionStorage.removeItem('sessioncalluser');
-            }
         }
         cllofferRef.current = false;
         showreceivebtnRef.current = false;
@@ -61,15 +43,20 @@ export default function VideoCall() {
         // icecandidateRef.current = false;
             unsubRef.current = Websocket.subscribe((msg) => {
                     if(msg?.code=='send-offer'){
-                      if(!checkuserincall.current){
                         cllofferRef.current = msg;
                         setclloffer((pre)=>{return cllofferRef.current;});
                         handleIncomingOffer(msg);
-                      }
+                        // console.log('VideoCall.jsx/////////send-offer',msg);
                     } else if(msg?.code=='answer-made'){
-                          handleIncomingAnswer(msg);
+                        // answermadeRef.current = msg;
+                        // setanswermade((pre)=>{return answermadeRef.current;});
+                        handleIncomingAnswer(msg);
+                        // console.log('VideoCall.jsx/////////answer-made',msg);
                     } else if(msg?.code=='ice-candidate'){
-                          handleIncomingIce(msg);
+                        // icecandidateRef.current = msg;
+                        // seticecandidate((pre)=>{return icecandidateRef.current;});
+                        handleIncomingIce(msg);
+                        // console.log('VideoCall.jsx/////////ice-candidate',msg);
                     }
             });
             return () => {
@@ -80,12 +67,15 @@ export default function VideoCall() {
  
   // create and hook a new RTCPeerConnection (one per call)
   function createPeerConnection(remoteId) {
+    if (pcRef.current.has(remoteId)) {
+      return pcRef.current.get(remoteId);
+    }
     // if existing, close it first
     if (pcRef.current) {
       try {
         pcRef.current.close();
       } catch (e) {}
-      pcRef.current = null;
+      pcRef.current = new Map();
       candidateBufferRef.current = [];
     }
 
@@ -107,17 +97,33 @@ export default function VideoCall() {
     };
 
     pc.ontrack = (ev) => {
-      // console.log('ev',ev)
-      // attach remote stream
-      setTimeout(()=>{
-        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
-      },500)
+      attachRemoteVideo(remoteId, ev.streams[0]);
     };
-
-    pcRef.current = pc;
-    remoteIdRef.current = remoteId;
+    pcRef.current.set(remoteId, pc);
     return pc;
+    
+    // pc.ontrack = (ev) => {
+    //   // console.log('ev',ev)
+    //   // attach remote stream
+    //   if (remoteVideoRef.current) remoteVideoRef.current.srcObject = ev.streams[0];
+    // };
+
+    // pcRef.current = pc;
+    // remoteIdRef.current = remoteId;
+    // return pc;
+
   }
+  function attachRemoteVideo(remoteId, stream) {
+  let video = document.getElementById(`remoteVideoRef${remoteId}`);
+  if (!video) {
+    video = document.createElement("video");
+    video.id = `remoteVideoRef${remoteId}`;
+    video.autoplay = true;
+    video.controls = true;
+    document.getElementById("remoteVideos").appendChild(video);
+  }
+  video.srcObject = stream;
+}
 async function startCall(receiverId) {
     try {
       // ensure local stream available
@@ -138,7 +144,7 @@ async function startCall(receiverId) {
       // create offer
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      checkuserincall.current=true;
+
       // send serializable offer (it has { type, sdp })
       Websocket.send({
         code: "send-offer",
@@ -157,17 +163,16 @@ async function handleIncomingOffer(msg){
     try {
         cllofferRef.current = msg;
         showreceivebtnRef.current = true;
-        checkuserincall.current=true;
         setshowreceivebtn((pre)=>{return true;});
     } catch (error) {
         console.error(error)
     }
-   
 }
+
 function remoteOfferRef() {
     return cllofferRef.current;
   }
-async function callreceiveFn(){
+async function callreceive(){
     try {
       const offerMsg = remoteOfferRef(); // helper to get stored offer (see note below)
       if (!offerMsg) {
@@ -193,14 +198,7 @@ async function callreceiveFn(){
       // create answer
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
-      setcallreceive((pre)=>{return true});
-      setcallreject((pre)=>{return false});
-      let callby = call_FindUserById(fromId);
-      if(callby.length > 0){
-        setactivechatuser((pre) => { return callby[0]; });
-        activeUserRef.current = callby[0];
-      }
-      checkuserincall.current=true;
+
       // send answer
       Websocket.send({
         code: "answer-made",
@@ -218,15 +216,15 @@ async function callreceiveFn(){
 }
 
 async function handleIncomingAnswer(msg){
-   
     try {
          console.log("Incoming answer");
       if (!pcRef.current) {
         console.warn("No peer connection to attach answer to");
         return;
       }
-      await pcRef.current.setRemoteDescription(new RTCSessionDescription(msg.answer));
-      checkuserincall.current=true;
+      const pc = pcRef.current.get(msg.from);
+      if (!pc) return;
+      await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
       // flush buffered candidates now that remoteDesc is set
       flushCandidateBuffer();
     } catch (e) {
@@ -245,9 +243,10 @@ async function handleIncomingIce(msg){
         console.log("Buffered ICE candidate");//, candidateInit 
         return;
       }
-      await pcRef.current.addIceCandidate(new RTCIceCandidate(candidateInit));
-      setcallreceive((pre)=>{return true});
-      setcallreject((pre)=>{return false});
+      const pc = pcRef.current.get(msg.from);
+      if (!pc) return;
+      await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+
       console.log("Added remote ICE candidate");
     
   } catch (e) {
@@ -279,83 +278,43 @@ async function handleIncomingIce(msg){
       if (localVideoRef.current) localVideoRef.current.srcObject = null;
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
       candidateBufferRef.current = [];
+      cllofferRef.current = null;
     } catch (e) {
       console.warn("cleanup error", e);
     }
   }
-  function ResetAll(){
-      setactivechatuser((pre)=>{return false});
-      activeUserRef.current = false;
-      cllofferRef.current = null;
-      checkuserincall.current=false;
-      setcallreceive((pre)=>{return false});
-      setcallreject((pre)=>{return false});
-  }
-  function getuserFromChild(user) {
-        if (!user) {
-            setactivechatuser((pre) => { return false; });
-            activeUserRef.current = false;
-        } else {
-            if (activeUserRef.current._id !== user._id) {
-                setactivechatuser((pre_user) => { return user; });
-                activeUserRef.current = user;
-                startCall(user._id)
-            }
-        }
-    }
-   
     return (
         <>
-      <div className='row m-0'>
-        <div className='col-md-4'>
-          <Userslist getuser={getuserFromChild} />
-        </div>
-        <div className='col-md-8'>
-          <div className='row video-call'>
-            <div className='col-md-12 video-card'>
-              
-              {activechatuser!==false ? 
-                callreceive==true ? 
-                <>
-                <video ref={remoteVideoRef} 
-                id='remoteVideoRef' 
-                autoPlay controls
-                poster={`${WEBSITE_URL}/images/image-not-found.png`}
-                onContextMenu={(e) => e.preventDefault()}/>
-                </> 
-                : 
-                <div className='call-background'>
-                  <h3 className='callto'>Calling to {activechatuser.name}<img src='/images/pngegg.png' className='calltoimg' loading="lazy"/> </h3>
-                </div>
-              : 
-              <>
-              <div className='call-background'>
-                <h3 className='callto'>Start Call</h3>
-              </div>
-              </>
-              }
-            </div>
-            <div className='col-md-3'>
-              {/* <button onClick={() => startCall('691d4d8fbc0b6437622b1adb')}>First User Video Call</button> */}
-            </div>
-            <div className='col-md-3'>
-              {
-                  showreceivebtn==true ? <button onClick={callreceiveFn}>Receive Video Call</button> : <></>
-              }
-            </div>
-            <div className='col-md-3'>
-
-            </div>
-            <div className='col-md-3 local-video-card'>
-              <video ref={localVideoRef} id='localVideoRef'
-              autoPlay 
-              controls 
-              poster={`${WEBSITE_URL}/images/image-not-found.png`} 
-              onContextMenu={(e) => e.preventDefault()}/>
-            </div>
+        <div className='row video-call'>
+          <div className='col-md-12 video-card' id='remoteVideos'>
+             {/* ref={remoteVideoRef}  */}
+             {/* <video
+             id='remoteVideoRef' 
+             autoPlay controls
+             poster={`${WEBSITE_URL}/images/image-not-found.png`}
+             onContextMenu={(e) => e.preventDefault()}/> */}
           </div>
-      </div>
-  </div>
+          <div className='col-md-3'>
+             <button onClick={() => startCall('691dd5a69a33be0cc9c93c15')}>First User Video Call</button>
+             <button onClick={() => startCall('690b4d76579e83f61ae3ed70')}>Second User Video Call</button>
+          </div>
+          <div className='col-md-3'>
+            {
+                showreceivebtn==true ? <button onClick={callreceive}>Receive Video Call</button> : <></>
+            }
+          </div>
+          <div className='col-md-3'>
+
+          </div>
+          <div className='col-md-3 local-video-card'>
+            <video ref={localVideoRef} id='localVideoRef'
+             autoPlay 
+             controls 
+             poster={`${WEBSITE_URL}/images/image-not-found.png`} 
+             onContextMenu={(e) => e.preventDefault()}/>
+          </div>
+        </div>
+           
         </>
     );
 }
