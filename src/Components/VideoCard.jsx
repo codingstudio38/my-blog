@@ -50,16 +50,28 @@ export default function VideoCard({ blog }) {
 
 
    function VideoPlayOrPause(){
-    // Toggle play/pause
-    if(videoRef.current){
-    const video = videoRef.current;
-      video.addEventListener("play", (e)=>{
-        setIsPaused(false);
-      });
-      video.addEventListener("pause",  (e)=>{
-        setIsPaused(true);
-      });
-    }
+
+    if (videoRef.current) {
+          if(videoRef.current.paused){
+             setIsPaused((pre)=>{return false;});
+            videoRef.current.play();
+          } else {
+            setIsPaused((pre)=>{return true;});
+            videoRef.current.pause();
+          }
+      }
+
+    // Toggle play/pause if video controller enable
+    // if(videoRef.current){
+    // const video = videoRef.current;
+    //   video.addEventListener("play", (e)=>{
+    //     setIsPaused(false);
+    //   });
+    //   video.addEventListener("pause",  (e)=>{
+    //     setIsPaused(true);
+    //   });
+    // }
+
    }
     function Play(){
       if (videoRef.current) {
@@ -77,6 +89,8 @@ export default function VideoCard({ blog }) {
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [volume, setVolume] = useState(1);
+    const [playbackRate, setPlaybackRate] = useState(1);
+    const [isFullscreen, setIsFullscreen] = useState(false);
     function Mute(){
       if (videoRef.current) {
         // videoRef.current.muted = !videoRef.current.muted;  
@@ -133,58 +147,57 @@ function handleVolumeChange(e) {
     setIsMuted(false);
   }
 }
+  
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const seekMax = duration > 0 ? duration : 0.0001;  
+  function changeSpeed(value) {
+  const speed = parseFloat(value);
+  setPlaybackRate(speed);
+  if (videoRef.current) {
+    videoRef.current.playbackRate = speed;
+  }
+}
+async function togglePIP() {
+  if (!videoRef.current) return;
+  try {
+    if (document.pictureInPictureElement) {
+      await document.exitPictureInPicture();
+    } else {
+      await videoRef.current.requestPictureInPicture();
+    }
+  } catch (err) {
+    console.log("PIP error:", err);
+  }
+}
+function toggleFullscreen() {
+  const videoContainer = videoRef.current.parentElement;
+
+  if (!document.fullscreenElement) {
+    // Enter fullscreen
+    if (videoContainer.requestFullscreen) {
+      videoContainer.requestFullscreen();
+    } else if (videoContainer.webkitRequestFullscreen) {
+      videoContainer.webkitRequestFullscreen();
+    } else if (videoContainer.msRequestFullscreen) {
+      videoContainer.msRequestFullscreen();
+    }
+    setIsFullscreen(true);
+  } else {
+    // Exit fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    setIsFullscreen(false);
+  }
+}
   return (
     <>
     {playvideo == true ? 
     <>
-    <small>{formatTime(currentTime)}/{formatTime(duration)}</small>
-      <input
-        type="range"
-        min="0"
-        max={duration}
-        value={currentTime}
-        step="0.1"
-        onChange={handleSeek}
-        className="video-range"
-      />
-    {
-      isPaused==true ?
-       <>
-       <button type='button' className='btn btn-sm btn-primary' onClick={()=>Play()} id='button-play'><i className="bi bi-play-fill"></i></button>
-       </> 
-      : 
-      <>
-      <button type='button' className='btn btn-sm btn-warning' onClick={()=>Pause()} id='button-pause'><i className="bi bi-pause-fill"></i></button>
-        { isMuted==true ?
-          <>
-            <button type='button' className='btn btn-sm btn-info ms-1' onClick={()=>Unmute()} id='button-Unmute'>
-              <i className="bi bi-volume-mute-fill"></i>
-              </button>
-          </> 
-          : 
-          <>
-            <button type='button' className='btn btn-sm btn-info ms-1' onClick={()=>Mute()} id='button-mute'>
-              <i className={`bi ${
-    volume == 0
-      ? "bi-volume-mute-fill"
-      : volume < 0.5
-      ? "bi-volume-down-fill"
-      : "bi-volume-up-fill"
-  }`}></i>
-              </button>
-          </>
-        }
-        <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="volume-range"
-        />
-      </>
-    }
     <div className="video-card" onClick={VideoPlayOrPause}>
       {isPaused ? (
           <div className="play-btn">►</div>
@@ -195,7 +208,7 @@ function handleVolumeChange(e) {
       <video
         ref={videoRef}
         src={videoUrl}
-        controls
+        // controls
         autoPlay
         className="video-player"
         poster={blog.thumbnail_view_path == "" ? `${WEBSITE_URL}/images/image-not-found.png`:`${blog.thumbnail_view_path}`}
@@ -208,7 +221,92 @@ function handleVolumeChange(e) {
        disablePictureInPicture*/}
        
     </div>
+    <div className='row video-controllers'>
+      <div className='col-md-12'>
+        <div className="video-range-wrapper">
+          <small className='currentTime'>{formatTime(currentTime)}</small>
+          <small className='duration'>{formatTime(duration)}</small>
+          <input
+            type="range"
+            min="0"
+            max={duration}
+            value={currentTime}
+            step="0.1"
+            onChange={handleSeek}
+            className="video-range"
+            aria-label="Seek"
+              style={{
+                background: `linear-gradient(to right, rgba(13,110,253,0.85) ${progressPercent}%, #e6e6e6 ${progressPercent}%)`,
+              }}
+          />
+        </div>
+      </div>
+      <div className='col-md-12'>
+        <div className="d-flex justify-content-between align-items-center">
+          <div className='right d-flex align-items-center'>
+        { isPaused==true ?
+          <button type='button' className='btn btn-sm btn-primary' onClick={()=>Play()} ><i className="bi bi-play-fill"></i></button>
+          : 
+          <button type='button' className='btn btn-sm btn-warning' onClick={()=>Pause()} ><i className="bi bi-pause-fill"></i></button>
+        }
+        { isMuted==true ?
+              <>
+                <button type='button' className='btn btn-sm btn-info ms-1' onClick={()=>Unmute()} >
+                  <i className="bi bi-volume-mute-fill"></i>
+                  </button>
+              </> 
+              : 
+              <>
+                <button type='button' className='btn btn-sm btn-info ms-1' onClick={()=>Mute()} >
+                  <i className={`bi ${
+                    volume == 0
+                      ? "bi-volume-mute-fill"
+                      : volume < 0.5
+                      ? "bi-volume-down-fill"
+                      : "bi-volume-up-fill"
+                  }`}></i>
+                  </button>
+              </>
+            }
+            <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="volume-range ms-1"
+            />
+          </div>
+          <div className='left d-flex align-items-center'>
+            <select
+              className="speed-select"
+              value={playbackRate}
+              onChange={(e) => changeSpeed(e.target.value)}
+            >
+              <option value="0.5">0.5x</option>
+              <option value="1">1x (Normal)</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+            <button
+              className="btn btn-sm btn-dark ms-2"
+              onClick={togglePIP}
+            >
+              <i className="bi bi-box-arrow-up-right"></i>
+            </button>
+            <button
+              className="btn btn-sm btn-dark ms-2"
+              onClick={toggleFullscreen}
+            >
+              <i className={`bi ${isFullscreen ? "bi-fullscreen-exit" : "bi-fullscreen"}`}></i>
+            </button>
+          </div>
+        </div>
     
+      </div>
+    </div>
     </>
     :
      <div className="video-card" onClick={playVideo}>
