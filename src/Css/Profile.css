@@ -342,7 +342,9 @@ img{
   height: 450px;
   overflow: hidden; 
 }
-
+.forvideos{
+  height: 100% !important;
+}
 
 .profile .blog section .blog-image img{
     width: 100%;

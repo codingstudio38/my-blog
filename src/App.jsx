@@ -9,6 +9,7 @@ import Page404 from './Components/Page404';
 import Protected from './Components/Protected';
 import Home from './Components/Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import Adminindex from './Components/Index';
 import Profile from './Components/Profile';
 import Editprofile from './Components/Editprofile';

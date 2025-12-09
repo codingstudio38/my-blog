@@ -24,6 +24,9 @@ img{
   overflow: hidden; 
 }
 
+.forvideos{
+  height: 100% !important;
+}
 
 .blog section .blog-image img{
     width: 100%;
