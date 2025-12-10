@@ -4,6 +4,9 @@
   aspect-ratio: 16/9;   /* maintain 16:9 ratio */
   border-radius: 10px;  /* optional */
   background: #000;
+  /* object-fit: cover; */
+  /* display: block; */
+  visibility: visible; /* we keep visible but controls=false to use custom UI */
 }
 
 
@@ -50,7 +53,7 @@
 }
 
 /* Hide element */
-.hidden {
+.video-card .hidden {
   opacity: 0;
   visibility: hidden;
 }
@@ -60,7 +63,8 @@
   opacity: 1;
   visibility: visible;
 }
-.video-range {
+.video-card .video-range {
+  -webkit-appearance: none;
   width: 100%;
   height: 6px;
   background: #ddd;
@@ -70,23 +74,23 @@
   cursor: pointer;
 }
 
-.video-range::-webkit-slider-thumb {
+.video-card .video-range::-webkit-slider-thumb {
   appearance: none;
   height: 14px;
   width: 14px;
-  background: #007bff;
+  background: #be0505;
   border-radius: 50%;
   cursor: pointer;
 }
 
-.video-range::-moz-range-thumb {
+.video-card .video-range::-moz-range-thumb {
   height: 14px;
   width: 14px;
-  background: #007bff;
+  background: #be0505;
   border-radius: 50%;
 }
 
-.volume-range {
+.video-card .volume-range {
   width: 120px;
   height: 5px;
   background: #ddd;
@@ -95,55 +99,56 @@
   outline: none;
 }
 
-.volume-range::-webkit-slider-thumb {
+.video-card .volume-range::-webkit-slider-thumb {
   appearance: none;
   width: 14px;
   height: 14px;
-  background: #0d6efd;
+  background: #be0505;
   border-radius: 50%;
   cursor: pointer;
 }
+ 
 
-.volume-range::-moz-range-thumb {
+.video-card .volume-range::-moz-range-thumb {
   width: 14px;
   height: 14px;
-  background: #0d6efd;
+  background: #be0505;
   border-radius: 50%;
   cursor: pointer;
 }
-.video-range-wrapper {
+.video-card .video-range-wrapper {
   position: relative;
   width: 100%;
   margin-top: 10px;
 }
 
 /* Left label (duration) */
-.video-range-wrapper .duration {
+.video-card .video-range-wrapper .duration {
   position: absolute;
   bottom: 15px;
   left: 0;
   font-size: 12px;
-   color: #000000
+   color: #ffffff
 }
 
 /* Right label (current time) */
-.video-range-wrapper .currentTime {
+.video-card .video-range-wrapper .currentTime {
   position: absolute;
   bottom: 15px;
   right: 0;
   font-size: 12px;
-  color: #000000
+  color: #ffffff
 }
 
 /* Range bar */
-.video-range {
+.video-card .video-range {
   width: 100%;
   height: 6px;
   border-radius: 10px;
   cursor: pointer;
 }
-.speed-select {
-  background:blueviolet;
+.video-card .speed-select {
+  background:#212529;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   padding: 6px 8px;
@@ -152,18 +157,78 @@
   font-size: 14px;
   cursor: pointer;
 }
-
-/* .speed-select option {
-  background: #1a1a1a;
-  color: #fff;
-} */
-/* .btn-dark {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(8px);
+.video-card .Playbtn{
+  background:#212529 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
   color: #fff !important;
-} */
+}
+.video-card .Pausebtn{
+  background:#212529 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+.video-card .Unmutebtn{
+  background:#212529 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+.video-card .Mutebtn{
+  background:#212529 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+.video-card .toggleFullscreen{
+   border: 1px solid rgba(255, 255, 255, 0.3) !important;
 
-/* .btn-dark:hover {
-  background: rgba(255, 255, 255, 0.25) !important;
-} */
+}
+.video-card .togglePIP{
+   border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+.video-card .speed-select option {
+   background:#404549;
+  /* color: #fff; */
+}
+ 
+.video-card .video-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  pointer-events: none;
+  text-align: center;
+}
+
+.video-card .video-loading .loading{
+  position: relative !important;
+    background: #ffffff00 !important;
+}
+
+.video-card .video-controllers{
+      margin-left: 0px !important;
+    margin-right: 0px !important;
+  margin-top: -75px !important;
+  position: relative;
+}
+
+.video-card .video-preview-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.video-card .preview-box {
+  position: absolute;
+  bottom: 16px !important; 
+  width: 100px !important;
+  height: 60px !important;
+  background: #000;
+  border-radius: 5px;
+  padding: 2px;
+  pointer-events: none;
+}
+
+.video-card .preview-box img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}

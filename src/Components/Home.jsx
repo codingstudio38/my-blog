@@ -118,7 +118,8 @@ function Home(){
             {datalist.map((item, index) =>
                         <section key={index}>
                         <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                        <div className={item.blog_type == "691beef0c2cfd41cc117ef70"?'blog-image':'blog-image forvideos'}>
+                        <div className='blog-image'>
+                             {/* forvideos */}
 {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
     item.file_dtl.filesize == "" ? 
     <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>

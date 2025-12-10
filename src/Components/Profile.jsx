@@ -635,7 +635,7 @@ import swal from 'sweetalert';
  {videodatalist.map((item, index) => 
               <section key={index}>
               <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image forvideos'>
+                <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
                   <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
@@ -696,7 +696,7 @@ import swal from 'sweetalert';
  {reeldatalist.map((item, index) => 
               <section key={index}>
               <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image forvideos'>
+                <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
                   <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
@@ -757,7 +757,7 @@ import swal from 'sweetalert';
  {musicdatalist.map((item, index) => 
               <section key={index}>
               <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image forvideos'>
+                <div className='blog-image'>
               {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
                   item.file_dtl.filesize == "" ? 
                   <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
