@@ -311,7 +311,7 @@ const previousSec =  useRef(false);
               // setPreviewX(mouseX - 50);  // center preview box
               // setShowPreview((pre)=>{return true;});
             
-
+ 
             setcheckThumloading(true);
             let response = await Post_With_Htoken(myform, url, headers);
             setcheckThumloading(false);
@@ -438,8 +438,8 @@ const previousSec =  useRef(false);
               {
                 checkThumloading ? 
                 <div className="video-loading">
-          <div className="loading" id="loading">
-        <svg width={64} height={64} viewBox="0 0 50 50">
+          <div className="loading">
+        <svg width={32} height={32} viewBox="0 0 50 50">
           <circle
             cx={25}
             cy={25}
@@ -475,8 +475,8 @@ const previousSec =  useRef(false);
               value={currentTime} 
               step="0.1"
               onChange={(e)=>handleSeek(e)}
-              onMouseMove={(e)=>handleHover(e)}
-              onMouseLeave={() => setShowPreview(false)}
+              // onMouseMove={(e)=>handleHover(e)}
+              // onMouseLeave={() => setShowPreview(false)}
               className="video-range"
               aria-label="Seek"
                 style={{

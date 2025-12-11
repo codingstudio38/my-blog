@@ -59,7 +59,7 @@
 }
 
 /* Hover to show pause button when video playing */
-.video-card:hover .pause-btn.hidden {
+.video-card:hover .pause-btn .hidden {
   opacity: 1;
   visibility: visible;
 }
@@ -207,10 +207,21 @@
 .video-card .video-controllers{
       margin-left: 0px !important;
     margin-right: 0px !important;
-  margin-top: -75px !important;
-  position: relative;
-}
+  margin-bottom: 3px !important;
+  /* position: relative; */
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
 
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.video-card:hover .video-controllers {
+  opacity: 1;
+  visibility: visible;
+}
 .video-card .video-preview-wrapper {
   position: relative;
   width: 100%;
