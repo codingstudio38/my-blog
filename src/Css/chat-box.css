@@ -29,10 +29,7 @@
  }
 } */
 
-.search input[type="text"],
-i {
-  color: white;
-}
+
 .search ::placeholder {
   color: white;
 }

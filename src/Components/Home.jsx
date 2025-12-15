@@ -14,6 +14,7 @@ function Home(){
     const LOGIN_USER = USER_DETAILS();
     const firstCall = useRef(true);
     const [listloader, setlistloader] = useState(false);
+    const [actionloader, setactionloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
     const [limit, setlimit] = useState(5);
     const [total_rec, settotal_rec] = useState(0);
@@ -100,6 +101,108 @@ function Home(){
             })
         }
     }
+    async function LikeAndDislike(item) {
+        try {
+            let status = item.mylike <= 0 ? 1 : 0;
+            setactionloader(true);
+           let url = `${API_URL}/like-and-dislike`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setactionloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === item._id) {
+                            // let mylike = row.mylike;
+                            // let total_likes = row.total_likes;
+                            // if(status==1){
+                            //     mylike=mylike+1;
+                            //     total_likes=total_likes+1;
+                            // } else {
+                            //     mylike=mylike-1;
+                            //     total_likes=total_likes-1;
+                            // }
+                            return {
+                                ...row,
+                                mylike:status,
+                                total_likes: data.total
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function Comment(item) {
+        try {
+            let status = item.mycomment <= 0 ? 1 : 0;
+            setactionloader(true);
+           let url = `${API_URL}/blog-comment`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status,commen:'statics comment'});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setactionloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === item._id) {
+                            // let mylike = row.mylike;
+                            // let total_likes = row.total_likes;
+                            // if(status==1){
+                            //     mylike=mylike+1;
+                            //     total_likes=total_likes+1;
+                            // } else {
+                            //     mylike=mylike-1;
+                            //     total_likes=total_likes-1;
+                            // }
+                            return {
+                                ...row,
+                                mycomment:status,
+                                total_comments: data.total
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
     function changePage(page){
         setcurrentpage(page)
     }
@@ -164,6 +267,17 @@ function Home(){
                             BlogDetails(item);
                         }}
                         >Read More</a>
+                        <div className="fb-actions">
+                        <button onClick={()=>LikeAndDislike(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                        </button>
+                        <button onClick={()=>Comment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                        </button>
+                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                            <i className="bi bi-share"></i> Share
+                        </button>
+                        </div>
                         </section>
             )
         }    

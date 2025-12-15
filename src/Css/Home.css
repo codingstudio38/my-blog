@@ -99,3 +99,54 @@ img{
 .blog-title{
   font-size: inherit;
 }
+
+.fb-actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #e4e6eb;
+  border-bottom: 1px solid #e4e6eb;
+  padding: 6px 0;
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.fb-btn {
+  margin: 2px;
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #65676b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.fb-btn:hover {
+  background: #e4ecf8;
+}
+
+.fb-btn span {
+  margin-left: 2px;
+}
+
+/* Optional active like */
+.fb-btn.like.active {
+  color: #1877f2;
+  background: #e4ecf8;
+}
+.fb-btn.comment.active {
+  color: #1877f2;
+  background: #e4ecf8;
+}
+.fb-btn.share.active {
+  color: #1877f2;
+  background: #e4ecf8;
+}
