@@ -9,6 +9,9 @@ import swal from 'sweetalert';
 import moment from "moment";
 import Allnotifications from './Allnotifications.jsx';
 import VideoCard from './VideoCard.jsx';
+import { Modal, Button,Form } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
+import { Pagination } from 'antd';
 function Home(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -22,6 +25,7 @@ function Home(){
     const [lastpage, setlastpage] = useState(1);
     const [current_scroll_position, setCurrent_scroll_position] = useState(0);
     const [pre_scroll_position, setPre_scroll_position] = useState(0);
+    const [showcomment_modal, setshowcomment_modal] = useState(false);
     useEffect(() => {
             document.title = "MERN Technology || Blogs";
             if (LOGIN_USER === false) {
@@ -152,12 +156,83 @@ function Home(){
             })
         }
     }
-    async function Comment(item) {
+    let comment_blog_details = useRef(false);
+    const [user_comment_details, setuser_comment_details] = useState({
+        user_id:'',
+        blog_id:'',
+        comment:'',
+        _id:'',
+    });
+    const [comment_form, setcomment_form] = useState({
+        comment:'',
+        delete:'',
+    });
+    async function OpenComment(item) {
         try {
-            let status = item.mycomment <= 0 ? 1 : 0;
+            setactionloader(true);
+           let url = `${API_URL}/user-blog-comment`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setactionloader(false);
+                if(response!==""){
+                    comment_blog_details.current = item;
+                    //  setcomment_blog_details((pre)=>{
+                    //         return item;
+                    //     });
+                    CommentList();
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                         const b =  data.result==null?{
+                                    user_id:'',
+                                    blog_id:'',
+                                    comment:'',
+                                    _id:'',
+                                }:data.result;
+                        setuser_comment_details((pre)=>{
+                            return b;
+                        });
+                        setcomment_form(pre => ({
+                            ...pre,
+                            comment: b.comment
+                        }))
+                        setshowcomment_modal(true);
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    function deleteComment(){
+        let d = comment_form;
+        d['delete']=1;
+        setcomment_form(pre =>{ 
+            return { ...pre, delete: 1 }
+        });
+        Comment();
+    }
+    async function Comment() {
+        try {
+            let status = user_comment_details._id=="" ? 1 : 2;
+            if(comment_form.delete==1){
+                status=0;
+            }
             setactionloader(true);
            let url = `${API_URL}/blog-comment`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status,commen:'statics comment'});
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:comment_blog_details.current._id,status:status,comment:comment_form.comment,comment_id:user_comment_details._id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -169,7 +244,7 @@ function Home(){
                     const data = response;
                     if (data.status == 200) {
                         let newdatalist = datalist.map(row => {
-                        if (row._id === item._id) {
+                        if (row._id === comment_blog_details.current._id) {
                             // let mylike = row.mylike;
                             // let total_likes = row.total_likes;
                             // if(status==1){
@@ -188,6 +263,11 @@ function Home(){
                         return row;
                     });
                     setDatelist((prev) => {return newdatalist});
+                    setshowcomment_modal(false);
+                    setcomment_form({
+                        comment:'',
+                        delete:'',
+                    })
                     } else {
                         swal({
                             title: `${data?.message}`,
@@ -209,6 +289,66 @@ function Home(){
     function BlogDetails(row){
          navigate(`/web/blog-details/${row.content_alias}`);
          return true;
+    }
+    const [comment_listloader, setcomment_listloader] = useState(false);
+    const [comment_datalist, setcomment_datalist] = useState([]);
+    const [comment_limit, setcomment_limit] = useState(5);
+    const [comment_total_rec, setcomment_total_rec] = useState(0);
+    let [comment_currentpage, setcomment_currentpage] = useState(1);
+    const [comment_lastpage, setcomment_lastpage] = useState(1);
+  
+    function commentPagechange(){
+        comment_currentpage = comment_currentpage+1;
+        setcomment_currentpage((pre)=>{return comment_currentpage;});
+        CommentList();
+    }
+    async function CommentList() {
+        try {
+            if (comment_listloader) {
+                return false;
+            }
+            // setcomment_currentpage((pre)=>{
+            //     return pre;
+            // });
+            setcomment_listloader(true);
+            //  setTimeout(async ()=>{},1000)
+            let url = `${API_URL}/blog-comment-list?page=${comment_currentpage}&limit=${comment_limit}`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:comment_blog_details.current._id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setcomment_listloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        setcomment_datalist((prev) => [...prev, ...data.result.docs]);
+                        // setDatelist((dataid) => { return data.result.list });
+                        setcomment_total_rec((dataid) => { return data.result.total });
+                        setcomment_lastpage((dataid) => { return data.result.totalpage });
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                
+        } catch (error) {
+            setcomment_listloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    function closemodal(){
+        setshowcomment_modal(false);
+        setcomment_currentpage(1);
+        setcomment_lastpage(1);
+        setcomment_datalist((prev) => {return [];});
     }
     return (
         <>
@@ -271,7 +411,7 @@ function Home(){
                         <button onClick={()=>LikeAndDislike(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
                             <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
                         </button>
-                        <button onClick={()=>Comment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        <button onClick={()=>OpenComment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
                         </button>
                         <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
@@ -282,6 +422,127 @@ function Home(){
             )
         }    
         {listloader==true ? <><Blogloader/></> : <></>}
+                <Modal show={showcomment_modal} onHide={() => closemodal()}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Comments({comment_total_rec})</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={(e)=>{
+                            e.preventDefault();
+                            Comment();
+                        }}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Your Comment</Form.Label>
+                                <Form.Control
+                                as="textarea"
+                                rows={4}
+                                placeholder="Write your comment..."
+                                value={comment_form.comment}
+                                  onChange={(e) => setcomment_form(pre => ({
+                                    ...pre,
+                                    comment: e.target.value
+                                }))}
+                                required
+                                />
+                            </Form.Group>
+
+                            {/* Buttons */}
+                            <div className="d-flex justify-content-end gap-2">
+                                <Button
+                                variant="secondary"
+                                onClick={() => closemodal()}
+                                >
+                                Cancel
+                                </Button>
+
+                                {
+                                user_comment_details._id!="" ?
+                                <Button variant='danger' type="button"
+                                disabled={actionloader == true ? true:false}
+                                    onClick={() => deleteComment()}
+                                >
+                                Delete
+                                </Button>
+                                :
+                                <></>
+                                }
+                                <Button variant="primary" type="submit" disabled={actionloader == true ? true:false}>
+                                {user_comment_details._id=="" ? <>Post Comment</> : <>Update Comment</>}
+                                </Button>
+                            </div>
+                            </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+
+                        <div className="comments-section">
+                          <h4 className='text-center'>{comment_listloader==true ?<>Loading..</>:<></>}</h4>  
+ {comment_datalist.map((item, index) =>
+  <div className="comment" key={index}>
+    {item.user_file_view_path == "" ? 
+        <><img className="avatar" src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.user_name} loading="lazy"/></>
+            :  
+        <><img className="avatar" src={item.user_file_view_path} title={item.user_name} loading="lazy"/></>
+    }
+    <div className="comment-body">
+      <div className="comment-box">
+        <span className="username">{item.user_name}</span>
+        <p className="comment-text">
+          {item.comment}
+          <br/>
+         <small>{item.updated_at==null?item.created_at:item.updated_at}</small>
+        </p>
+      </div>
+
+      {/* <div className="comment-actions">
+        <a href="#">Like</a>
+        <a href="#">Reply</a>
+        <span>· 2h</span>
+      </div>
+ 
+      <div className="reply">
+        <img src="https://i.pravatar.cc/32?img=2" className="avatar small" alt="user"/>
+        <div>
+          <div className="comment-box">
+            <span className="username">Admin</span>
+            <p className="comment-text">
+              Glad you liked it 😊
+            </p>
+          </div>
+          <div className="comment-actions">
+            <a href="#">Like</a>
+            <a href="#">Reply</a>
+            <span>· 1h</span>
+          </div>
+        </div>
+      </div> */}
+
+    </div>
+     
+  </div>
+ )
+}
+</div>
+        {comment_currentpage < comment_lastpage ? 
+        <>
+        <button className='btn btn-sm btn-primary' disabled={comment_listloader == true ? true:false} onClick={()=>commentPagechange()} type="button">
+            {
+            comment_listloader == true ? 
+            <>
+            <div className="spinner-border text-light" role="status">
+            <span className="visually-hidden">Loading...</span>
+            </div>
+            </> 
+            : 
+            <>Load More</>
+            }
+        </button>
+        </>
+        :
+        <></>
+        }
+        {/* <Pagination pageSize={comment_limit} total={comment_total_rec} current={comment_currentpage} onChange={(value) => commentPagechange(value)} showQuickJumper /> */}           
+                    </Modal.Footer>
+                </Modal>
             </div>
             <div className="col-md-3 text-center">
                 <Userslist/>

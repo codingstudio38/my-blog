@@ -20,6 +20,9 @@ export const reject_friend_request = 4;
 export const remove_friend = 5;
 export const blog_post_status = 6;
 export const new_chat_message = 200;
+export const new_comment = 7;
+export const new_like = 8;
+
 export const USER_DETAILS = () => {
     if (!window.sessionStorage.getItem("buserinfo")) {
         return false;

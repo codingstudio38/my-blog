@@ -4,7 +4,7 @@ import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import $ from 'jquery';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFn,call_auto_read_notificationsFnHeader,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFn,call_auto_read_notificationsFnHeader,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message,new_comment,new_like,Truncatetext} from './Constant.jsx';
 export default function Allnotifications(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -52,6 +52,14 @@ export default function Allnotifications(){
             } else if(msg?.code==blog_post_status){
                 GetBlogNotification(msg.result)
             } else if(msg?.code==new_chat_message){
+                let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
+                setDatelist((prev) => [resert_data,...prev]);
+            }else if(msg?.code==new_comment){
+                let resert_data = msg.result
+                settotal_rec((pre) => { return pre+1 });
+                setDatelist((prev) => [resert_data,...prev]);
+            }else if(msg?.code==new_like){
                 let resert_data = msg.result
                 settotal_rec((pre) => { return pre+1 });
                 setDatelist((prev) => [resert_data,...prev]);
@@ -507,7 +515,60 @@ export default function Allnotifications(){
                 </div>
             </a>
         </li>
-    :
+    : item.category == new_comment  ?
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThisNoti(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='text-primary'>{item.from_user_name}</small><br/>
+                <div className="friend-img">
+                    {
+                        item.from_user_file_view_path == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>New comment.
+                        <br/> <Truncatetext text={item.comment} maxLength={20} />
+                        <br/> <Truncatetext text={item.text} maxLength={30} />
+                    </h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
+    : item.category == new_like  ?
+        <li className='li-class' key={index} id={item._id}>
+            <a 
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                ReadThisNoti(item);
+            }}
+            className={item.read_status <= 0 ? 'not-read':'read'} >
+                <small className='text-primary'>{item.from_user_name}</small><br/>
+                <div className="friend-img">
+                    {
+                        item.from_user_file_view_path == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                            :  
+                        <><img src={item.from_user_file_view_path} title={item.from_user_name}  alt={item.from_user_name} loading="lazy"/></>
+                    }
+                </div>
+                <div className="friend-info text-left">
+                    <h4>Like your post.
+                        <br/> <Truncatetext text={item.text} maxLength={30} />
+                    </h4>
+                    <small>{item.created_at}</small>
+                </div>
+            </a>
+        </li>
+    :    
     <></> 
     
                              
