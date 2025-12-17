@@ -59,7 +59,7 @@ export default function VideoCard({ blog }) {
     setplayvideo(true);
     setIsPaused(false); 
     setIsBuffering(true);
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       const idis = encodeURIComponent(encrypt(blog.content_alias));
       // let response = await fetch(`${API_URL}/video-player?watch=${idis}`, {
       //   method: "GET",
@@ -71,6 +71,7 @@ export default function VideoCard({ blog }) {
       // const blob = await response.blob();
       // const url = URL.createObjectURL(blob);
       // setVideoUrl(url);
+      // videoRef.current.src = url;
       setVideoUrl(`${API_URL}/video?watch=${idis}`);
       videoRef.current.src = `${API_URL}/video?watch=${idis}`;
     },500)
@@ -406,7 +407,7 @@ const previousSec =  useRef(false);
       </div>
         </div>
       )}
-      <video
+      <video 
         ref={videoRef}
         // src={videoUrl}
         // controls

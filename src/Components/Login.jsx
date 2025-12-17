@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL, USER_DETAILS,SET_SESSION,REMOVE_SESSION } from './Constant';
+import { API_URL, USER_DETAILS,SET_SESSION,REMOVE_SESSION,WEBSITE_PUBLIC } from './Constant';
 import { Post_Without_Htoken } from './../Services/Https';
 import Websocket from './../Services/WebSocketService';
 import swal from 'sweetalert';
@@ -100,7 +100,7 @@ function Login() {
                                             </form>
                                         </div>
                                         <div className="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-                                            <img src="/images/img4.webp" className="img-fluid" alt="Sample image" />
+                                            <img src={`${WEBSITE_PUBLIC}/images/img4.webp`} className="img-fluid" alt="Sample image" />
                                         </div>
                                     </div>
                                 </div>

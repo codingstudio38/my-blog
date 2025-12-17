@@ -6,7 +6,7 @@ export const CKADITOR_UPLOAD_URL = "http://10.172.24.53:5000/ckeditor";
 export const API_STORAGE_URL = "http://10.172.24.53:5000/uploads";
 export const WEBSITE_URL = "http://localhost:3000";
 // set HOST=10.172.24.53 && set PORT=3000 && npm start
-export const WEBSITE_PUBLIC = "";
+export const WEBSITE_PUBLIC = "http://localhost:3000";
 export const WEBSITE_BASE_URL = "/";
 export const WS_URL = "ws://10.172.24.53:8000";
 export const new_client = 1000;

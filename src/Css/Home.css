@@ -152,8 +152,12 @@ img{
 }
 
 .comments-section {
-  width: 600px;
-  margin: 20px auto;
+ width: 100%;
+  height: 400px;        /* 👈 required */
+  overflow-y: scroll;         /* 👈 required */
+   overflow-x: hidden;         /* 👈 required */
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 .comments-section .comment {
@@ -187,6 +191,7 @@ img{
   padding: 8px 12px;
   display: inline-block;
   max-width: 100%;
+  width: 100%;
 }
 
 .comments-section .username {
@@ -231,3 +236,33 @@ img{
     font-weight: bolder;
 }
  
+.spinner-div{
+  width: 100%;
+  height: 30px;
+  text-align: center;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-icons i {
+  font-size: 13px;        /* 🔹 small icons */
+  color: #65676b;
+  cursor: pointer;
+}
+
+.comment-icons i:hover {
+  color: #0d6efd;         /* blue on hover */
+}
+
+.comment-icons .bi-trash:hover {
+  color: #dc3545;         /* red delete */
+}
