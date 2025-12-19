@@ -116,7 +116,7 @@ function Home(){
             let status = item.mylike <= 0 ? 1 : 0;
             setactionloader(true);
            let url = `${API_URL}/like-and-dislike`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status});
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status,blog_post_by:item.user_id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -159,6 +159,7 @@ function Home(){
         user_id:'',
         blog_id:'',
         comment:'',
+        blog_post_by:'',
         _id:'',
     });
     const [actionloader, setactionloader] = useState(false);
@@ -178,6 +179,7 @@ function Home(){
                 comment: '',
                 user_id:LOGIN_USER._id,
                 blog_id:item._id,
+                blog_post_by:item.user_id,
                 _id:'',
             }))
             comment_blog_details.current = item;
@@ -200,7 +202,7 @@ function Home(){
             }
             setcomment_actionloader(true);
            let url = `${API_URL}/blog-comment`;
-                let myform = JSON.stringify({user_id:comment_form.user_id,blog_id:comment_form.blog_id,status:status,comment:comment_form.comment,comment_id:comment_form._id});
+                let myform = JSON.stringify({user_id:comment_form.user_id,blog_id:comment_form.blog_id,status:status,comment:comment_form.comment,comment_id:comment_form._id,blog_post_by:comment_form.user_id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -341,6 +343,7 @@ function Home(){
             user_id:item.user_id,
             blog_id:item.blog_id,
             comment:item.comment,
+            blog_post_by:comment_form.user_id,
             _id:item._id,
         }))
     };

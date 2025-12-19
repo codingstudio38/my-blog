@@ -22,6 +22,7 @@ import Newfriendrequestlist from './Components/Newfriendrequestlist';
 import Blogdetails from './Components/Blogdetails';
 import Chatlist from './Components/Chatlist';
 import VideoCall from './Components/VideoCall';
+import Usersprofile from './Components/Usersprofile';
 function App() {
    const firstCall = useRef(true);
   const LOGIN_USER = USER_DETAILS()
@@ -45,6 +46,7 @@ function App() {
             <Route path='blog-details/:id' element={<Protected Component={Blogdetails} />} />
             <Route path='create-blog' element={<Protected Component={Createblog} />} />
             <Route path='my-profile' element={<Protected Component={Profile} />} />
+            <Route path='users-profile/:userid' element={<Protected Component={Usersprofile} />} />
             <Route path='edit-profile' element={<Protected Component={Editprofile} />} />
             <Route path='find-friends' element={<Protected Component={Findfriends} />} />
             <Route path='friend-rquest-send-list' element={<Protected Component={Friendrquestsendlist} />} />
