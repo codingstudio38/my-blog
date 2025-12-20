@@ -990,7 +990,7 @@ function viewprofile(user){
                   BlogDetails(item);
               }}
               >Read More</a>
-               {item.like==false && item.commnet==false && item.share==false ? <></> :
+               {item.like==false && item.comment==false && item.share==false ? <></> :
               <div className="fb-actions">
                 {/* onClick={()=>LikeAndDislike(item)}  */}
                         {item.like ? 
@@ -1071,18 +1071,26 @@ function viewprofile(user){
                   BlogDetails(item);
               }}
               >Read More</a>
+              {item.like==false && item.comment==false && item.share==false ? <></> :
               <div className="fb-actions">
-                 {/* onClick={()=>LikeAndDislike(item)}  */}
+                {/* onClick={()=>LikeAndDislike(item)}  */}
+                        {item.like ? 
                         <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
                             <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
                         </button>
-                        <button onClick={()=>OpenComment(item,'videodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        :<></>}
+                        {item.comment ? 
+                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
                         </button>
+                        :<></>}
+                        {item.share ? 
                         <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-share"></i> Share
                         </button>
+                        :<></>}
                         </div>
+                }
               </section>   
  )}
               
@@ -1144,18 +1152,26 @@ function viewprofile(user){
                   BlogDetails(item);
               }}
               >Read More</a>
+              {item.like==false && item.comment==false && item.share==false ? <></> :
               <div className="fb-actions">
                 {/* onClick={()=>LikeAndDislike(item)}  */}
+                        {item.like ? 
                         <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
                             <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
                         </button>
-                        <button onClick={()=>OpenComment(item,'reeldatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        :<></>}
+                        {item.comment ? 
+                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
                         </button>
+                        :<></>}
+                        {item.share ? 
                         <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-share"></i> Share
                         </button>
+                        :<></>}
                         </div>
+                }
               </section>   
  )}
               
@@ -1217,18 +1233,26 @@ function viewprofile(user){
                   BlogDetails(item);
               }}
               >Read More</a>
+              {item.like==false && item.comment==false && item.share==false ? <></> :
               <div className="fb-actions">
                 {/* onClick={()=>LikeAndDislike(item)}  */}
+                        {item.like ? 
                         <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
                             <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
                         </button>
-                        <button onClick={()=>OpenComment(item,'musicdatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        :<></>}
+                        {item.comment ? 
+                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
                         </button>
+                        :<></>}
+                        {item.share ? 
                         <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
                             <i className="bi bi-share"></i> Share
                         </button>
+                        :<></>}
                         </div>
+                }
               </section>   
  )}
               

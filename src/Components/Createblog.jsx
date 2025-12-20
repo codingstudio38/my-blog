@@ -43,6 +43,9 @@ export default function Createblog() {
         "thumbnail": "",
         "edit_photo":"",
         "edit_thumbnail":"",
+        "like":true,
+        "share":true,
+        "comment":true,
     });
 
     useEffect(() => {
@@ -168,6 +171,9 @@ export default function Createblog() {
                         "thumbnail": "",
                         "edit_photo":"",
                         "edit_thumbnail":"",
+                        "like":true,
+                        "share":true,
+                        "comment":true,
                     }
                 })
                 swal({
@@ -425,6 +431,9 @@ export default function Createblog() {
                             "thumbnail": "",
                             "edit_photo":blog.photo,
                             "edit_thumbnail":blog.thumbnail,
+                            "like":blog.like,
+                            "share":blog.share,
+                            "comment":blog.comment,
                         }
                     })
                     if(blog.blog_type=='691beef0c2cfd41cc117ef70'){
@@ -504,6 +513,9 @@ export default function Createblog() {
                         "thumbnail":"",
                         "edit_photo":"",
                         "edit_thumbnail":"",
+                        "like":true,
+                        "share":true,
+                        "comment":true,
                     }
                 })
                 swal({
@@ -720,6 +732,37 @@ async function BlogCetegoryList() {
                                     </>:<></>
 
                                     }
+                                    <hr className="mx-n3" />
+                                    <div className="row align-items-center pt-4 pb-3">
+                                        <div className="col-md-3 ps-5">
+                                            <h6 className="mb-0">Public Action</h6>
+                                        </div>
+                                        <div className="col-md-9 pe-5">
+                                            <div className='row'>
+                                                <div className='col-md-4'>
+                                                    <label htmlFor="Like">Like</label>
+                                                    <select value={blog_details.like} id='Like' name='Like' onChange={(e) => setBdetails({ ...blog_details, like: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                                        <option value="true">Enable</option>
+                                                        <option value="false">Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div className='col-md-4'>
+                                                    <label htmlFor="Comment">Comment</label>
+                                                    <select value={blog_details.comment} id='Comment' name='Comment' onChange={(e) => setBdetails({ ...blog_details, comment: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                                        <option value="true">Enable</option>
+                                                        <option value="false">Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div className='col-md-4'>
+                                                    <label htmlFor="Share">Share</label>
+                                                    <select value={blog_details.share} id='Share' name='Share' onChange={(e) => setBdetails({ ...blog_details, share: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                                        <option value="true">Enable</option>
+                                                        <option value="false">Disable</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <hr className="mx-n3" />
                                     <div className="px-5 py-4">
 
