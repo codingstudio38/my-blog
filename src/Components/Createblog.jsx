@@ -12,12 +12,21 @@ export default function Createblog() {
     const [currentpage, setcurrentpage] = useState(1);
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
-    const childRef = useRef();
+    const childRef = useRef(true);
+    const childRef2 = useRef(true);
+    const firstCall = useRef(true);
     const [loader, setLoader] = useState(false);
     const [listloader, setlistloader] = useState(false);
     const [datalist, setDatelist] = useState([]);
     const [limit, setlimit] = useState(5);
     const [total_rec, settotal_rec] = useState(0);
+
+    const [Archivecurrentpage, setArchivecurrentpage] = useState(1);
+    const [Archivelistloader, setArchivelistloader] = useState(false);
+    const [dataArchivelist, setArchiveDatalist] = useState([]);
+    const [Archivelimit, setArchivelimit] = useState(5);
+    const [total_Archive_rec, setArchivetotal_rec] = useState(0);
+
     const [file_type, setfile_type] = useState('image/*');
 
     const [blog_details, setBdetails] = useState({
@@ -43,16 +52,28 @@ export default function Createblog() {
             navigate('/');
             return;
         }
+        if (firstCall.current) {
+            firstCall.current = false;
+            return;
+        }
         BlogCetegoryList();
         Myblogs();
     }, [currentpage]);
+
+    useEffect(() => {
+        if (childRef2.current) {
+            childRef2.current = false;
+            return;
+        }
+        MyArchiveblogs();
+    }, [Archivecurrentpage]);
 
     
     async function Myblogs() {
         try {
             setlistloader(true);
             let url = `${API_URL}/my-blogs?page=${currentpage}&limit=${limit}`;
-            let myform = JSON.stringify({user_id:LOGIN_USER._id,title:''});
+            let myform = JSON.stringify({user_id:LOGIN_USER._id,title:'',is_archive:0});
             let headers = {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -65,6 +86,38 @@ export default function Createblog() {
                 if (data.status == 200) {
                     setDatelist((dataid) => { return data.result.list });
                     settotal_rec((dataid) => { return data.result.total });
+                } else {
+                    swal({
+                        title: `${data?.message}`,
+                        icon: "warning",
+                    })
+                }
+            }
+        } catch (error) {
+            setlistloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function MyArchiveblogs() {
+        try {
+            setlistloader(true);
+            let url = `${API_URL}/my-blogs?page=${Archivecurrentpage}&limit=${Archivelimit}`;
+            let myform = JSON.stringify({user_id:LOGIN_USER._id,title:'',is_archive:1});
+            let headers = {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${LOGIN_USER.token}`,
+            };
+            let response = await Post_With_Htoken(myform, url, headers);
+             setlistloader(false);
+            if(response!==""){
+                response = await response.json();
+                const data = response;
+                if (data.status == 200) {
+                    setArchiveDatalist((dataid) => { return data.result.list });
+                    setArchivetotal_rec((dataid) => { return data.result.total });
                 } else {
                     swal({
                         title: `${data?.message}`,
@@ -225,18 +278,65 @@ export default function Createblog() {
         }
     }
 
-    async function DeleteRow(row) {
+    // async function DeleteRow(row) {
+    //     try {
+    //         swal({
+    //             title: "Are you sure?",
+    //             text: "Are you sure that you want to delete the recode?",
+    //             icon: "warning",
+    //             buttons: ["Cancel", "Yes"],
+    //             dangerMode: true,
+    //         }).then(async (d) => {
+    //             if (d) {
+    //                 let url = `${API_URL}/delete-blogs/${row._id}`;
+    //                 let myform = JSON.stringify({user_id:LOGIN_USER._id,id:row._id});
+    //                 let headers = {
+    //                     'Content-Type': 'application/json',
+    //                     'authorization': `Bearer ${LOGIN_USER.token}`,
+    //                 };
+    //                 let response = await Post_With_Htoken(myform, url, headers);
+    //                 if(response!==""){
+    //                 response = await response.json();
+    //                 const data = response;
+    //                 if (data.status == 200) {
+    //                     setDatelist([]);
+    //                     settotal_rec(0);
+    //                     setcurrentpage(1);
+    //                     setlimit(5);
+    //                     Myblogs();
+    //                     swal({
+    //                         title: `Successfully deleted`,
+    //                         icon: "success",
+    //                     })
+    //                 } else {
+    //                     swal({
+    //                         title: `${data?.message}`,
+    //                         icon: "warning",
+    //                     })
+    //                 }
+    //             }
+    //             }
+    //         })
+    //         } catch (error) {
+    //         swal({
+    //             title: `Unknow error:- ${error.message}`,
+    //             icon: "error",
+    //         })
+    //     }
+    // }
+
+    async function UpdateBlogArchive(row,status) {
         try {
             swal({
                 title: "Are you sure?",
-                text: "Are you sure that you want to delete the recode?",
+                // text: "Are you sure that you want to delete the recode?",
                 icon: "warning",
                 buttons: ["Cancel", "Yes"],
                 dangerMode: true,
             }).then(async (d) => {
                 if (d) {
-                    let url = `${API_URL}/delete-blogs/${row._id}`;
-                    let myform = JSON.stringify({user_id:LOGIN_USER._id,id:row._id});
+                    let url = `${API_URL}/update-blog-archive`;
+                    let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:row._id,status:status});
                     let headers = {
                         'Content-Type': 'application/json',
                         'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -246,13 +346,32 @@ export default function Createblog() {
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
+                        // if(status){
+                        //     setDatelist([]);
+                        //     settotal_rec(0);
+                        //     setcurrentpage(1);
+                        //     setlimit(5);
+                        //     Myblogs();
+                        // } else {
+                        //     setArchiveDatalist([]);
+                        //     setArchivetotal_rec(0);
+                        //     setArchivecurrentpage(1);
+                        //     setArchivelimit(5);
+                        //     MyArchiveblogs();
+                        // }
                         setDatelist([]);
                         settotal_rec(0);
                         setcurrentpage(1);
                         setlimit(5);
                         Myblogs();
+                        
+                        setArchiveDatalist([]);
+                        setArchivetotal_rec(0);
+                        setArchivecurrentpage(1);
+                        setArchivelimit(5);
+                        MyArchiveblogs();
                         swal({
-                            title: `Successfully deleted`,
+                            title: `Successfully moved to archive.`,
                             icon: "success",
                         })
                     } else {
@@ -273,8 +392,10 @@ export default function Createblog() {
     }
 
     const [editdata,seteditdata] = useState(null)
-    async function EditRow(row) {
+    let blogtypeRef = useRef(false)
+    async function EditRow(row,blogtype) {
         try {
+                blogtypeRef.current = blogtype;
                 let url = `${API_URL}/blog-byid/${row._id}`;
                 let myform = JSON.stringify({id:row._id});
                 let headers = {
@@ -349,11 +470,25 @@ export default function Createblog() {
             response = await response.json();
             const data = response;
             if (data.status == 200) {
-                setDatelist([]);
-                settotal_rec(0);
-                // setcurrentpage(1);
-                setlimit(5);
-                Myblogs();
+                // setDatelist([]);
+                // settotal_rec(0);
+                // // setcurrentpage(1);
+                // setlimit(5);
+                // Myblogs();
+
+                if(!blogtypeRef.current){
+                    setDatelist([]);
+                    settotal_rec(0);
+                    // setcurrentpage(1);
+                    setlimit(5);
+                    Myblogs();
+                } else {
+                    setArchiveDatalist([]);
+                    setArchivetotal_rec(0);
+                    // setArchivecurrentpage(1);
+                    setArchivelimit(5);
+                    MyArchiveblogs();
+                }
                 setBdetails((data) => {
                     return {
                         "edit":false,
@@ -718,12 +853,15 @@ async function BlogCetegoryList() {
 
                                 <td align='center'>{item.created_at} / {item.updated_at}</td>
                                 <td align='center'>
-                                    <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item)}>
+                                    <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item,false)}>
                                         Edit
                                     </button>
-                                    <button type='button' className='btn btn-danger btn-sm' style={{ marginLeft: '4px' }} onClick={() => DeleteRow(item)}>
-                                       Delete
+                                    <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,true)}>
+                                        Move to Archive
                                     </button>
+                                    {/* <button type='button' className='btn btn-danger btn-sm' style={{ marginLeft: '4px' }} onClick={() => DeleteRow(item)}>
+                                       Delete
+                                    </button> */}
                                 </td>
                             </tr>
                         )
@@ -734,6 +872,130 @@ async function BlogCetegoryList() {
                     <tr>
                         <td colSpan={10} align='center'>
                             <Pagination pageSize={limit} total={total_rec} current={currentpage} onChange={(value) => changePage(value)} showQuickJumper />
+                        </td>
+                    </tr>
+                </tfoot>
+            </Table>
+            </div>
+
+             <div className='container'>
+                 <br></br>
+                <h2 style={{ textAlign: "center" }}>My Archive Blogs</h2>
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th className='th-center'>#</th>
+                        <th className='th-center'>User Name</th>
+                        <th className='th-center'>Blog Type</th>
+                        <th className='th-center'>Title</th>
+                        <th className='th-center'>Sort Description</th>
+                        <th className='th-center'>Content</th>
+                        <th className='th-center'>Blog Photo</th>
+                        <th className='th-center'>Thumbnail</th>
+                        <th className='th-center'>Created Date</th>
+                        <th className='th-center'>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Archivelistloader==true ? 
+                    <tr>
+                        <td className='td-center' colSpan={10}>Loading..</td>
+                    </tr>
+                    :
+                        dataArchivelist.map((item, index) =>
+                            <tr key={index} id={index} data-attributes={index}>
+                                <td align='center'>{
+                                Archivecurrentpage==1 ?
+                                index + 1
+                                 :
+                                (Archivelimit*(Archivecurrentpage-1)) + (index+1)
+                                }
+                                </td>
+                                <td align='center'>{item.user_name} </td>
+                                <td align='center'>{item.category_type_name} </td>
+                                <td align='center'><Truncatetext text={item.title} maxLength={20}/></td>
+                                <td align='center'>
+                                    {item.sort_description!==null || item.sort_description!=="" ? <>
+                                    <Truncatetext text={item.sort_description} maxLength={20}/>
+                                    </> : <>Not Available</>}
+                                </td>
+                                <td align='center'>
+                                    {item.content!==null || item.content!=="" ? <>
+                                    Available
+                                    {/* <div dangerouslySetInnerHTML={{ __html: item.content }} /> */}
+                                    </> : <>Not Available</>}
+                                </td>
+                                <td align='center'>
+{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.file_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/music.png' style={{ "height": "40px", "width": "40px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/video-marketing.png' style={{ "height": "40px", "width": "40px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+    item.file_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src='/images/film-reel.png' style={{ "height": "40px", "width": "40px" }} /></> 
+: 
+<></> 
+}
+                                </td>
+
+<td align='center'>
+{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+    <></>
+: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></>
+: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+    item.thumbnail_dtl.filesize == "" ? 
+    <span className='text-danger'>Not Available</span>
+        :  
+    <><img src={item.thumbnail_dtl.file_view_path} style={{ "height": "60px", "width": "60px" }} /></> 
+: 
+<></>  
+}
+                                </td>
+
+
+                                <td align='center'>{item.created_at} / {item.updated_at}</td>
+                                <td align='center'>
+                                    <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item,true)}>
+                                        Edit
+                                    </button><br/>
+                                    <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,false)}>
+                                        Remove From Archive
+                                    </button>
+                                    {/* <button type='button' className='btn btn-danger btn-sm' style={{ marginLeft: '4px' }} onClick={() => DeleteRow(item)}>
+                                       Delete
+                                    </button> */}
+                                </td>
+                            </tr>
+                        )
+                    
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colSpan={10} align='center'>
+                            <Pagination pageSize={Archivelimit} total={total_Archive_rec} current={Archivecurrentpage} onChange={(value) => setArchivecurrentpage(value)} showQuickJumper />
                         </td>
                     </tr>
                 </tfoot>

@@ -411,17 +411,27 @@ function Blogdetails(){
                             {item.sort_description}
                         </div>
                         {/* <a href="">Read More</a> */}
+                        {item.like==false && item.comment==false && item.share==false ? <></> :
                         <div className="fb-actions">
-                        <button onClick={()=>LikeAndDislike(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                        </button>
-                        <button onClick={()=>OpenComment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                        </button>
-                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-share"></i> Share
-                        </button>
+                            {item.like ? 
+                            <button onClick={()=>LikeAndDislike(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                            </button>
+                            :<></>}
+                        {item.comment ? 
+                            <button onClick={()=>OpenComment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                            </button>
+                            :<></>}
+                        
+                        {item.share ? 
+                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> Share
+                            </button>
+                            :<></>}
+                        
                         </div>
+                        }
                         </section>
             )
         }    
