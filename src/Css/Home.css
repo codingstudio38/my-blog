@@ -151,6 +151,30 @@ img{
   background: #e4ecf8;
 }
 
+
+/* Shared Post Container */
+.shared-post {
+    margin-top: 10px;
+    border: 1px solid #dadde1;
+    border-radius: 8px;
+    background: #f0f2f5;
+    padding: 8px;
+     width: 100%;
+  height: 700px;
+  overflow: hidden; 
+}
+
+/* Shared Header */
+.shared-header {
+    font-size: 13px;
+    color: #65676b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+
 .comments-section {
  width: 100%;
   height: 400px;        /* 👈 required */

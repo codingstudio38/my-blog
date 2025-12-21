@@ -113,7 +113,7 @@ function Home(){
 
     async function LikeAndDislike(item) {
         try {
-            let status = item.mylike <= 0 ? 1 : 0;
+            let status = item.my_total_notsharelike <= 0 ? 1 : 0;
             setactionloader(true);
            let url = `${API_URL}/like-and-dislike`;
                 let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status,blog_post_by:item.user_id});
@@ -129,11 +129,19 @@ function Home(){
                     if (data.status == 200) {
                         let newdatalist = datalist.map(row => {
                         if (row._id === item._id) {
-                            return {
-                                ...row,
-                                mylike:status,
-                                total_likes: data.total
-                            };
+                            if(item.is_shared_blog){
+                                return {
+                                    ...row,
+                                    mylike:status,
+                                    total_likes: data.total
+                                };
+                            } else {
+                                return {
+                                    ...row,
+                                    my_total_notsharelike:status,
+                                    total_likes: data.total
+                                };
+                            }
                         }
                         return row;
                     });
@@ -160,6 +168,8 @@ function Home(){
         blog_id:'',
         comment:'',
         blog_post_by:'',
+        shared_blog_id:'',
+        is_shared_blog:'',
         _id:'',
     });
     const [actionloader, setactionloader] = useState(false);
@@ -173,6 +183,7 @@ function Home(){
     const [comment_lastpage, setcomment_lastpage] = useState(1);
     async function OpenComment(item) {
         try {
+            console.log(item);
             setactionloader(true);
             setcomment_form(pre => ({
                 ...pre,
@@ -180,6 +191,8 @@ function Home(){
                 user_id:LOGIN_USER._id,
                 blog_id:item._id,
                 blog_post_by:item.user_id,
+                shared_blog_id:item.shared_blog_id,
+                is_shared_blog:item.is_shared_blog,
                 _id:'',
             }))
             comment_blog_details.current = item;
@@ -202,7 +215,90 @@ function Home(){
             }
             setcomment_actionloader(true);
            let url = `${API_URL}/blog-comment`;
-                let myform = JSON.stringify({user_id:comment_form.user_id,blog_id:comment_form.blog_id,status:status,comment:comment_form.comment,comment_id:comment_form._id,blog_post_by:comment_form.user_id});
+                let myform = JSON.stringify({user_id:comment_form.user_id,
+                    blog_id:comment_form.blog_id,
+                    status:status,
+                    comment:comment_form.comment,
+                    comment_id:comment_form._id,
+                    blog_post_by:comment_form.user_id,
+                    shared_blog_id:comment_form.shared_blog_id,
+                });
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setcomment_actionloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === comment_blog_details.current._id) {
+                            return {
+                                ...row,
+                                my_total_notsharecomment:1,
+                                mycomment:data.mytotal,
+                                total_comments: data.total,
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    setcomment_form(pre =>{ 
+                        return { ...pre, comment: '', _id:''}
+                    })
+                    if(comment_form._id==''){
+                        setcomment_datalist((prev) => [data.result,...prev]);
+                        setcomment_total_rec((dataid) => { return data.total });
+                    } else {
+                        // setcomment_datalist((prev) => prev.filter(item => item._id !== comment_form._id));
+                        // setcomment_datalist((prev) => [data.result,...prev]);
+
+                        let newdatalist = comment_datalist.map(row => {
+                        if (row._id === comment_form._id) {
+                                return {
+                                    ...row,
+                                    ...data.result
+                                };
+                            }
+                            return row;
+                        });
+                        setcomment_datalist((prev) => {return newdatalist});
+
+                    }
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+        } catch (error) {
+            setcomment_actionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
+    async function CommentOnSharePost() {
+        try {
+            let status = 1;
+            if(comment_form._id!==''){
+                status=2;
+            }
+            setcomment_actionloader(true);
+           let url = `${API_URL}/comment-on-sharepost`;
+                let myform = JSON.stringify({user_id:comment_form.user_id,
+                    blog_id:comment_form.blog_id,
+                    status:status,
+                    comment:comment_form.comment,
+                    comment_id:comment_form._id,
+                    blog_post_by:comment_form.user_id,
+                    shared_blog_id:comment_form.shared_blog_id,
+                });
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -344,6 +440,7 @@ function Home(){
             blog_id:item.blog_id,
             comment:item.comment,
             blog_post_by:comment_form.user_id,
+            shared_blog_id:item.shared_blog_id,
             _id:item._id,
         }))
     };
@@ -373,7 +470,8 @@ function Home(){
                                 return {
                                     ...row,
                                     mycomment:data.mytotal,
-                                    total_comments: data.total
+                                    total_comments: data.total,
+                                    my_total_notsharecomment: data.my_total_notsharecomments
                                 };
                             }
                             return row;
@@ -394,7 +492,102 @@ function Home(){
                 }
             }
         });
-    };  
+    }; 
+    
+    
+async function ShareBlog(item) {
+        try {
+            if (actionloader) {
+                return false;
+            }
+            setactionloader(true);
+             setTimeout(async ()=>{
+            let url = `${API_URL}/share-blog`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setactionloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        swal({
+                            title: `Success`,
+                            icon: "success",
+                        });
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === item._id) {
+                            return {
+                                ...row,
+                                total_shares:data.total_shares,
+                                my_shares: data.my_shares
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                },500)
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
+    async function LikeAndDislikeOnSharePost(item) {
+        try {
+            let status = item.mylike <= 0 ? 1 : 0;
+            setactionloader(true);
+           let url = `${API_URL}/like-and-dislike-on-sharepost`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,status:status,shared_blog_id:item.shared_blog_id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setactionloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === item._id) {
+                            return {
+                                ...row,
+                                mylike:status,
+                                total_likes: data.total
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
     return (
         <>
         <div className="container-fluid">
@@ -402,76 +595,157 @@ function Home(){
             <div className="col-md-3">
                <Allnotifications/>
             </div>
-            <div className="col-md-6 blog">
+            <div className="col-md-6">
             {datalist.map((item, index) =>
-                        <section key={index}>
-                        <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                        <div className='blog-image'>
-                             {/* forvideos */}
-{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-    item.file_dtl.filesize == "" ? 
-    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
-        :  
-    <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
-: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-    item.file_dtl.file_view_path == "" ? 
-    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-        :  
-    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-    item.file_dtl.file_view_path == "" ? 
-    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-        :  
-    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-    item.file_dtl.file_view_path == "" ? 
-    <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-        :  
-    <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+            <div className='blog' key={index}>
+            {
+                item.is_shared_blog ?
+               <div className="shared-post" key={index}>
+                    <div className="shared-header">
+                        <i className="bi bi-share" />
+                        <b>{item.user_name} shared a post on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                    </div>
+                    <section>
+                       <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
+                        <div className="blog-image">
+                            <div className='blog-image'>
+                        {/* forvideos */}
+{item.share_category_type == "691beef0c2cfd41cc117ef70" ? //photo
+item.share_file_dtl.filesize == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+:  
+<><img src={item.share_file_dtl.file_view_path} title={item.share_title} loading="lazy"/></>
+: item.share_category_type == "691beef0c2cfd41cc117ef71"  ? //music
+item.share_file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+: item.share_category_type == "691beef0c2cfd41cc117ef6f"  ? //video
+item.share_file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+: item.share_category_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+item.share_file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></> 
 : 
 <></> 
 }
 </div>
+                        </div>
                         <div className="user">
-                            {item.user_file_dtl.filesize == "" ? 
+                            {item.share_user_file_dtl.filesize == "" ? 
                             <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
                                 :  
-                            <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                            <><img src={item.share_user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
                             }
                             <div className="user-info">
-                            <h5>{item.user_name}</h5>
-                            <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                            <h5>{item.share_user_name}</h5>
+                            <p className="date">{moment(item.share_created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
                             </div>
                         </div>
-                        <div className='sort-desc'>
-                            <Truncatetext text={item.sort_description} maxLength={200} />
-                        </div>
+                        <div className="sort-desc"><Truncatetext text={item.share_sort_description} maxLength={200} /></div>
                         <a href="" 
-                         onClick={(e) => {
+                            onClick={(e) => {
                             e.preventDefault();
                             BlogDetails(item);
                         }}
                         >Read More</a>
                         {item.like==false && item.comment==false && item.share==false ? <></> :
-                        <div className="fb-actions">
-                            {item.like ? 
-                            <button onClick={()=>LikeAndDislike(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                            </button>
-                            :<></>}
-                            {item.comment ? 
-                            <button onClick={()=>OpenComment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                            </button>
-                            :<></>}
-                            {item.share ? 
-                             <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> Share
-                            </button>
-                            :<></>}
-                        </div>
-                        }
+                <div className="fb-actions">
+                    {item.like ? 
+                    <button onClick={()=>LikeAndDislikeOnSharePost(item)} className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                        <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                    </button>
+                    :<></>}
+                    {item.comment ? 
+                    <button onClick={()=>OpenComment(item)} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                    </button>
+                    :<></>}
+                    {item.share ? 
+                        <button onClick={()=>ShareBlog(item)} className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'} type='button' disabled={actionloader?true:false}>
+                        <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                    </button>
+                    :<></>}
+                </div>
+                }
                         </section>
+
+                </div>
+                :
+                <section key={index}>
+                <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
+                <div className='blog-image'>
+                        {/* forvideos */}
+{item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+item.file_dtl.filesize == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+:  
+<><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
+: item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+item.file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+: item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+item.file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+: item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+item.file_dtl.file_view_path == "" ? 
+<><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+:  
+<><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+: 
+<></> 
+}
+</div>
+                <div className="user">
+                    {item.user_file_dtl.filesize == "" ? 
+                    <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                        :  
+                    <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                    }
+                    <div className="user-info">
+                    <h5>{item.user_name}</h5>
+                    <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                    </div>
+                </div>
+                <div className='sort-desc'>
+                    <Truncatetext text={item.sort_description} maxLength={200} />
+                </div>
+                <a href="" 
+                    onClick={(e) => {
+                    e.preventDefault();
+                    BlogDetails(item);
+                }}
+                >Read More</a>
+                {item.like==false && item.comment==false && item.share==false ? <></> :
+                <div className="fb-actions">
+                    {item.like ? 
+                    <button onClick={()=>LikeAndDislike(item)} className={item.my_total_notsharelike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                        <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                    </button>
+                    :<></>}
+                    {item.comment ? 
+                    <button onClick={()=>OpenComment(item)} className={item.my_total_notsharecomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                        <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                    </button>
+                    :<></>}
+                    {item.share ? 
+                        <button onClick={()=>ShareBlog(item)} className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'} type='button' disabled={actionloader?true:false}>
+                        <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                    </button>
+                    :<></>}
+                </div>
+                }
+                </section>
+            }
+            </div>
             )
         }    
         {listloader==true ? <><Blogloader/></> : <></>}
@@ -485,10 +759,7 @@ function Home(){
                     <Modal.Title>Comments({comment_total_rec})</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={(e)=>{
-                            e.preventDefault();
-                            Comment();
-                        }}>
+                        <Form>
                             <Form.Group className="mb-3">
                                 <Form.Label>Your Comment</Form.Label>
                                 <Form.Control
@@ -513,12 +784,27 @@ function Home(){
                                 Cancel
                                 </Button>
  
-                                
-                                {comment_form._id=="" ? 
-                                <><Button variant="primary" type="submit" disabled={comment_actionloader == true ? true:false}>Post Comment</Button></>
+ {
+    comment_form.is_shared_blog==true ? 
+    <>
+    {comment_form._id=="" ? 
+                                <><Button variant="primary" type="button" onClick={()=> CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Post Comment1</Button></>
                                  : 
-                                 <><Button variant="warning" type="submit" disabled={comment_actionloader == true ? true:false}>Update Comment</Button></>
+                                 <><Button variant="warning" type="button" onClick={()=>CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Update Comment1</Button></>
                                  }
+    </>
+     : 
+    <>
+    {comment_form._id=="" ? 
+                                <><Button variant="primary" type="button" onClick={()=>Comment()} disabled={comment_actionloader == true ? true:false}>Post Comment</Button></>
+                                 : 
+                                 <><Button variant="warning" type="button" onClick={()=>Comment()} disabled={comment_actionloader == true ? true:false}>Update Comment</Button></>
+                                 }
+    </>
+
+ }
+                                
+                                
                                 
                             </div>
                             </Form>

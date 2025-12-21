@@ -896,9 +896,16 @@ async function BlogCetegoryList() {
 
                                 <td align='center'>{item.created_at} / {item.updated_at}</td>
                                 <td align='center'>
+                                    {item.is_shared_blog==false ? 
+                                    <>
                                     <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item,false)}>
                                         Edit
-                                    </button>
+                                    </button><br/>
+                                    </>
+                                    :
+                                    <><b>Shared Post</b><br/></>
+                                    }
+                                    
                                     <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,true)}>
                                         Move to Archive
                                     </button>
@@ -1020,9 +1027,16 @@ async function BlogCetegoryList() {
 
                                 <td align='center'>{item.created_at} / {item.updated_at}</td>
                                 <td align='center'>
-                                    <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item,true)}>
+                                    
+                                    {item.is_shared_blog==false ? 
+                                    <>
+                                    <button type='button' className='btn btn-warning btn-sm' onClick={() => EditRow(item,false)}>
                                         Edit
                                     </button><br/>
+                                    </>
+                                    :
+                                    <><b>Shared Post</b></>
+                                    }
                                     <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,false)}>
                                         Remove From Archive
                                     </button>
