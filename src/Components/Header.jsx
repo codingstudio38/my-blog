@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import Logout from './Logout';
 import Container from 'react-bootstrap/Container';
-import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message,Truncatetext,new_comment,new_like} from './Constant.jsx';
+import { new_friend_request,cancel_friend_request,accept_friend_request,reject_friend_request,remove_friend,WEBSITE_URL,USER_DETAILS ,API_URL,blog_post_status,subscribe_auto_read_notificationsFnHeader,call_auto_read_notificationsFn,subscribe_auto_refresh_notifications,call_auto_refresh_notifications,new_chat_message,Truncatetext,new_comment,new_like,new_share} from './Constant.jsx';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavDropdown } from 'react-bootstrap';
@@ -70,6 +70,11 @@ export default function Header(){
                             settotal_rec((pre) => { return pre+1 });
                             setDatelist((prev) => [resert_data,...prev]);
                         }else if(msg?.code==new_like){
+                            let resert_data = msg.result;
+                            shownotifydivFn(resert_data);
+                            settotal_rec((pre) => { return pre+1 });
+                            setDatelist((prev) => [resert_data,...prev]);
+                        }else if(msg?.code==new_share){
                             let resert_data = msg.result;
                             shownotifydivFn(resert_data);
                             settotal_rec((pre) => { return pre+1 });
@@ -714,6 +719,31 @@ item.category == new_friend_request ?
                 </div>
                 
         </div>
+    :item.category == new_share  ?
+            <div onClick={(e)=> {
+            e.preventDefault();
+            ReadThis(item);
+            }}
+            key={index}
+            className={item.read_status <= 0 ? 'notification-list notification-list--unread' :'notification-list'}>
+                <div className="notification-list_img">
+                    {
+                    item.from_user_file_view_path == "" ?
+                    <><img src={`${WEBSITE_URL}/images/image-not-found.png`} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    </>
+                    :
+                    <><img src={item.from_user_file_view_path} title={item.from_user_name} alt={item.from_user_name} loading="lazy" />
+                    </>
+                    }
+                </div>
+                <div className="notification-list_detail">
+                    <p><b className='text-primary'>{item.from_user_name}</b> share your post.
+                    <br/><Truncatetext text={item.text} maxLength={30} />
+                    </p>
+                    <p><small>{item.created_at}</small></p>
+                </div>
+                
+        </div>
     : 
     <></>
  )
@@ -770,6 +800,10 @@ item.category == new_friend_request ?
             </>
         :notify_data.category == new_like  ?
             <><strong>{notify_data.from_user_name} </strong> like your post.
+            <br/> <Truncatetext text={notify_data.text} maxLength={30} />
+            </>
+        :notify_data.category == new_share  ?
+            <><strong>{notify_data.from_user_name} </strong> share your post.
             <br/> <Truncatetext text={notify_data.text} maxLength={30} />
             </>
         : 

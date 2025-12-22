@@ -22,6 +22,7 @@ export const blog_post_status = 6;
 export const new_chat_message = 200;
 export const new_comment = 7;
 export const new_like = 8;
+export const new_share = 9;
 
 export const USER_DETAILS = () => {
     if (!window.sessionStorage.getItem("buserinfo")) {

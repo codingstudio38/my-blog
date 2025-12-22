@@ -943,74 +943,157 @@ function viewprofile(user){
               </div>
                
  {photodatalist.map((item, index) => 
-              <section key={index}>
-              <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image'>
-              {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-                  item.file_dtl.filesize == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
-                      :  
-                  <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
-              : 
-              <></> 
-              }
-              </div>
-              <div className="user">
-                  {item.user_file_dtl.filesize == "" ? 
-                  <><img src='/images/no-profile-picture-15257.png' loading="lazy"/></>
-                      :  
-                  <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
-                  }
-                  <div className="user-info">
-                  <h5>{item.user_name}</h5>
-                  <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
-                  </div>
-              </div>
-              <div className='sort-desc'>
-                  <Truncatetext text={item.sort_description} maxLength={200} />
-              </div>
-              <a href="" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  BlogDetails(item);
-              }}
-              >Read More</a>
-               {item.like==false && item.comment==false && item.share==false ? <></> :
-              <div className="fb-actions">
-                {/* onClick={()=>LikeAndDislike(item)}  */}
-                        {item.like ? 
-                        <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                        </button>
-                        :<></>}
-                        {item.comment ? 
-                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                        </button>
-                        :<></>}
-                        {item.share ? 
-                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-share"></i> Share
-                        </button>
-                        :<></>}
+             <div className='' key={index}>
+                         {
+                             item.is_shared_blog ?
+                            <div className="shared-post" key={index}>
+                                 <div className="shared-header">
+                                     <i className="bi bi-share" />
+                                     <b>Shared by {item.user_name} on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                                 </div>
+                                 <section>
+                                    <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
+                                     <div className="blog-image">
+                                         <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.share_category_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.share_file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.share_file_dtl.file_view_path} title={item.share_title} loading="lazy"/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                            </div>
+                            <div className="user">
+                                {item.share_user_file_dtl.filesize == "" ? 
+                                <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                                    :  
+                                <><img src={item.share_user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                                }
+                                <div className="user-info">
+                                <h5>{item.share_user_name}</h5>
+                                <p className="date">{moment(item.share_created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                                </div>
+                            </div>
+                            <div className="sort-desc"><Truncatetext text={item.share_sort_description} maxLength={200} /></div>
+                            <a href="" 
+                        onClick={(e) => {
+                        e.preventDefault();
+                        BlogDetails(item);
+                    }}
+                    >Read More</a>
+                    {item.like==false && item.comment==false && item.share==false ? <></> :
+                    <div className="fb-actions">
+                        {/* onClick={()=>LikeAndDislike(item)}  */}
+                                {item.like ? 
+                                <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                    <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                                </button>
+                                :<></>}
+                                {item.comment ? 
+                                <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                                </button>
+                                :<></>}
+                                {item.share ? 
+                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> Share
+                                </button>
+                                :<></>}
+                                </div>
+                        }
+                            </section>
+             
+                             </div>
+                             :
+                             <section key={index}>
+                             <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
+                             <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                    <div className="user">
+                        {item.user_file_dtl.filesize == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                            :  
+                        <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                        }
+                        <div className="user-info">
+                        <h5>{item.user_name}</h5>
+                        <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
                         </div>
+                    </div>
+                    <div className='sort-desc'>
+                        <Truncatetext text={item.sort_description} maxLength={200} />
+                    </div>
+                    <a href="" 
+                    onClick={(e) => {
+                    e.preventDefault();
+                    BlogDetails(item);
+                }}
+                >Read More</a>
+                {item.like==false && item.comment==false && item.share==false ? <></> :
+                <div className="fb-actions">
+                    {/* onClick={()=>LikeAndDislike(item)}  */}
+                            {item.like ? 
+                            <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                            </button>
+                            :<></>}
+                            {item.comment ? 
+                            <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                            </button>
+                            :<></>}
+                            {item.share ? 
+                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> Share
+                            </button>
+                            :<></>}
+                            </div>
+                    }
+                    </section>
                 }
-              </section>   
+                </div>
  )}
               
 <div className='container ff-p mt-2'>
@@ -1024,74 +1107,157 @@ function viewprofile(user){
               </div>
                
  {videodatalist.map((item, index) => 
-              <section key={index}>
-              <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image'>
-              {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-                  item.file_dtl.filesize == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
-                      :  
-                  <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
-              : 
-              <></> 
-              }
-              </div>
-              <div className="user">
-                  {item.user_file_dtl.filesize == "" ? 
-                  <><img src='/images/no-profile-picture-15257.png' loading="lazy"/></>
-                      :  
-                  <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
-                  }
-                  <div className="user-info">
-                  <h5>{item.user_name}</h5>
-                  <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
-                  </div>
-              </div>
-              <div className='sort-desc'>
-                  <Truncatetext text={item.sort_description} maxLength={200} />
-              </div>
-              <a href="" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  BlogDetails(item);
-              }}
-              >Read More</a>
-              {item.like==false && item.comment==false && item.share==false ? <></> :
-              <div className="fb-actions">
-                {/* onClick={()=>LikeAndDislike(item)}  */}
-                        {item.like ? 
-                        <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                        </button>
-                        :<></>}
-                        {item.comment ? 
-                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                        </button>
-                        :<></>}
-                        {item.share ? 
-                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-share"></i> Share
-                        </button>
-                        :<></>}
+              <div className='' key={index}>
+                         {
+                             item.is_shared_blog ?
+                            <div className="shared-post" key={index}>
+                                 <div className="shared-header">
+                                     <i className="bi bi-share" />
+                                     <b>Shared by {item.user_name} on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                                 </div>
+                                 <section>
+                                    <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
+                                     <div className="blog-image">
+                                         <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.share_category_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.share_file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.share_file_dtl.file_view_path} title={item.share_title} loading="lazy"/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                            </div>
+                            <div className="user">
+                                {item.share_user_file_dtl.filesize == "" ? 
+                                <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                                    :  
+                                <><img src={item.share_user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                                }
+                                <div className="user-info">
+                                <h5>{item.share_user_name}</h5>
+                                <p className="date">{moment(item.share_created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                                </div>
+                            </div>
+                            <div className="sort-desc"><Truncatetext text={item.share_sort_description} maxLength={200} /></div>
+                            <a href="" 
+                        onClick={(e) => {
+                        e.preventDefault();
+                        BlogDetails(item);
+                    }}
+                    >Read More</a>
+                    {item.like==false && item.comment==false && item.share==false ? <></> :
+                    <div className="fb-actions">
+                        {/* onClick={()=>LikeAndDislike(item)}  */}
+                                {item.like ? 
+                                <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                    <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                                </button>
+                                :<></>}
+                                {item.comment ? 
+                                <button onClick={()=>OpenComment(item,'videodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                                </button>
+                                :<></>}
+                                {item.share ? 
+                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> Share
+                                </button>
+                                :<></>}
+                                </div>
+                        }
+                            </section>
+             
+                             </div>
+                             :
+                             <section key={index}>
+                             <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
+                             <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                    <div className="user">
+                        {item.user_file_dtl.filesize == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                            :  
+                        <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                        }
+                        <div className="user-info">
+                        <h5>{item.user_name}</h5>
+                        <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
                         </div>
+                    </div>
+                    <div className='sort-desc'>
+                        <Truncatetext text={item.sort_description} maxLength={200} />
+                    </div>
+                    <a href="" 
+                    onClick={(e) => {
+                    e.preventDefault();
+                    BlogDetails(item);
+                }}
+                >Read More</a>
+                {item.like==false && item.comment==false && item.share==false ? <></> :
+                <div className="fb-actions">
+                    {/* onClick={()=>LikeAndDislike(item)}  */}
+                            {item.like ? 
+                            <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                            </button>
+                            :<></>}
+                            {item.comment ? 
+                            <button onClick={()=>OpenComment(item,'videodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                            </button>
+                            :<></>}
+                            {item.share ? 
+                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> Share
+                            </button>
+                            :<></>}
+                            </div>
+                    }
+                    </section>
                 }
-              </section>   
+                </div> 
  )}
               
 <div className='container ff-p mt-2'>
@@ -1105,74 +1271,157 @@ function viewprofile(user){
               </div>
                
  {reeldatalist.map((item, index) => 
-              <section key={index}>
-              <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image'>
-              {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-                  item.file_dtl.filesize == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
-                      :  
-                  <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
-              : 
-              <></> 
-              }
-              </div>
-              <div className="user">
-                  {item.user_file_dtl.filesize == "" ? 
-                  <><img src='/images/no-profile-picture-15257.png' loading="lazy"/></>
-                      :  
-                  <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
-                  }
-                  <div className="user-info">
-                  <h5>{item.user_name}</h5>
-                  <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
-                  </div>
-              </div>
-              <div className='sort-desc'>
-                  <Truncatetext text={item.sort_description} maxLength={200} />
-              </div>
-              <a href="" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  BlogDetails(item);
-              }}
-              >Read More</a>
-              {item.like==false && item.comment==false && item.share==false ? <></> :
-              <div className="fb-actions">
-                {/* onClick={()=>LikeAndDislike(item)}  */}
-                        {item.like ? 
-                        <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                        </button>
-                        :<></>}
-                        {item.comment ? 
-                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                        </button>
-                        :<></>}
-                        {item.share ? 
-                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-share"></i> Share
-                        </button>
-                        :<></>}
+           <div className='' key={index}>
+                         {
+                             item.is_shared_blog ?
+                            <div className="shared-post" key={index}>
+                                 <div className="shared-header">
+                                     <i className="bi bi-share" />
+                                     <b>Shared by {item.user_name} on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                                 </div>
+                                 <section>
+                                    <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
+                                     <div className="blog-image">
+                                         <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.share_category_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.share_file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.share_file_dtl.file_view_path} title={item.share_title} loading="lazy"/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                            </div>
+                            <div className="user">
+                                {item.share_user_file_dtl.filesize == "" ? 
+                                <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                                    :  
+                                <><img src={item.share_user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                                }
+                                <div className="user-info">
+                                <h5>{item.share_user_name}</h5>
+                                <p className="date">{moment(item.share_created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                                </div>
+                            </div>
+                            <div className="sort-desc"><Truncatetext text={item.share_sort_description} maxLength={200} /></div>
+                            <a href="" 
+                        onClick={(e) => {
+                        e.preventDefault();
+                        BlogDetails(item);
+                    }}
+                    >Read More</a>
+                    {item.like==false && item.comment==false && item.share==false ? <></> :
+                    <div className="fb-actions">
+                        {/* onClick={()=>LikeAndDislike(item)}  */}
+                                {item.like ? 
+                                <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                    <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                                </button>
+                                :<></>}
+                                {item.comment ? 
+                                <button onClick={()=>OpenComment(item,'reeldatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                                </button>
+                                :<></>}
+                                {item.share ? 
+                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> Share
+                                </button>
+                                :<></>}
+                                </div>
+                        }
+                            </section>
+             
+                             </div>
+                             :
+                             <section key={index}>
+                             <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
+                             <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                    <div className="user">
+                        {item.user_file_dtl.filesize == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                            :  
+                        <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                        }
+                        <div className="user-info">
+                        <h5>{item.user_name}</h5>
+                        <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
                         </div>
+                    </div>
+                    <div className='sort-desc'>
+                        <Truncatetext text={item.sort_description} maxLength={200} />
+                    </div>
+                    <a href="" 
+                    onClick={(e) => {
+                    e.preventDefault();
+                    BlogDetails(item);
+                }}
+                >Read More</a>
+                {item.like==false && item.comment==false && item.share==false ? <></> :
+                <div className="fb-actions">
+                    {/* onClick={()=>LikeAndDislike(item)}  */}
+                            {item.like ? 
+                            <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                            </button>
+                            :<></>}
+                            {item.comment ? 
+                            <button onClick={()=>OpenComment(item,'reeldatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                            </button>
+                            :<></>}
+                            {item.share ? 
+                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> Share
+                            </button>
+                            :<></>}
+                            </div>
+                    }
+                    </section>
                 }
-              </section>   
+                </div>
  )}
               
 <div className='container ff-p mt-2'>
@@ -1186,74 +1435,157 @@ function viewprofile(user){
               </div>
                
  {musicdatalist.map((item, index) => 
-              <section key={index}>
-              <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
-                <div className='blog-image'>
-              {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
-                  item.file_dtl.filesize == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
-                      :  
-                  <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
-              : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
-                  item.file_dtl.file_view_path == "" ? 
-                  <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
-                      :  
-                  <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
-              : 
-              <></> 
-              }
-              </div>
-              <div className="user">
-                  {item.user_file_dtl.filesize == "" ? 
-                  <><img src='/images/no-profile-picture-15257.png' loading="lazy"/></>
-                      :  
-                  <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
-                  }
-                  <div className="user-info">
-                  <h5>{item.user_name}</h5>
-                  <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
-                  </div>
-              </div>
-              <div className='sort-desc'>
-                  <Truncatetext text={item.sort_description} maxLength={200} />
-              </div>
-              <a href="" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  BlogDetails(item);
-              }}
-              >Read More</a>
-              {item.like==false && item.comment==false && item.share==false ? <></> :
-              <div className="fb-actions">
-                {/* onClick={()=>LikeAndDislike(item)}  */}
-                        {item.like ? 
-                        <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
-                            <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
-                        </button>
-                        :<></>}
-                        {item.comment ? 
-                        <button onClick={()=>OpenComment(item,'photodatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
-                        </button>
-                        :<></>}
-                        {item.share ? 
-                        <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                            <i className="bi bi-share"></i> Share
-                        </button>
-                        :<></>}
+            <div className='' key={index}>
+                         {
+                             item.is_shared_blog ?
+                            <div className="shared-post" key={index}>
+                                 <div className="shared-header">
+                                     <i className="bi bi-share" />
+                                     <b>Shared by {item.user_name} on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                                 </div>
+                                 <section>
+                                    <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
+                                     <div className="blog-image">
+                                         <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.share_category_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.share_file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.share_file_dtl.file_view_path} title={item.share_title} loading="lazy"/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></>
+             : item.share_category_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.share_file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.share_title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.share_thumbnail_dtl.file_view_path, title:item.share_title, content_alias:item.share_content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                            </div>
+                            <div className="user">
+                                {item.share_user_file_dtl.filesize == "" ? 
+                                <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                                    :  
+                                <><img src={item.share_user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                                }
+                                <div className="user-info">
+                                <h5>{item.share_user_name}</h5>
+                                <p className="date">{moment(item.share_created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
+                                </div>
+                            </div>
+                            <div className="sort-desc"><Truncatetext text={item.share_sort_description} maxLength={200} /></div>
+                            <a href="" 
+                        onClick={(e) => {
+                        e.preventDefault();
+                        BlogDetails(item);
+                    }}
+                    >Read More</a>
+                    {item.like==false && item.comment==false && item.share==false ? <></> :
+                    <div className="fb-actions">
+                        {/* onClick={()=>LikeAndDislike(item)}  */}
+                                {item.like ? 
+                                <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                    <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                                </button>
+                                :<></>}
+                                {item.comment ? 
+                                <button onClick={()=>OpenComment(item,'musicdatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                                </button>
+                                :<></>}
+                                {item.share ? 
+                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> Share
+                                </button>
+                                :<></>}
+                                </div>
+                        }
+                            </section>
+             
+                             </div>
+                             :
+                             <section key={index}>
+                             <h3 title={item.title} className='blog-title'><Truncatetext text={item.title} maxLength={110} /></h3>
+                             <div className='blog-image'>
+                                     {/* forvideos */}
+             {item.blog_type == "691beef0c2cfd41cc117ef70" ? //photo
+             item.file_dtl.filesize == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/></>
+             :  
+             <><img src={item.file_dtl.file_view_path} title={item.title} loading="lazy"/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef71"  ? //music
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6f"  ? //video
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></>
+             : item.blog_type == "691beef0c2cfd41cc117ef6e"  ? //reel
+             item.file_dtl.file_view_path == "" ? 
+             <><img src={`${WEBSITE_URL}/images/image-not-found.png`}  title={item.title} loading="lazy"/>1</>
+             :  
+             <><VideoCard key={item._id} blog={{ thumbnail_view_path:item.thumbnail_dtl.file_view_path, title:item.title, content_alias:item.content_alias}}/></> 
+             : 
+             <></> 
+             }
+             </div>
+                    <div className="user">
+                        {item.user_file_dtl.filesize == "" ? 
+                        <><img src={`${WEBSITE_URL}/images/no-profile-picture-15257.png`} loading="lazy"/></>
+                            :  
+                        <><img src={item.user_file_dtl.file_view_path} title={item.user_name}  loading="lazy"/></>
+                        }
+                        <div className="user-info">
+                        <h5>{item.user_name}</h5>
+                        <p className="date">{moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</p>
                         </div>
+                    </div>
+                    <div className='sort-desc'>
+                        <Truncatetext text={item.sort_description} maxLength={200} />
+                    </div>
+                    <a href="" 
+                    onClick={(e) => {
+                    e.preventDefault();
+                    BlogDetails(item);
+                }}
+                >Read More</a>
+                {item.like==false && item.comment==false && item.share==false ? <></> :
+                <div className="fb-actions">
+                    {/* onClick={()=>LikeAndDislike(item)}  */}
+                            {item.like ? 
+                            <button className={item.mylike > 0 ? 'fb-btn like active' : 'fb-btn like'} type='button' disabled={actionloader?true:false} >
+                                <i className="bi bi-hand-thumbs-up"></i> {item.total_likes} {item.total_likes <= 1 ? 'Like' : 'Likes'} 
+                            </button>
+                            :<></>}
+                            {item.comment ? 
+                            <button onClick={()=>OpenComment(item,'musicdatalist')} className={item.mycomment > 0 ? 'fb-btn comment active' : 'fb-btn comment'} type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-chat"></i> {item.total_comments} {item.total_comments <= 1 ? 'Comment' : 'Comments'} 
+                            </button>
+                            :<></>}
+                            {item.share ? 
+                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> Share
+                            </button>
+                            :<></>}
+                            </div>
+                    }
+                    </section>
                 }
-              </section>   
+                </div>
  )}
               
 <div className='container ff-p mt-2'>

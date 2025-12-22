@@ -595,15 +595,15 @@ async function ShareBlog(item) {
             <div className="col-md-3">
                <Allnotifications/>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 blog">
             {datalist.map((item, index) =>
-            <div className='blog' key={index}>
+            <div className='' key={index}>
             {
                 item.is_shared_blog ?
                <div className="shared-post" key={index}>
                     <div className="shared-header">
                         <i className="bi bi-share" />
-                        <b>{item.user_name} shared a post on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
+                        <b>Shared by {item.user_name} on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}</b>
                     </div>
                     <section>
                        <h3 title={item.share_title} className='blog-title'><Truncatetext text={item.share_title} maxLength={110} /></h3>
