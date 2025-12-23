@@ -1013,9 +1013,9 @@ function viewprofile(user){
                                 </button>
                                 :<></>}
                                 {item.share ? 
-                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> Share
-                                </button>
+                                <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                            </button>
                                 :<></>}
                                 </div>
                         }
@@ -1085,8 +1085,8 @@ function viewprofile(user){
                             </button>
                             :<></>}
                             {item.share ? 
-                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> Share
+                            <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                             </button>
                             :<></>}
                             </div>
@@ -1177,8 +1177,8 @@ function viewprofile(user){
                                 </button>
                                 :<></>}
                                 {item.share ? 
-                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> Share
+                                <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                                 </button>
                                 :<></>}
                                 </div>
@@ -1249,8 +1249,8 @@ function viewprofile(user){
                             </button>
                             :<></>}
                             {item.share ? 
-                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> Share
+                            <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                             </button>
                             :<></>}
                             </div>
@@ -1341,8 +1341,8 @@ function viewprofile(user){
                                 </button>
                                 :<></>}
                                 {item.share ? 
-                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> Share
+                                <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                                 </button>
                                 :<></>}
                                 </div>
@@ -1413,8 +1413,8 @@ function viewprofile(user){
                             </button>
                             :<></>}
                             {item.share ? 
-                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> Share
+                            <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                             </button>
                             :<></>}
                             </div>
@@ -1505,8 +1505,8 @@ function viewprofile(user){
                                 </button>
                                 :<></>}
                                 {item.share ? 
-                                <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> Share
+                                <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                                 </button>
                                 :<></>}
                                 </div>
@@ -1577,8 +1577,8 @@ function viewprofile(user){
                             </button>
                             :<></>}
                             {item.share ? 
-                            <button className="fb-btn share " type='button' disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> Share
+                            <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
                             </button>
                             :<></>}
                             </div>
@@ -1746,12 +1746,6 @@ function viewprofile(user){
             <span className="username">{item.user_name}</span>
         
             <div className="comment-icons">
-              {/* <i
-                className="bi bi-pencil-square"
-                title="Edit"
-                onClick={() => editComments(item)}
-              ></i> */}
-              
               <i
                 className="bi bi-x-square-fill"
                 title="Delete"
@@ -1769,6 +1763,35 @@ function viewprofile(user){
             </small>
           </p>
         </div>
+        {item.shared_by_id!==''? 
+        <>
+                <div className="share-comment-box">
+                    <div className='row'>
+                        <div className='col-md-1'>
+                            <img
+                                className="share-avatar"
+                                src={
+                                item.shared_user_file_view_path
+                                    ? item.shared_user_file_view_path
+                                    : `${WEBSITE_URL}/images/image-not-found.png`
+                                }
+                                title={item.user_name}
+                                loading="lazy"
+                            />
+                        </div>
+                        <div className='col-md-11'>
+                            <div className="share-comment-header">
+                                <small className="share-username text-primary">From shared post</small>
+                            </div>
+                            <div className="share-comment-header">
+                                <small className="share-username">Shared by {item.shared_user_name}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </> 
+        : <></>
+        }
       </div>
     </div>
   ))}

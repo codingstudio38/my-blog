@@ -7,7 +7,8 @@ import swal from 'sweetalert';
 // import Header from './Header.jsx';
 import { Pagination } from 'antd';
 import Table from 'react-bootstrap/Table';
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button ,Form} from "react-bootstrap";
+
 export default function Createblog() {
     const [currentpage, setcurrentpage] = useState(1);
     const navigate = useNavigate();
@@ -591,6 +592,69 @@ async function BlogCetegoryList() {
         }
 
     }
+     const [settingmodal, setsettingmodal] = useState(false);
+    const [shared_blog_details, setshared_blog_details] = useState({
+        "id":"",
+        "like":true,
+        "share":true,
+        "comment":true,
+        "blogtype":false
+    });
+    async function Settings(row,blogtype) {
+        setshared_blog_details((pre)=>{
+            return {...pre,id:row._id,like:row.like,share:row.share,comment:row.comment,blogtype:blogtype}
+        });
+        setsettingmodal(true);
+    }
+    function closesettingmodal(){
+        setsettingmodal(false);
+    }
+    async function UpdateBlogSetting() {
+        try {
+            // console.log(shared_blog_details);
+             let url = `${API_URL}/update-blog-settings`;
+                    let myform = JSON.stringify(shared_blog_details);
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                         setsettingmodal(false);
+                        if(shared_blog_details.blogtype==false){
+                            setDatelist([]);
+                            settotal_rec(0);
+                            setcurrentpage(1);
+                            setlimit(5);
+                            Myblogs();
+                        } else {
+                            setArchiveDatalist([]);
+                            setArchivetotal_rec(0);
+                            setArchivecurrentpage(1);
+                            setArchivelimit(5);
+                            MyArchiveblogs();
+                        }
+                        swal({
+                            title: `Successfully updated.`,
+                            icon: "success",
+                        })
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+            } catch (error) {
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
     return (
         <>
            
@@ -903,7 +967,12 @@ async function BlogCetegoryList() {
                                     </button><br/>
                                     </>
                                     :
-                                    <><b>Shared Post</b><br/></>
+                                    <>
+                                    <small>Shared Post</small><br/>
+                                    <button type='button' title='Settings' className='btn btn-info btn-sm mb-1' onClick={() => Settings(item,false)}>
+                                        <i className="bi bi-gear"></i>
+                                    </button><br/>
+                                    </>
                                     }
                                     
                                     <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,true)}>
@@ -1058,6 +1127,49 @@ async function BlogCetegoryList() {
                 </tfoot>
             </Table>
             </div>
+
+
+            <Modal 
+                show={settingmodal} 
+                onHide={() => closesettingmodal()}
+                backdrop="static"  
+                keyboard={false}  
+                    >
+                    <Modal.Header closeButton>
+                    <Modal.Title>Settings</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form >
+                            <div className='row'>
+                            <div className='col-md-4'>
+                                <label htmlFor="Like">Like</label>
+                                <select value={shared_blog_details.like} id='Like' name='Like' onChange={(e) => setshared_blog_details({ ...shared_blog_details, like: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                    <option value="true">Enable</option>
+                                    <option value="false">Disable</option>
+                                </select>
+                            </div>
+                            <div className='col-md-4'>
+                                <label htmlFor="Comment">Comment</label>
+                                <select value={shared_blog_details.comment} id='Comment' name='Comment' onChange={(e) => setshared_blog_details({ ...shared_blog_details, comment: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                    <option value="true">Enable</option>
+                                    <option value="false">Disable</option>
+                                </select>
+                            </div>
+                            <div className='col-md-4'>
+                                <label htmlFor="Share">Share</label>
+                                <select value={shared_blog_details.share} id='Share' name='Share' onChange={(e) => setshared_blog_details({ ...shared_blog_details, share: e.target.value=='true'?true:false })} className="form-select form-select-lg">
+                                    <option value="true">Enable</option>
+                                    <option value="false">Disable</option>
+                                </select>
+                            </div>
+                        </div>
+                            </Form>
+                </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" type="button" onClick={() => closesettingmodal()} > Cancel </Button>
+                        <Button variant="primary" type="button" onClick={() => UpdateBlogSetting()}>Update</Button>
+                    </Modal.Footer>           
+                </Modal>
         </>
     );
 }

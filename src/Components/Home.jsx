@@ -183,18 +183,17 @@ function Home(){
     const [comment_lastpage, setcomment_lastpage] = useState(1);
     async function OpenComment(item) {
         try {
-            console.log(item);
             setactionloader(true);
-            setcomment_form(pre => ({
-                ...pre,
+            setcomment_form((pre) => {
+                return {...pre,
                 comment: '',
                 user_id:LOGIN_USER._id,
                 blog_id:item._id,
                 blog_post_by:item.user_id,
                 shared_blog_id:item.shared_blog_id,
                 is_shared_blog:item.is_shared_blog,
-                _id:'',
-            }))
+                _id:'',}
+            })
             comment_blog_details.current = item;
             CommentList();
             setshowcomment_modal(true);
@@ -440,7 +439,7 @@ function Home(){
             blog_id:item.blog_id,
             comment:item.comment,
             blog_post_by:comment_form.user_id,
-            shared_blog_id:item.shared_blog_id,
+            shared_blog_id:comment_form.shared_blog_id,
             _id:item._id,
         }))
     };
@@ -788,9 +787,9 @@ item.file_dtl.file_view_path == "" ?
     comment_form.is_shared_blog==true ? 
     <>
     {comment_form._id=="" ? 
-                                <><Button variant="primary" type="button" onClick={()=> CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Post Comment1</Button></>
+                                <><Button variant="primary" type="button" onClick={()=> CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Post Comment</Button></>
                                  : 
-                                 <><Button variant="warning" type="button" onClick={()=>CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Update Comment1</Button></>
+                                 <><Button variant="warning" type="button" onClick={()=>CommentOnSharePost()} disabled={comment_actionloader == true ? true:false}>Update Comment</Button></>
                                  }
     </>
      : 

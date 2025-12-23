@@ -612,3 +612,23 @@ img{
     gap: 6px;
     margin-bottom: 6px;
 }
+
+.share-username{
+  font-weight: bold;
+    font-size: 11px;
+     
+}
+.share-comment-box{
+    margin-top: -8px;
+    margin-left: 13px;
+    width: 100%;
+}
+.share-avatar{
+  width: 36px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid;
+}
+.share-comment-header{
+   margin-left: 9px;
+}
