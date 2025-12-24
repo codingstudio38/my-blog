@@ -454,7 +454,8 @@ import swal from 'sweetalert';
         }
     }
      function BlogDetails(row){
-         navigate(`/web/blog-details/${row.content_alias}`);
+        let alias = btoa(row.content_alias);
+         navigate(`/web/blog-details/${alias}`);
          return true;
     }   
 
@@ -642,7 +643,17 @@ import swal from 'sweetalert';
                     response = await response.json();
                     const data = response;
                     if (data.status == 200) {
-                        let newdatalist = datalist.map(row => {
+                        let newdatalist = [];
+                        if(listtypeRef.current==='videodatalist'){
+                            newdatalist = videodatalist;
+                        } else if(listtypeRef.current==='photodatalist'){
+                            newdatalist = photodatalist;
+                        } else if(listtypeRef.current==='musicdatalist'){
+                            newdatalist = musicdatalist;
+                        } else if(listtypeRef.current==='reeldatalist'){
+                            newdatalist = reeldatalist;
+                        }
+                        let list = newdatalist.map(row => {
                             if (row._id === comment_blog_details.current._id) {
                                 return {
                                     ...row,
@@ -652,7 +663,16 @@ import swal from 'sweetalert';
                             }
                             return row;
                         });
-                        setDatelist((prev) => {return newdatalist});
+                        if(listtypeRef.current==='videodatalist'){
+                            setvideodatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='photodatalist'){
+                           setphotodatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='musicdatalist'){
+                            setmusicdatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='reeldatalist'){
+                            setreeldatalist((prev) => {return list});
+                        }
+
                         setcomment_datalist((prev) => [...prev, ...data.result.docs]);
                         setcomment_total_rec((dataid) => { return data.result.total });
                         setcomment_lastpage((dataid) => { return data.result.totalpage });
@@ -823,7 +843,119 @@ function viewprofile(user){
     return true;
 }
 
-
+const share_form = useRef(null);
+    const [showshare_modal, setshowshare_modal] = useState(false);
+    const [share_listloader, setshare_listloader] = useState(false);
+    const [share_datalist, setshare_datalist] = useState([]);
+    const [share_limit, setshare_limit] = useState(5);
+    const [share_total_rec, setshare_total_rec] = useState(0);
+    let [share_currentpage, setshare_currentpage] = useState(1);
+    let [share_lastpage, setshare_lastpage] = useState(1);
+    function OpenShareList(item,listtype) {
+        try {
+            listtypeRef.current = listtype;
+            setactionloader(true);
+            share_form.current=(item);
+            ShareList();
+            setshowshare_modal(true);
+        } catch (error) {
+            setactionloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    async function ShareList() {
+        try {
+            if (share_listloader) {
+                return false;
+            }
+           
+            setshare_listloader(true);
+             setTimeout(async ()=>{
+            let url = `${API_URL}/blog-share-list?page=${share_currentpage}&limit=${share_limit}`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:share_form.current._id});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setshare_listloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = [];
+                        if(listtypeRef.current==='videodatalist'){
+                            newdatalist = videodatalist;
+                        } else if(listtypeRef.current==='photodatalist'){
+                            newdatalist = photodatalist;
+                        } else if(listtypeRef.current==='musicdatalist'){
+                            newdatalist = musicdatalist;
+                        } else if(listtypeRef.current==='reeldatalist'){
+                            newdatalist = reeldatalist;
+                        }
+                        let list = newdatalist.map(row => {
+                            if (row._id === share_form.current._id) {
+                                return {
+                                    ...row,
+                                    my_shares:data.mytotal,
+                                    total_shares: data.result.total,
+                                };
+                            }
+                            return row;
+                        });
+                        if(listtypeRef.current==='videodatalist'){
+                            setvideodatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='photodatalist'){
+                           setphotodatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='musicdatalist'){
+                            setmusicdatalist((prev) => {return list});
+                        } else if(listtypeRef.current==='reeldatalist'){
+                            setreeldatalist((prev) => {return list});
+                        }
+                        setshare_datalist((prev) => [...prev, ...data.result.docs]);
+                        setshare_total_rec((dataid) => { return data.result.total });
+                        setshare_lastpage((dataid) => { return data.result.totalpage });
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                },500)
+        } catch (error) {
+            setshare_listloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+    function closesharemodal(){
+        setshowshare_modal(false);
+        setshare_currentpage(1);
+        setshare_lastpage(1);
+        setshare_datalist((prev) => {return [];});
+        setactionloader(false);
+    }
+    const handleshareScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    // console.log(scrollTop, scrollHeight, clientHeight);
+        if (scrollTop + clientHeight >= scrollHeight - 5) {
+            // console.log("Reached bottom!");
+            if (share_currentpage < share_lastpage) {
+                sharePagechange();
+            }
+        }
+    };
+    function sharePagechange(){
+        share_currentpage = share_currentpage+1;
+        setcomment_currentpage((pre)=>{return share_currentpage;});
+        ShareList();
+    }
 
     return (
         <>
@@ -1013,8 +1145,11 @@ function viewprofile(user){
                                 </button>
                                 :<></>}
                                 {item.share ? 
-                                <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                            <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
+                                <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'photodatalist')}></i></> : <></>
+                                    } 
                             </button>
                                 :<></>}
                                 </div>
@@ -1086,7 +1221,10 @@ function viewprofile(user){
                             :<></>}
                             {item.share ? 
                             <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'photodatalist')}></i></> : <></>
+                                    }
                             </button>
                             :<></>}
                             </div>
@@ -1178,7 +1316,10 @@ function viewprofile(user){
                                 :<></>}
                                 {item.share ? 
                                 <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                    <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'videodatalist')}></i></> : <></>
+                                    }
                                 </button>
                                 :<></>}
                                 </div>
@@ -1250,7 +1391,10 @@ function viewprofile(user){
                             :<></>}
                             {item.share ? 
                             <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'videodatalist')}></i></> : <></>
+                                    } 
                             </button>
                             :<></>}
                             </div>
@@ -1342,7 +1486,10 @@ function viewprofile(user){
                                 :<></>}
                                 {item.share ? 
                                 <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                    <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'reeldatalist')}></i></> : <></>
+                                    } 
                                 </button>
                                 :<></>}
                                 </div>
@@ -1414,7 +1561,10 @@ function viewprofile(user){
                             :<></>}
                             {item.share ? 
                             <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'reeldatalist')}></i></> : <></>
+                                    } 
                             </button>
                             :<></>}
                             </div>
@@ -1506,7 +1656,10 @@ function viewprofile(user){
                                 :<></>}
                                 {item.share ? 
                                 <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                    <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                    <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'musicdatalist')}></i></> : <></>
+                                    } 
                                 </button>
                                 :<></>}
                                 </div>
@@ -1578,7 +1731,10 @@ function viewprofile(user){
                             :<></>}
                             {item.share ? 
                             <button type='button' className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'}  disabled={actionloader?true:false}>
-                                <i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} 
+                                <label ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                                    {item.total_shares >0 ? 
+                                    <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item,'musicdatalist')}></i></> : <></>
+                                    } 
                             </button>
                             :<></>}
                             </div>
@@ -1759,7 +1915,7 @@ function viewprofile(user){
             {item.comment}
             <br />
             <small>
-              {item.updated_at ?? item.created_at}
+              {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}
             </small>
           </p>
         </div>
@@ -1832,6 +1988,70 @@ function viewprofile(user){
           </Modal.Body>
                     {/* <Modal.Footer></Modal.Footer>            */}
                 </Modal>
+
+<Modal 
+                show={showshare_modal} 
+                onHide={() => closesharemodal()}
+                backdrop="static"  
+                keyboard={false}  
+                    >
+                    <Modal.Header closeButton>
+                    <Modal.Title>Share({share_total_rec})</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                       <div className='container'>
+ <div className="comments-section" onScroll={handleshareScroll}>
+  {share_listloader && (
+    <h4 className="text-center">Loading..</h4>
+  )}
+
+  {share_datalist.map((item, index) => (
+    <div className="comment" key={index}>
+      <img
+        className="avatar"
+        src={
+          item.user_file_view_path
+            ? item.user_file_view_path
+            : `${WEBSITE_URL}/images/image-not-found.png`
+        }
+        title={item.user_name}
+        loading="lazy"
+      />
+
+      <div className="comment-body">
+        <div className="comment-box">
+          
+          <div className="comment-header">
+            <span className="username">{item.user_name}</span>
+          </div>
+          <p className="comment-text">
+           Share on {moment(item.created_at).format("DD-MMM-YYYY, hh:mm A")}
+          </p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<div className='spinner-div'>
+{
+    share_listloader == true ? 
+    <>
+        <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Loading...</span>
+        </div>
+    </> 
+    : 
+    <></>
+}
+</div>
+</div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    </Modal.Footer>
+                </Modal>
+
+
  
         </>
     );
