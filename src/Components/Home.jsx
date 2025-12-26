@@ -503,7 +503,7 @@ const [sharepost_limit, setsharepost_limit] = useState(5);
 const [sharepost_total_rec, setsharepost_total_rec] = useState(0);
 let [sharepost_currentpage, setsharepost_currentpage] = useState(1);
 let [sharepost_lastpage, setsharepost_lastpage] = useState(1);   
-
+const selectedusers = useRef(new Map());
    function closesharepostmodal(){
         setshowshare_postmodal(false);
         setsharepost_currentpage(1);
@@ -511,6 +511,7 @@ let [sharepost_lastpage, setsharepost_lastpage] = useState(1);
         setsharepost_friendlist((prev) => {return [];});
         setactionloader(false);
         setloding_share_topublic(false);
+        selectedusers.current=new Map();
     }
      const handlesharePostScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -537,6 +538,7 @@ async function OpenShareModal(item) {
     setactionloader(true);
     SharePostFriendList();
     setloding_share_topublic(false);
+    selectedusers.current=new Map();
 }
 
         async function SharePostFriendList() {
@@ -600,10 +602,10 @@ async function OpenShareModal(item) {
         }
     }
 async function ShareToPublic() {
-    ShareBlog(sharepost_form.current);
+    ShareBlog();
 }
 
-async function ShareBlog(item) {
+async function ShareBlog() {
         try {
             if (loding_share_topublic) {
                 return false;
@@ -611,7 +613,7 @@ async function ShareBlog(item) {
             setloding_share_topublic(true);
              setTimeout(async ()=>{
             let url = `${API_URL}/share-blog`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,selected_user:[]});
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:sharepost_form.current._id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -627,7 +629,7 @@ async function ShareBlog(item) {
                             icon: "success",
                         });
                         let newdatalist = datalist.map(row => {
-                        if (row._id === item._id) {
+                        if (row._id === sharepost_form.current._id) {
                             return {
                                 ...row,
                                 total_shares:data.total_shares,
@@ -654,7 +656,7 @@ async function ShareBlog(item) {
             })
         }
     }
-    const selectedusers = useRef(new Map());
+    
     function selectthisuser(user){
         if(selectedusers.current.has(user._id)){
             selectedusers.current.delete(user._id);
@@ -684,12 +686,7 @@ async function ShareBlog(item) {
     }
 async function ShareToFriends() {
     if(selectedusers.current.size > 0){
-        // console.log(sharepost_form.current);
-        // console.log(selectedusers.current);
-        // console.log([...selectedusers.current.keys()]);
-        // console.log([...selectedusers.current.values()]);
-        // console.log([...selectedusers.current.entries()]);
-// ShareBlog(sharepost_form.current);
+        ShareBlogToFriend();
     } else {
         swal({
             title: `Please select friend!`,
@@ -697,6 +694,61 @@ async function ShareToFriends() {
         })
     }
 }
+
+async function ShareBlogToFriend() {
+        try {
+            if (loding_share_topublic) {
+                return false;
+            }
+            let users = [...selectedusers.current.keys()];
+            setloding_share_topublic(true);
+             setTimeout(async ()=>{
+            let url = `${API_URL}/share-blog-to-friends`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:sharepost_form.current._id,selected_user:users});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setloding_share_topublic(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        swal({
+                            title: `Success`,
+                            icon: "success",
+                        });
+                        let newdatalist = datalist.map(row => {
+                        if (row._id === sharepost_form.current._id) {
+                            return {
+                                ...row,
+                                total_shares:data.total_shares,
+                                my_shares: data.my_shares
+                            };
+                        }
+                        return row;
+                    });
+                    setDatelist((prev) => {return newdatalist});
+                    closesharepostmodal();
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                },500)
+        } catch (error) {
+            setloding_share_topublic(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
+
     async function LikeAndDislikeOnSharePost(item) {
         try {
             let status = item.mylike <= 0 ? 1 : 0;
