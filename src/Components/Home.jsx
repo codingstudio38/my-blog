@@ -493,23 +493,131 @@ function Home(){
             }
         });
     }; 
-    
-    
-async function ShareBlog(item) {
+ 
+const sharepost_form = useRef(null);
+const [loding_share_topublic, setloding_share_topublic] = useState(false);
+const [showshare_postmodal, setshowshare_postmodal] = useState(false);
+const [sharepost_friendlistloader, setsharepost_friendlistloader] = useState(false);
+const [sharepost_friendlist, setsharepost_friendlist] = useState([]);
+const [sharepost_limit, setsharepost_limit] = useState(5);
+const [sharepost_total_rec, setsharepost_total_rec] = useState(0);
+let [sharepost_currentpage, setsharepost_currentpage] = useState(1);
+let [sharepost_lastpage, setsharepost_lastpage] = useState(1);   
+
+   function closesharepostmodal(){
+        setshowshare_postmodal(false);
+        setsharepost_currentpage(1);
+        setsharepost_lastpage(1);
+        setsharepost_friendlist((prev) => {return [];});
+        setactionloader(false);
+        setloding_share_topublic(false);
+    }
+     const handlesharePostScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    // console.log(scrollTop, scrollHeight, clientHeight);
+        if (scrollTop + clientHeight >= scrollHeight - 5) {
+            // console.log("Reached bottom!");
+            if (sharepost_currentpage < sharepost_lastpage) {
+                sharePostPagechange();
+            }
+        }
+    };
+    function sharePostPagechange(){
+        sharepost_currentpage = sharepost_currentpage+1;
+        setsharepost_currentpage((pre)=>{return sharepost_currentpage;});
+        SharePostFriendList();
+    }
+
+async function OpenShareModal(item) {
+    sharepost_form.current=item;
+    setshowshare_postmodal(true);
+    setsharepost_currentpage(1);
+    setsharepost_lastpage(1);
+    setsharepost_friendlist((prev) => {return [];});
+    setactionloader(true);
+    SharePostFriendList();
+    setloding_share_topublic(false);
+}
+
+        async function SharePostFriendList() {
         try {
-            if (actionloader) {
+            if (sharepost_friendlistloader) {
                 return false;
             }
-            setactionloader(true);
+           
+            setsharepost_friendlistloader(true);
              setTimeout(async ()=>{
-            let url = `${API_URL}/share-blog`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id});
+                let url = `${API_URL}/my-friends-for-share?page=${sharepost_currentpage}&limit=${sharepost_limit}`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,name:'',blog_id:sharepost_form.current._id});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
                 };
                 let response = await Post_With_Htoken(myform, url, headers);
-                setactionloader(false);
+                setsharepost_friendlistloader(false);
+                if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        let newdatalist = datalist.map(row => {
+                            if (row._id === sharepost_form.current._id) {
+                                return {
+                                    ...row,
+                                    my_shares:data.mytotal,
+                                    total_shares: data.total_share,
+                                };
+                            }
+                            return row;
+                        });
+                        setDatelist((prev) => {return newdatalist});
+
+                        let users = data.result.list.map(row => {
+                            if (row._id === sharepost_form.current._id) {
+                                return {
+                                    ...row,
+                                    is_selected:false,
+                                };
+                            }
+                            return row;
+                        });
+                        setsharepost_friendlist((prev) => [...prev, ...users]);
+                        setsharepost_total_rec((dataid) => { return data.result.total });
+                        setsharepost_lastpage((dataid) => { return data.result.totalpage });
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                },500)
+        } catch (error) {
+            setsharepost_friendlistloader(false);
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+async function ShareToPublic() {
+    ShareBlog(sharepost_form.current);
+}
+
+async function ShareBlog(item) {
+        try {
+            if (loding_share_topublic) {
+                return false;
+            }
+            setloding_share_topublic(true);
+             setTimeout(async ()=>{
+            let url = `${API_URL}/share-blog`;
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:item._id,selected_user:[]});
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${LOGIN_USER.token}`,
+                };
+                let response = await Post_With_Htoken(myform, url, headers);
+                setloding_share_topublic(false);
                 if(response!==""){
                     response = await response.json();
                     const data = response;
@@ -529,6 +637,7 @@ async function ShareBlog(item) {
                         return row;
                     });
                     setDatelist((prev) => {return newdatalist});
+                    closesharepostmodal();
                     } else {
                         swal({
                             title: `${data?.message}`,
@@ -538,14 +647,56 @@ async function ShareBlog(item) {
                 }
                 },500)
         } catch (error) {
-            setactionloader(false);
+            setloding_share_topublic(false);
             swal({
                 title: `Unknow error:- ${error.message}`,
                 icon: "error",
             })
         }
     }
-
+    const selectedusers = useRef(new Map());
+    function selectthisuser(user){
+        if(selectedusers.current.has(user._id)){
+            selectedusers.current.delete(user._id);
+            let users = sharepost_friendlist.map(row => {
+                if (row._id === user._id) {
+                    return {
+                        ...row,
+                        is_selected:false,
+                    };
+                }
+                return row;
+            });
+            setsharepost_friendlist((prev) => {return users});
+        } else{
+            selectedusers.current.set(user._id,user);
+            let users = sharepost_friendlist.map(row => {
+                if (row._id === user._id) {
+                    return {
+                        ...row,
+                        is_selected:true,
+                    };
+                }
+                return row;
+            });
+            setsharepost_friendlist((prev) => {return users});
+        }
+    }
+async function ShareToFriends() {
+    if(selectedusers.current.size > 0){
+        // console.log(sharepost_form.current);
+        // console.log(selectedusers.current);
+        // console.log([...selectedusers.current.keys()]);
+        // console.log([...selectedusers.current.values()]);
+        // console.log([...selectedusers.current.entries()]);
+// ShareBlog(sharepost_form.current);
+    } else {
+        swal({
+            title: `Please select friend!`,
+            icon: "warning",
+        })
+    }
+}
     async function LikeAndDislikeOnSharePost(item) {
         try {
             let status = item.mylike <= 0 ? 1 : 0;
@@ -763,7 +914,8 @@ item.share_file_dtl.file_view_path == "" ?
                     :<></>}
                     {item.share ? 
                         <button className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'} type='button' disabled={actionloader?true:false}>
-                        <label style={{ 'cursor':'pointer' }}  onClick={()=>ShareBlog(item)} ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                             {/* onClick={()=>ShareBlog(item)} */}
+                        <label style={{ 'cursor':'pointer' }} onClick={()=>OpenShareModal(item)} ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
                         {item.total_shares >0 ? 
                         <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item)}></i></> : <></>
                         }
@@ -838,7 +990,8 @@ item.file_dtl.file_view_path == "" ?
                     :<></>}
                     {item.share ? 
                         <button className={item.my_shares > 0 ? 'fb-btn share active' : 'fb-btn share'} type='button' disabled={actionloader?true:false}>
-                        <label style={{ 'cursor':'pointer' }}  onClick={()=>ShareBlog(item)} ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
+                            {/* onClick={()=>ShareBlog(item)}  */}
+                        <label style={{ 'cursor':'pointer' }} onClick={()=>OpenShareModal(item)}  ><i className="bi bi-share"></i> {item.total_shares} {item.total_shares <= 1 ? 'Share' : 'Shares'} </label>  
                         {item.total_shares >0 ? 
                         <><i className="bi bi-eye-fill" title='View' alt="View" onClick={()=>OpenShareList(item)}></i></> : <></>
                         }
@@ -1027,6 +1180,96 @@ item.file_dtl.file_view_path == "" ?
 <div className='spinner-div'>
 {
     share_listloader == true ? 
+    <>
+        <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Loading...</span>
+        </div>
+    </> 
+    : 
+    <></>
+}
+</div>
+</div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    </Modal.Footer>
+                </Modal>
+
+
+                <Modal 
+                show={showshare_postmodal} 
+                onHide={() => closesharepostmodal()}
+                backdrop="static"  
+                keyboard={false}  
+                    >
+                    <Modal.Header closeButton>
+                    <Modal.Title>Share Post</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+
+<div className='container '>
+    <div className='col-md-12 share-to-public-div'>
+        <button className='btn btn-warning share-to-public' disabled={loding_share_topublic==true?true:false} type='bytton' onClick={() => ShareToPublic()}><i className="bi bi-send"></i> Share to Public</button>
+    </div>
+     <div className='col-md-12 mt-2'>
+        <h6 className='text-decoration-underline'>OR</h6>
+    </div>
+</div>
+
+                       <div className='container'>
+
+
+  
+  <div className='row'>
+    <div className='col-md-6'>
+        <h6 className='text-decoration-underline text-primary sdsd'>Share to friends only</h6>    
+    </div>
+    <div className='col-md-6'>
+        {selectedusers.current.size > 0 ?
+        <><button className='btn btn-primary share-to-friend-share' disabled={loding_share_topublic==true?true:false} onClick={()=>ShareToFriends()} type='bytton'><i className="bi bi-send"></i> Share to {selectedusers.current.size}</button></> 
+        : <></>
+        }
+        
+    </div>
+</div>               
+ <div className="comments-section" onScroll={handlesharePostScroll}>
+  {sharepost_friendlistloader && (
+    <h4 className="text-center">Loading..</h4>
+  )}
+
+  {sharepost_friendlist.map((item, index) => (
+    <div className={item.is_selected ? 'comment share-users selected-shared-user' : 'comment share-users'} key={index} onClick={()=>selectthisuser(item)}>
+      <img
+        className="avatar"
+        src={
+          item.user_file_dtl.file_view_path
+            ? item.user_file_dtl.file_view_path
+            : `${WEBSITE_URL}/images/image-not-found.png`
+        }
+        title={item.user_name}
+        loading="lazy"
+      />
+
+      <div className="comment-body">
+        <div className="comment-box share-comment-box">
+          
+          <div className="comment-header">
+            <span className="username">Share to {item.name}</span>
+            
+            <label className="check-container">
+            <input type="checkbox" checked={item.is_selected ? true : false} onChange={()=>selectthisuser(item)}/>
+            <span className="checkmark"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<div className='spinner-div'>
+{
+    sharepost_friendlistloader == true ? 
     <>
         <div className="spinner-border text-primary" role="status">
         <span className="visually-hidden">Loading...</span>
