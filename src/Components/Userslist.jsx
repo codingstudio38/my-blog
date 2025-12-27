@@ -375,7 +375,9 @@ function LoadMore(){
                                         <button className='text-white btn btn-sm btn-info' onClick={(e) => { CurrentUser(item) }}>Message</button> 
                                         <button className='text-white btn btn-sm btn-primary ms-1' onClick={(e) => { VideoCall(item) }}>Video Call</button></> 
                                         :
-                                        <><small className='text-danger'>Offline</small></>
+                                        <><small className='text-danger'>Offline</small><br/>
+                                        <button className='text-white btn btn-sm btn-info' onClick={(e) => { CurrentUser(item) }}>Message</button> 
+                                        </>
                                         }
                                         {
                                             item.total_unread_message > 0 ? <><p className='btn btn-sm btn-warning text-white ms-1' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message} Unread Message</p></> : <></>

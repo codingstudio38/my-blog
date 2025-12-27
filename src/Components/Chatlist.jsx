@@ -367,6 +367,11 @@ function Chatlist() {
             }
         }
     }
+    function BlogDetails(row){
+         let alias = btoa(row.blog_alias);
+         navigate(`/web/blog-details/${alias}`);
+         return true;
+    }
     return (
         <div>
 
@@ -402,9 +407,84 @@ function Chatlist() {
                                 <ul>
                                     {
                                         chatlist.map((item, index) =>
+                                            <div key={index}>
+                                            {item.chat_type=='1'? 
+                                            <>
+                                             <li className="clearfix" key={index} data-id={item.intid}>
 
+                                                {item.sender == loginid ?
+                                                    <>
+                                                    <div className="message-data align-right">
+                                                        <span className="message-data-time">{item.created_at}</span> &nbsp; &nbsp;
+                                                        <span className="message-data-name">You</span> <i className="fa fa-circle me" />
+                                                    </div>
+                                                        <div className="message other-message float-right blog-message">
+                                                            <i className="fa fa-chevron-down mycon" aria-hidden="true"></i>
+                                                            <a 
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                BlogDetails(item);
+                                                            }}
+                                                            href="#">
+                                                                {item.is_shared_blog==true ? 
+                                                                <> 
+                                                                {item.main_blog_type=='691beef0c2cfd41cc117ef70'? 
+                                                                <><img src={item.main_blog_photo_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.main_blog_photo_dtl.file_view_path} className="images" /></> 
+                                                                : <><img src={item.main_blog_thumbnail_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.main_blog_thumbnail_dtl.file_view_path} className="images" /></>
+                                                                }
+                                                                </> 
+                                                                : 
+                                                                <> 
+                                                                {item.blog_type=='691beef0c2cfd41cc117ef70'? 
+                                                                <><img src={item.blog_photo_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.blog_photo_dtl.file_view_path} className="images" /></> 
+                                                                : <><img src={item.blog_thumbnail_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.blog_thumbnail_dtl.file_view_path} className="images" /></>
+                                                                }
+                                                                </>
+                                                                }
+                                                            </a><br/>
+                                                            {item.message} 
+                                                        </div>
+                                                    </>
+                                                    :
+                                                    <div className="c-width">
+                                                        <div className="message-data">
+                                                        <span className="message-data-name"><i className="fa fa-circle online" /> {chatusername}</span>
+                                                        <span className="message-data-time">{item.created_at}</span>
+                                                    </div>
+                                                        <div className="message my-message blog-message">
+                                                            <i className="fa fa-chevron-down other" aria-hidden="true"></i>
+                                                            <a 
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                BlogDetails(item);
+                                                            }}
+                                                            href="#">
+                                                                {item.is_shared_blog ? 
+                                                                <> 
+                                                                {item.main_blog_type=='691beef0c2cfd41cc117ef70'? 
+                                                                <><img src={item.main_blog_photo_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.main_blog_photo_dtl.file_view_path} className="images" /></> 
+                                                                : <><img src={item.main_blog_thumbnail_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.main_blog_thumbnail_dtl.file_view_path} className="images" /></>
+                                                                }
+                                                                </> 
+                                                                : 
+                                                                <> 
+                                                                {item.blog_type=='691beef0c2cfd41cc117ef70'? 
+                                                                <><img src={item.blog_photo_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.blog_photo_dtl.file_view_path} className="images" /></> 
+                                                                : <><img src={item.blog_thumbnail_dtl.file_view_path ==''? `${WEBSITE_PUBLIC}/images/no-img.jpg` : item.blog_thumbnail_dtl.file_view_path} className="images" /></>
+                                                                }
+                                                                </>
+                                                                }
+                                                            </a><br/>
+                                                            {item.message} 
+                                                        </div>
+                                                    </div>
+                                                }
 
-                                            <li className="clearfix" key={index} data-id={item.intid}>
+                                            </li>
+                                            </>
+                                            :
+                                            <>
+                                             <li className="clearfix" key={index} data-id={item.intid}>
 
                                                 {item.sender == loginid ?
                                                     < div >
@@ -510,8 +590,9 @@ function Chatlist() {
                                                 }
 
                                             </li>
-
-
+                                            </>
+                                            }
+                                           </div>
                                         )
                                     }
 

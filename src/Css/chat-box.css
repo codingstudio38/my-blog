@@ -323,3 +323,12 @@
       list-style-type: none;
 
 }
+.blog-message{
+ background-color:  #71bbba !important;
+ width: 20% !important;
+}
+
+.chat .blog-message:after {
+  left: 10% !important;
+  border-bottom-color: #71bbba !important;
+}
