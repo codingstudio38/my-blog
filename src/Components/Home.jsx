@@ -10,7 +10,7 @@ import moment from "moment";
 import Allnotifications from './Allnotifications.jsx';
 import VideoCard from './VideoCard.jsx';
 import { Modal, Button,Form } from 'react-bootstrap';
- 
+import $ from 'jquery';
 function Home(){
     const navigate = useNavigate();
     const LOGIN_USER = USER_DETAILS();
@@ -511,6 +511,7 @@ const selectedusers = useRef(new Map());
         setsharepost_friendlist((prev) => {return [];});
         setactionloader(false);
         setloding_share_topublic(false);
+        $("#text_share_tofriend").val('');
         selectedusers.current=new Map();
     }
      const handlesharePostScroll = (e) => {
@@ -538,6 +539,7 @@ async function OpenShareModal(item) {
     setactionloader(true);
     SharePostFriendList();
     setloding_share_topublic(false);
+    $("#text_share_tofriend").val('');
     selectedusers.current=new Map();
 }
 
@@ -704,7 +706,8 @@ async function ShareBlogToFriend() {
             setloding_share_topublic(true);
              setTimeout(async ()=>{
             let url = `${API_URL}/share-blog-to-friends`;
-                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:sharepost_form.current._id,selected_user:users});
+            let text_share_tofriend = $("#text_share_tofriend").val();
+                let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:sharepost_form.current._id,selected_user:users,text:text_share_tofriend});
                 let headers = {
                     'Content-Type': 'application/json',
                     'authorization': `Bearer ${LOGIN_USER.token}`,
@@ -1281,10 +1284,17 @@ item.file_dtl.file_view_path == "" ?
         <><button className='btn btn-primary share-to-friend-share' disabled={loding_share_topublic==true?true:false} onClick={()=>ShareToFriends()} type='bytton'><i className="bi bi-send"></i> Share to {selectedusers.current.size}</button></> 
         : <></>
         }
-        
     </div>
+    {selectedusers.current.size > 0 ?
+        <>
+        <div className='col-md-12 mt-1'>
+            <textarea placeholder='Message..' className="form-control form-control-lg" id="text_share_tofriend"></textarea>
+        </div>
+        </> 
+        : <></>
+        }
 </div>               
- <div className="comments-section" onScroll={handlesharePostScroll}>
+ <div className="comments-section mt-1" onScroll={handlesharePostScroll}>
   {sharepost_friendlistloader && (
     <h4 className="text-center">Loading..</h4>
   )}

@@ -332,3 +332,17 @@
   left: 10% !important;
   border-bottom-color: #71bbba !important;
 }
+
+.share-image{
+  width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+.share-image .images{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}

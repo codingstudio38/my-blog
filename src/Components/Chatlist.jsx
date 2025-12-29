@@ -420,6 +420,7 @@ function Chatlist() {
                                                     </div>
                                                         <div className="message other-message float-right blog-message">
                                                             <i className="fa fa-chevron-down mycon" aria-hidden="true"></i>
+                                                            <div className='share-image'>
                                                             <a 
                                                             onClick={(e) => {
                                                                 e.preventDefault();
@@ -441,7 +442,9 @@ function Chatlist() {
                                                                 }
                                                                 </>
                                                                 }
-                                                            </a><br/>
+                                                            </a>
+                                                            </div>
+                                                            <br/>
                                                             {item.message} 
                                                         </div>
                                                     </>
@@ -453,6 +456,7 @@ function Chatlist() {
                                                     </div>
                                                         <div className="message my-message blog-message">
                                                             <i className="fa fa-chevron-down other" aria-hidden="true"></i>
+                                                            <div className='share-image'> 
                                                             <a 
                                                             onClick={(e) => {
                                                                 e.preventDefault();
@@ -474,7 +478,9 @@ function Chatlist() {
                                                                 }
                                                                 </>
                                                                 }
-                                                            </a><br/>
+                                                            </a>
+                                                            </div>
+                                                            <br/>
                                                             {item.message} 
                                                         </div>
                                                     </div>
@@ -497,7 +503,7 @@ function Chatlist() {
                                                                 </div>
                                                                     <div className="message other-message float-right">
                                                                         <i className="fa fa-chevron-down mycon" aria-hidden="true"></i>
-                                                                        <Messagefilefilter row={item} />
+                                                                        <Messagefilefilter row={item} /><br/>
 
                                                                         {item.message}
 
@@ -522,7 +528,7 @@ function Chatlist() {
                                                                         </div>
                                                                             <div className="message other-message float-right">
                                                                                 <i className="fa fa-chevron-down mycon" aria-hidden="true"></i>
-                                                                                <Messagefilefilter row={item} />
+                                                                                <Messagefilefilter row={item} /><br/>
 
                                                                             </div></>
                                                                         : <><div className="message-data align-right">
@@ -549,7 +555,7 @@ function Chatlist() {
                                                                 </div>
                                                                     <div className="message my-message">
                                                                         <i className="fa fa-chevron-down other" aria-hidden="true"></i>
-                                                                        <Messagefilefilter row={item} />
+                                                                        <Messagefilefilter row={item} /><br/>
                                                                         {item.message}
 
                                                                     </div></>
@@ -573,7 +579,7 @@ function Chatlist() {
                                                                         </div>
                                                                             <div className="message my-message">
                                                                                 <i className="fa fa-chevron-down other" aria-hidden="true"></i>
-                                                                                <Messagefilefilter row={item} />
+                                                                                <Messagefilefilter row={item} /><br/>
 
                                                                             </div></>
                                                                         : <><div className="message-data">
