@@ -28,6 +28,7 @@ function Chatlist() {
     let [limit, setLimit] = useState(10);
     let [totalpage, setTotalpage] = useState(0);
     let [activechatuser, setactivechatuser] = useState(false);
+    let [chatloading, setchatloading] = useState(false);
     const activeUserRef = useRef(activechatuser);
     const [chat_details, setchat_details] = useState({
         "from_user": LOGIN_USER._id,
@@ -179,6 +180,10 @@ function Chatlist() {
     }
     async function GetActiveChatList(id) {
         try {
+            if(chatloading){
+                return false;
+            }
+            setchatloading(true);
             let url = `${API_URL}/chat-list?page=${page}&limit=${limit}`;
             let myform = JSON.stringify({ from_user: LOGIN_USER._id, to_user: id });
             let headers = {
@@ -186,7 +191,7 @@ function Chatlist() {
                 'authorization': `Bearer ${LOGIN_USER.token}`,
             };
             let response = await Post_With_Htoken(myform, url, headers);
-
+            setchatloading(false);
             if (response !== "") {
                 response = await response.json();
                 const data = response;
@@ -198,14 +203,19 @@ function Chatlist() {
                     setTotalpage(response.pagination.totalpage);
                     // setPage(result.pagination.current_page);
                     setTimeout(() => {
-                        const element = document.getElementById("chat-history");
-                        element.scrollTop = element.scrollHeight;
+                        // const element = document.getElementById("chat-history");
+                        // element.scrollTop = element.scrollHeight;
+                        const element = $('#chat-history');
+                        element.animate({
+                            scrollTop: element.prop("scrollHeight")
+                        }, 700);
                     }, 400)
                     // const element = $('#chat-history');
                     // element.animate({
                     //     scrollTop: element.prop("scrollHeight")
                     // }, 500);
                 } else {
+                    setchatloading(false);
                     swal({
                         title: `${data?.message}`,
                         icon: "warning",
@@ -221,6 +231,10 @@ function Chatlist() {
         }
     }
     const PageChange = async () => {
+        if(chatloading){
+            return false;
+        }
+        setchatloading(true);
         activepageRef.current = activepageRef.current+1
         page = activepageRef.current;
         setPage((prevCount) =>{return activepageRef.current;});
@@ -232,6 +246,7 @@ function Chatlist() {
                 'authorization': `Bearer ${LOGIN_USER.token}`,
             };
             let response = await Post_With_Htoken(myform, url, headers);
+            setchatloading(false);
             if (response !== "") {
                 response = await response.json();
                 const data = response;
@@ -241,6 +256,13 @@ function Chatlist() {
                     });
                     setTotalchat(response.total);
                     setTotalpage(response.pagination.totalpage);
+                    // setTimeout(() => {
+                    //     console.log(1)
+                    //     const element = $('#chat-history');
+                    //     element.animate({
+                    //         scrollTop: element.prop("scrollHeight")
+                    //     }, 500);
+                    // }, 400)
                 } else {
                     swal({
                         title: `${data?.message}`,
@@ -249,6 +271,7 @@ function Chatlist() {
                 }
             }
         } catch (error) {
+            setchatloading(false);
             swal({
                 title: `Unknow error:- ${error.message}`,
                 icon: "error",
@@ -372,6 +395,29 @@ function Chatlist() {
          navigate(`/web/blog-details/${alias}`);
          return true;
     }
+    const current_scroll = useRef(0);
+    const previous_scroll = useRef(0);
+    const handleScroll = (e) => {
+        // console.clear();
+        const { scrollTop, scrollHeight, clientHeight} = e.target;
+        current_scroll.current=scrollTop;
+        if (current_scroll.current > previous_scroll.current) {
+            previous_scroll.current=scrollTop;
+            // console.log('Scrolling DOWN ⬇️');
+        }  else {
+            // console.log('Scrolling TOP ⬇️');
+            if (scrollTop <= 10) {
+                if (page < totalpage) {
+                    PageChange();
+                    //   console.log("Reached top! call api");
+                }
+            }
+        }
+
+        if(scrollTop==0){
+            previous_scroll.current=0;
+        }
+    };
     return (
         <div>
 
@@ -393,12 +439,12 @@ function Chatlist() {
                                     <div className="chat-num-messages">already {totalchat} messages you sent</div>
                                 </div>
                                 <i className="fa fa-star" />
-                            </div>
-                            <div className="chat-history" id="chat-history">
+                            </div> 
+                            <div className="chat-history" id="chat-history" onScroll={handleScroll}>
                                 <div className="col-md-12 text-center">
                                     {page < totalpage ?
                                         <button type="button"
-                                            className="btn btn-success btn-sm text-center" onClick={PageChange} style={{ margin: '5px' }} title="Load More.." >Page {page}/{totalpage} Load More..</button> :
+                                            className="btn btn-success btn-sm text-center" disabled={chatloading?true:false} onClick={PageChange} style={{ margin: '5px' }} title="Load More.." >Page {page}/{totalpage} Load More..</button> :
                                         <></>}
 
 
