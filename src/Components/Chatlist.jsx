@@ -231,14 +231,16 @@ function Chatlist() {
         }
     }
     const PageChange = async () => {
-        if(chatloading){
-            return false;
-        }
-        setchatloading(true);
-        activepageRef.current = activepageRef.current+1
-        page = activepageRef.current;
-        setPage((prevCount) =>{return activepageRef.current;});
         try {
+            const ee = $('#chat-history');
+            let previous_scorll_hight = ee.prop("scrollHeight");
+            if(chatloading){
+                return false;
+            }
+            setchatloading(true);
+            activepageRef.current = activepageRef.current+1
+            page = activepageRef.current;
+            setPage((prevCount) =>{return activepageRef.current;});
             let url = `${API_URL}/chat-list?page=${page}&limit=${limit}`;
             let myform = JSON.stringify({ from_user: LOGIN_USER._id, to_user: activechatuser._id });
             let headers = {
@@ -256,13 +258,16 @@ function Chatlist() {
                     });
                     setTotalchat(response.total);
                     setTotalpage(response.pagination.totalpage);
-                    // setTimeout(() => {
-                    //     console.log(1)
-                    //     const element = $('#chat-history');
-                    //     element.animate({
-                    //         scrollTop: element.prop("scrollHeight")
-                    //     }, 500);
-                    // }, 400)
+                    setTimeout(() => {
+                        const cc = $('#chat-history');
+                        let current_scorll_hight = cc.prop("scrollHeight");
+                        let scorll_top = current_scorll_hight-previous_scorll_hight;
+                        if(scorll_top > 0){
+                             $('#chat-history').animate({
+                                scrollTop: scorll_top-10
+                            }, 800);
+                        }
+                    }, 300)
                 } else {
                     swal({
                         title: `${data?.message}`,
@@ -278,6 +283,7 @@ function Chatlist() {
             })
         }
     };
+
        
 
     const [photosrc, setPhotosrc] = useState(`${WEBSITE_PUBLIC}/images/no-img.jpg`);

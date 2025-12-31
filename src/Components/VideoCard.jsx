@@ -159,6 +159,20 @@ function handleSeek(e) {
   videoRef.current.currentTime = value;
   setCurrentTime(value);
 }
+function GoBack() {
+  if(videoRef.current.currentTime > 10){
+    const value = videoRef.current.currentTime-10;
+    videoRef.current.currentTime = value;
+    setCurrentTime(value);
+  }
+}
+function Go() {
+  const value = videoRef.current.currentTime+10;
+  if(value < (videoRef.current.duration-10)){
+    videoRef.current.currentTime = value;
+    setCurrentTime(value);
+  }
+}
 function handleVolumeChange(e) {
   const vol = parseFloat(e.target.value);
   setVolume(vol);
@@ -489,6 +503,12 @@ const previousSec =  useRef(false);
         <div className='col-md-12'>
           <div className="d-flex justify-content-between align-items-center">
             <div className='right d-flex align-items-center'>
+              <button type='button' className='btn btn-sm btn-primary skip-start' onClick={()=>GoBack()}>
+                <i className="bi bi-arrow-counterclockwise"></i> 10 sec
+              </button>
+              <button type='button' className='btn btn-sm btn-primary skip-end ms-1 me-1' onClick={()=>Go()}>
+                10 sec <i className="bi bi-arrow-clockwise"></i>
+              </button>
           { isPaused==true ?
             <button type='button' className='btn btn-sm btn-primary Playbtn' onClick={()=>Play()} ><i className="bi bi-play-fill"></i></button>
             : 
@@ -525,6 +545,7 @@ const previousSec =  useRef(false);
                   background: `linear-gradient(to right, rgba(233, 18, 18, 0.85) ${volumePercent}%, #e6e6e6 ${volumePercent}%)`,
                 }}
               />
+              
             </div>
             <div className='left d-flex align-items-center'>
               <select
