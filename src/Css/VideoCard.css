@@ -128,7 +128,10 @@
   bottom: 15px;
   left: 0;
   font-size: 12px;
-   color: #ffffff
+   color: #ffffff;
+    background-color: black;
+    padding: 4px;
+    border-radius: 5px;
 }
 
 /* Right label (current time) */
@@ -137,7 +140,10 @@
   bottom: 15px;
   right: 0;
   font-size: 12px;
-  color: #ffffff
+  color: #ffffff;
+  background-color: black;
+    padding: 4px;
+    border-radius: 5px;
 }
 
 /* Range bar */
@@ -205,6 +211,7 @@
 }
 
 .video-card .video-controllers{
+  /* margin-top: -80px; */
       margin-left: 0px !important;
     margin-right: 0px !important;
   margin-bottom: 3px !important;
@@ -230,8 +237,8 @@
 .video-card .preview-box {
   position: absolute;
   bottom: 16px !important; 
-  width: 100px !important;
-  height: 60px !important;
+  width: 164px !important;
+  height: 92px !important;
   background: #000;
   border-radius: 5px;
   padding: 2px;
@@ -243,7 +250,11 @@
   height: 100% !important;
   object-fit: cover !important;
 }
-
+.video-card .preview-box .preview-image {
+  /* width: 160px;
+  height: 90px; */
+  border-radius: 5px;
+}
 .video-card .skip-start{
   background:#212529 !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;

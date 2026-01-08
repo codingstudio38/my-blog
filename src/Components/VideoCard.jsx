@@ -2,6 +2,7 @@ import React, { useState, useEffect,useRef } from 'react';
 import { USER_DETAILS, API_URL,decrypt,encrypt,WEBSITE_URL } from './Constant.jsx';
 import { Post_With_Htoken } from '../Services/Https.jsx';
 import './../Css/VideoCard.css';
+import swal from 'sweetalert';
 export default function VideoCard({ blog }) {
   const LOGIN_USER = USER_DETAILS();
   const [videoUrl, setVideoUrl] = useState(null);
@@ -56,6 +57,7 @@ export default function VideoCard({ blog }) {
 
   async function playVideo() {
     if (playvideo) return;
+    GetMetadata();
     setplayvideo(true);
     setIsPaused(false); 
     setIsBuffering(true);
@@ -75,6 +77,46 @@ export default function VideoCard({ blog }) {
       setVideoUrl(`${API_URL}/video?watch=${idis}`);
       videoRef.current.src = `${API_URL}/video?watch=${idis}`;
     },500)
+   }
+  const metadata = useRef(
+    {
+    "thumbWidth": 160,
+    "thumbHeight": 90,
+    "interval": 1,
+    "columns": 2,
+    "rows": 2,
+    "count": 3,
+    "spriteUrl": "",
+    "frames": {
+        "0": {
+            "x": 0,
+            "y": 0
+        }
+    }
+}
+  );
+  async function GetMetadata() {
+      const idis = encodeURIComponent(encrypt(blog.content_alias));
+      let url = `${API_URL}/video-thumbnail-metadata`;
+      let myform = JSON.stringify({watch:idis});
+      let headers = {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${LOGIN_USER.token}`,
+      };
+      let response = await Post_With_Htoken(myform, url, headers);
+      if(response!==""){
+          response = await response.json();
+          const data = response;
+          if (data.status == 200) {
+              metadata.current=data.result;
+          } else {
+              console.error({
+                  title: `${data?.message}`,
+                  icon: "warning",
+              })
+          }
+      }
+    
    }
 
 
@@ -295,17 +337,16 @@ const previousSec =  useRef(false);
 //       setShowPreview(true);
 //     }
 // }
- 
- async function handleHover(e) {
+
+  async function handleHover(e) {
         try {
             const rect = e.target.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const percent = mouseX / rect.width;
             const hoverTime = Math.round(percent * duration);
             const current_sec = hoverTime;
-
-            let url = `${API_URL}/video-thumbnail`;
-            const idis = encodeURIComponent(encrypt(blog.content_alias));
+          let url = `${API_URL}/video-thumbnail`;
+          const idis = encodeURIComponent(encrypt(blog.content_alias));
             let myform = JSON.stringify({watch:idis,sec:current_sec});
             let headers = {
                 'Content-Type': 'application/json',
@@ -356,6 +397,66 @@ const previousSec =  useRef(false);
                     icon: "warning",
                 })
             }
+          }
+        } catch (error) {
+            console.error({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+// const SPRITE = {
+//   thumbWidth: 160,
+//   thumbHeight: 90,
+//   columns: 6,      // SAME as backend tile cols
+//   interval: 1      // 1 thumb per second
+// };
+  const [bgPos, setBgPos] = useState("0px 0px");
+ async function handleHoverClientSide(e) {
+        try {
+          if (!duration) return;
+            const rect = e.target.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const percent = mouseX / rect.width;
+            const hoverTime = Math.round(percent * duration);
+            const current_sec = hoverTime;
+          // const rect = e.currentTarget.getBoundingClientRect();
+          // const mouseX = e.clientX - rect.left;
+
+          // // clamp mouseX
+          // const clampedX = Math.max(0, Math.min(mouseX, rect.width));
+
+          // const percent = clampedX / rect.width;
+          // const hoverTime = Math.floor(percent * duration);
+
+          // // sprite index
+          // const index = Math.floor(hoverTime / SPRITE.interval);
+
+          // const col = index % SPRITE.columns;
+          // const row = Math.floor(index / SPRITE.columns);
+
+          // const bgX = -(col * SPRITE.thumbWidth);
+          // const bgY = -(row * SPRITE.thumbHeight);
+        //   console.clear();
+        // console.log({
+        //   mouseX,
+        //   percent,
+        //   hoverTime,
+        //   index,
+        //   col,
+        //   row,
+        //   bgPos,
+        //   position:`${bgX}px ${bgY}px`
+        // });
+        if(metadata.current){
+          if(metadata.current.frames[current_sec]){
+            let meta = metadata.current.frames[current_sec];
+            let bgX=meta.x;
+            let bgY=meta.y;
+            setBgPos(`${bgX}px ${bgY}px`);
+            setPreviewX(mouseX - 50);
+            setShowPreview(true);
+          }
         }
         } catch (error) {
             console.error({
@@ -481,7 +582,17 @@ const previousSec =  useRef(false);
                 
                 : <> </>
               }
-               <img src={previewImage} alt="preview" />
+                   <div
+                className="preview-image"
+                style={{ 
+                  width:`${metadata.current.thumbWidth}px`,
+                  height:`${metadata.current.thumbHeight}px`,
+                  backgroundPosition: bgPos,
+                  backgroundImage: `url('${metadata.current.spriteUrl}')`,
+                  backgroundRepeat: 'no-repeat' 
+                }}
+              ></div>
+               {/* <img src={previewImage} alt="preview" /> */}
             </div>
             <input
               type="range"
@@ -491,7 +602,8 @@ const previousSec =  useRef(false);
               step="0.1"
               onChange={(e)=>handleSeek(e)}
               // onMouseMove={(e)=>handleHover(e)}
-              // onMouseLeave={() => setShowPreview(false)}
+              onMouseMove={(e)=>handleHoverClientSide(e)}
+              onMouseLeave={() => setShowPreview(false)}
               className="video-range"
               aria-label="Seek"
                 style={{
