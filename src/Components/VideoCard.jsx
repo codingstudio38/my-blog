@@ -405,59 +405,35 @@ const previousSec =  useRef(false);
             })
         }
     }
-// const SPRITE = {
-//   thumbWidth: 160,
-//   thumbHeight: 90,
-//   columns: 6,      // SAME as backend tile cols
-//   interval: 1      // 1 thumb per second
-// };
+
   const [bgPos, setBgPos] = useState("0px 0px");
  async function handleHoverClientSide(e) {
         try {
-          if (!duration) return;
-            const rect = e.target.getBoundingClientRect();
+           if (!duration || !metadata.current) return;
+
+            const rect = e.currentTarget.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
-            const percent = mouseX / rect.width;
-            const hoverTime = Math.round(percent * duration);
-            const current_sec = hoverTime;
-          // const rect = e.currentTarget.getBoundingClientRect();
-          // const mouseX = e.clientX - rect.left;
 
-          // // clamp mouseX
-          // const clampedX = Math.max(0, Math.min(mouseX, rect.width));
+            // Clamp mouse X
+            const clampedX = Math.max(0, Math.min(mouseX, rect.width));
 
-          // const percent = clampedX / rect.width;
-          // const hoverTime = Math.floor(percent * duration);
+            const percent = clampedX / rect.width;
+            const hoverTime = Math.floor(percent * duration);
 
-          // // sprite index
-          // const index = Math.floor(hoverTime / SPRITE.interval);
+            const interval = metadata.current.interval || 1;
 
-          // const col = index % SPRITE.columns;
-          // const row = Math.floor(index / SPRITE.columns);
+            // 🔑 IMPORTANT: convert time → frame index
+            let index = Math.floor(hoverTime / interval);
 
-          // const bgX = -(col * SPRITE.thumbWidth);
-          // const bgY = -(row * SPRITE.thumbHeight);
-        //   console.clear();
-        // console.log({
-        //   mouseX,
-        //   percent,
-        //   hoverTime,
-        //   index,
-        //   col,
-        //   row,
-        //   bgPos,
-        //   position:`${bgX}px ${bgY}px`
-        // });
-        if(metadata.current){
-          if(metadata.current.frames[current_sec]){
-            let meta = metadata.current.frames[current_sec];
-            let bgX=meta.x;
-            let bgY=meta.y;
-            setBgPos(`${bgX}px ${bgY}px`);
-            setPreviewX(mouseX - 50);
+            // 🔑 Clamp index to available frames
+            index = Math.min(index, metadata.current.count - 1);
+
+            const frame = metadata.current.frames[index];
+            if (!frame) return;
+
+            setBgPos(`${frame.x}px ${frame.y}px`);
+            setPreviewX(clampedX - metadata.current.thumbWidth / 2);
             setShowPreview(true);
-          }
-        }
         } catch (error) {
             console.error({
                 title: `Unknow error:- ${error.message}`,
@@ -465,22 +441,6 @@ const previousSec =  useRef(false);
             })
         }
     }
-// function handleHover(e) {
-
-//     const rect = e.target.getBoundingClientRect();
-//     const mouseX = e.clientX - rect.left;
-
-//     const percent = mouseX / rect.width;
-//     const hoverTime = Math.round(percent * duration);
-//     const current_sec = hoverTime;
-//     // find nearest thumbnail
-//     // const nearest = Object.keys(thumbnails)
-//     //     .reduce((a, b) => Math.abs(b - hoverTime) < Math.abs(a - hoverTime) ? b : a);
-
-//     setPreviewImage(`${WEBSITE_URL}/images/Loading_2.gif`);
-//     setPreviewX(mouseX - 50);  // center preview box
-//     setShowPreview(true);
-// }
 
   return (
     <>
@@ -537,12 +497,12 @@ const previousSec =  useRef(false);
         onTimeUpdate={()=>handleTimeUpdate()}
         onContextMenu={(e) => e.preventDefault()}
       />
-      <canvas 
+      {/* <canvas 
       ref={canvasRef} 
       style={{ display: 'none' }}
       width="160"
       height="90"
-    />
+    /> */}
       {/*controlsList="nodownload noplaybackrate"
        disablePictureInPicture*/}
       <div className='row video-controllers'>
@@ -589,7 +549,12 @@ const previousSec =  useRef(false);
                   height:`${metadata.current.thumbHeight}px`,
                   backgroundPosition: bgPos,
                   backgroundImage: `url('${metadata.current.spriteUrl}')`,
-                  backgroundRepeat: 'no-repeat' 
+                  backgroundRepeat: 'no-repeat' ,
+                  backgroundSize: `${
+                  metadata.current.columns * metadata.current.thumbWidth
+                }px ${
+                  metadata.current.rows * metadata.current.thumbHeight
+                }px`
                 }}
               ></div>
                {/* <img src={previewImage} alt="preview" /> */}
