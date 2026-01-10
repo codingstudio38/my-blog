@@ -40,10 +40,12 @@ export default function VideoCard({ blog }) {
     const onPlaying = () => setIsBuffering(false);
     const onCanPlay = () => setIsBuffering(false);
     const onSeeking = () => setIsBuffering(true);
+    const onEnded = () => setIsPaused(true);
     videoRef.current.addEventListener("waiting", onWaiting);
     videoRef.current.addEventListener("playing", onPlaying);
     videoRef.current.addEventListener("canplay", onCanPlay);
     videoRef.current.addEventListener("seeking", onSeeking);
+    videoRef.current.addEventListener("ended", onEnded);
     return () => {
       observer.disconnect();
       if(videoRef.current){
@@ -51,6 +53,7 @@ export default function VideoCard({ blog }) {
         videoRef.current.removeEventListener("playing", onPlaying);
         videoRef.current.removeEventListener("canplay", onCanPlay);
         videoRef.current.removeEventListener("seeking", onSeeking);
+        videoRef.current.removeEventListener("ended", onEnded);
       }
     };
   }, [playvideo]);
