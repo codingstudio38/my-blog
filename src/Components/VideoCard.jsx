@@ -81,46 +81,7 @@ export default function VideoCard({ blog }) {
       videoRef.current.src = `${API_URL}/video?watch=${idis}`;
     },500)
    }
-//   const metadata = useRef(
-//     {
-//     "thumbWidth": 160,
-//     "thumbHeight": 90,
-//     "interval": 1,
-//     "columns": 2,
-//     "rows": 2,
-//     "count": 3,
-//     "spriteUrl": "",
-//     "frames": {
-//         "0": {
-//             "x": 0,
-//             "y": 0
-//         }
-//     }
-// }
- const metadata = useRef({
-    "thumbWidth": 160,
-    "thumbHeight": 90,
-    "interval": 1,
-    "thumbsPerSprite": 100,
-    "columns": 10,
-    "rows": 10,
-    "totalSprites": 0,
-    "count":0,
-    "sprites": [
-      {
-        "index": 0,
-        "start": 0,
-        "end": 100,
-        "frames": {
-          "0": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        "url": ""
-      }
-    ]
-  });
+
   async function GetMetadata() {
       const idis = encodeURIComponent(encrypt(blog.content_alias));
       let url = `${API_URL}/video-thumbnail-metadata`;
@@ -433,6 +394,46 @@ const previousSec =  useRef(false);
     }
 
   // const [bgPos, setBgPos] = useState("0px 0px");
+  //   const metadata = useRef(
+//     {
+//     "thumbWidth": 160,
+//     "thumbHeight": 90,
+//     "interval": 1,
+//     "columns": 2,
+//     "rows": 2,
+//     "count": 3,
+//     "spriteUrl": "",
+//     "frames": {
+//         "0": {
+//             "x": 0,
+//             "y": 0
+//         }
+//     }
+// }
+ const metadata = useRef({
+    "thumbWidth": 160,
+    "thumbHeight": 90,
+    "interval": 1,
+    "thumbsPerSprite": 100,
+    "columns": 10,
+    "rows": 10,
+    "totalSprites": 0,
+    "count":0,
+    "sprites": [
+      {
+        "index": 0,
+        "start": 0,
+        "end": 100,
+        "frames": {
+          "0": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "url": ""
+      }
+    ]
+  });
   const current_metadata = useRef({
     PreviewX:0,
     thumbWidth:0, 
