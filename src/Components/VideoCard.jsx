@@ -81,23 +81,46 @@ export default function VideoCard({ blog }) {
       videoRef.current.src = `${API_URL}/video?watch=${idis}`;
     },500)
    }
-  const metadata = useRef(
-    {
+//   const metadata = useRef(
+//     {
+//     "thumbWidth": 160,
+//     "thumbHeight": 90,
+//     "interval": 1,
+//     "columns": 2,
+//     "rows": 2,
+//     "count": 3,
+//     "spriteUrl": "",
+//     "frames": {
+//         "0": {
+//             "x": 0,
+//             "y": 0
+//         }
+//     }
+// }
+ const metadata = useRef({
     "thumbWidth": 160,
     "thumbHeight": 90,
     "interval": 1,
-    "columns": 2,
-    "rows": 2,
-    "count": 3,
-    "spriteUrl": "",
-    "frames": {
-        "0": {
+    "thumbsPerSprite": 100,
+    "columns": 10,
+    "rows": 10,
+    "totalSprites": 0,
+    "count":0,
+    "sprites": [
+      {
+        "index": 0,
+        "start": 0,
+        "end": 100,
+        "frames": {
+          "0": {
             "x": 0,
             "y": 0
-        }
-    }
-}
-  );
+          }
+        },
+        "url": ""
+      }
+    ]
+  });
   async function GetMetadata() {
       const idis = encodeURIComponent(encrypt(blog.content_alias));
       let url = `${API_URL}/video-thumbnail-metadata`;
@@ -409,7 +432,15 @@ const previousSec =  useRef(false);
         }
     }
 
-  const [bgPos, setBgPos] = useState("0px 0px");
+  // const [bgPos, setBgPos] = useState("0px 0px");
+  const current_metadata = useRef({
+    PreviewX:0,
+    thumbWidth:0, 
+    thumbHeight:0,
+    backgroundPosition:0,
+    backgroundImage:0,
+    backgroundSize:0,
+  });
  async function handleHoverClientSide(e) {
         try {
            if (!duration || !metadata.current) return;
@@ -425,18 +456,37 @@ const previousSec =  useRef(false);
 
             const interval = metadata.current.interval || 1;
 
-            // 🔑 IMPORTANT: convert time → frame index
+            //IMPORTANT: convert time → frame index
             let index = Math.floor(hoverTime / interval);
 
-            // 🔑 Clamp index to available frames
+            //Clamp index to available frames
             index = Math.min(index, metadata.current.count - 1);
 
-            const frame = metadata.current.frames[index];
-            if (!frame) return;
 
-            setBgPos(`${frame.x}px ${frame.y}px`);
-            setPreviewX(clampedX - metadata.current.thumbWidth / 2);
-            setShowPreview(true);
+            // const frame = metadata.current.frames[index];
+            // setBgPos(`${frame.x}px ${frame.y}px`);
+            // if (!frame) return;
+            index=index==0 ? 1 : index;
+            const sprite = metadata.current.sprites.filter((item)=>{
+              return index > item.start && index <= item.end
+            });
+            if(sprite.length > 0){
+              const spriteis = sprite[0];
+              const frames = spriteis.frames[index];
+              if (!frames) return;
+              current_metadata.current ={
+                PreviewX:clampedX - metadata.current.thumbWidth / 2, 
+                thumbWidth:`${metadata.current.thumbWidth}px`, 
+                thumbHeight:`${metadata.current.thumbHeight}px`,
+                backgroundPosition:`${frames.x}px ${frames.y}px`,
+                backgroundImage:spriteis.url,
+                backgroundSize:`${metadata.current.columns * metadata.current.thumbWidth}px ${metadata.current.rows * metadata.current.thumbHeight}px`,
+              };
+              setPreviewX(clampedX - metadata.current.thumbWidth / 2);
+              setShowPreview(true);
+            }
+            
+           
         } catch (error) {
             console.error({
                 title: `Unknow error:- ${error.message}`,
@@ -548,16 +598,12 @@ const previousSec =  useRef(false);
                    <div
                 className="preview-image"
                 style={{ 
-                  width:`${metadata.current.thumbWidth}px`,
-                  height:`${metadata.current.thumbHeight}px`,
-                  backgroundPosition: bgPos,
-                  backgroundImage: `url('${metadata.current.spriteUrl}')`,
+                  width:`${current_metadata.current.thumbWidth}`,
+                  height:`${current_metadata.current.thumbHeight}`,
+                  backgroundPosition: `${current_metadata.current.backgroundPosition}`,
+                  backgroundImage: `url('${current_metadata.current.backgroundImage}')`,
                   backgroundRepeat: 'no-repeat' ,
-                  backgroundSize: `${
-                  metadata.current.columns * metadata.current.thumbWidth
-                }px ${
-                  metadata.current.rows * metadata.current.thumbHeight
-                }px`
+                  backgroundSize: `${current_metadata.current.backgroundSize}`
                 }}
               ></div>
                {/* <img src={previewImage} alt="preview" /> */}
