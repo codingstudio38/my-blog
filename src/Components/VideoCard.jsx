@@ -118,18 +118,6 @@ export default function VideoCard({ blog }) {
             videoRef.current.pause();
           }
       }
-
-    // Toggle play/pause if video controller enable
-    // if(videoRef.current){
-    // const video = videoRef.current;
-    //   video.addEventListener("play", (e)=>{
-    //     setIsPaused(false);
-    //   });
-    //   video.addEventListener("pause",  (e)=>{
-    //     setIsPaused(true);
-    //   });
-    // }
-
    }
     function Play(){
       if (videoRef.current) {
@@ -184,9 +172,8 @@ function formatTime(time) {
   return `${h}:${m}:${s}`;
 }
 function handleSeek(e) {
-  const value = e.target.value;
-  videoRef.current.currentTime = value;
-  setCurrentTime(value);
+  videoRef.current.currentTime = e.target.value;
+  setCurrentTime(e.target.value);
 }
 function GoBack() {
   if(videoRef.current.currentTime > 10){
@@ -216,7 +203,6 @@ function handleVolumeChange(e) {
 }
   const volumePercent = volume * 100; 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-  // const seekMax = duration > 0 ? duration : 0.0001;  
   function changeSpeed(value) {
   const speed = parseFloat(value);
   setPlaybackRate(speed);
@@ -267,64 +253,6 @@ const [previewX, setPreviewX] = useState(0);
 const [checkThumloading, setcheckThumloading] = useState(false);
 const previousSec =  useRef(false);
 
-// const [thumbnailCache, setThumbnailCache] = useState(new Map());
-// async function handleHover(e) {
-//     if (videoRef==null || duration === 0) return;
-   
-//     const rect = e.target.getBoundingClientRect();
-//     const mouseX = e.clientX - rect.left;
-
-//     // const percent = mouseX / rect.width;
-//     // const hoverTime = Math.round(percent * duration);
-//     // const nearest = Object.keys(thumbnails).reduce((a, b) => Math.abs(b - hoverTime) < Math.abs(a - hoverTime) ? b : a);
-//     // const cacheKeys = [...thumbnailCache.keys()].map(Number);
-//     // // if (cacheKeys.length === 0) return; // nothing stored in cache yet
-//     // const nearest = cacheKeys.reduce((a, b) =>
-//     //     Math.abs(b - hoverTime) < Math.abs(a - hoverTime) ? b : a
-//     // );
-//     const video = videoRef.current;
-//     const canvas = canvasRef.current;
-//     const context = canvas.getContext('2d');
-//     const cacheLimit = 50; 
-//     const cacheKey = btoa(video.currentTime);
-//     setPreviewImage(`${WEBSITE_URL}/images/Loading_2.gif`);
-//     setPreviewX(mouseX - 50);  // center preview box
-//     setShowPreview(true)
-//     if (thumbnailCache.has(cacheKey)) {
-//       setPreviewImage(thumbnailCache.get(cacheKey));
-//       setPreviewX(mouseX - 50);  // center preview box
-//       setShowPreview(true)
-//       return true;
-//     }
-  
-//     let dataUrlres= await new Promise((resolve, reject) => {
-//         try {
-//           context.drawImage(video, 0, 0, canvas.width, canvas.height);
-//           const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-//           setThumbnailCache(prev => {
-//             const newCache = new Map(prev);
-//             newCache.set(cacheKey, dataUrl);
-            
-//             // Limit cache size
-//             if (newCache.size > cacheLimit) {
-//               const firstKey = newCache.keys().next().value;
-//               newCache.delete(firstKey);
-//             }
-//             return newCache;
-//           });
-//           resolve(dataUrl);
-//         } catch (error) {
-//           console.error("Thumbnail generation error:", error.message);
-//           reject(false);
-//         }
-//     });
-//     if(!dataUrlres){
-//       setPreviewImage((pew)=>{return dataUrlres;});
-//       setPreviewX(mouseX - 50);  // center preview box
-//       setShowPreview(true);
-//     }
-// }
-
   async function handleHover(e) {
         try {
             const rect = e.target.getBoundingClientRect();
@@ -340,10 +268,8 @@ const previousSec =  useRef(false);
                 'authorization': `Bearer ${LOGIN_USER.token}`,
             };
             setShowPreview((pre)=>{
-              // console.log(pre);
               return pre;
             })
-            // console.log(showPreview);
             if(checkThumloading){
               previousSec.current=e
               console.log('loding..')
@@ -393,23 +319,6 @@ const previousSec =  useRef(false);
         }
     }
 
-  // const [bgPos, setBgPos] = useState("0px 0px");
-  //   const metadata = useRef(
-//     {
-//     "thumbWidth": 160,
-//     "thumbHeight": 90,
-//     "interval": 1,
-//     "columns": 2,
-//     "rows": 2,
-//     "count": 3,
-//     "spriteUrl": "",
-//     "frames": {
-//         "0": {
-//             "x": 0,
-//             "y": 0
-//         }
-//     }
-// }
  const metadata = useRef({
     "thumbWidth": 160,
     "thumbHeight": 90,
@@ -551,12 +460,6 @@ const previousSec =  useRef(false);
         onTimeUpdate={()=>handleTimeUpdate()}
         onContextMenu={(e) => e.preventDefault()}
       />
-      {/* <canvas 
-      ref={canvasRef} 
-      style={{ display: 'none' }}
-      width="160"
-      height="90"
-    /> */}
       {/*controlsList="nodownload noplaybackrate"
        disablePictureInPicture*/}
       <div className='row video-controllers'>
