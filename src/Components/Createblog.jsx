@@ -8,7 +8,7 @@ import swal from 'sweetalert';
 import { Pagination } from 'antd';
 import Table from 'react-bootstrap/Table';
 import { Modal, Button ,Form} from "react-bootstrap";
-
+import * as tus from 'tus-js-client';
 export default function Createblog() {
     const [currentpage, setcurrentpage] = useState(1);
     const navigate = useNavigate();
@@ -398,6 +398,71 @@ export default function Createblog() {
         }
     }
 
+    async function UpdateBlogPublishStatus(row,status,list_type) {
+        try {
+            swal({
+                title: "Are you sure?",
+                // text: "Are you sure that you want to delete the recode?",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"],
+                dangerMode: true,
+            }).then(async (d) => {
+                if (d) {
+                    let url = `${API_URL}/update-blog-publish-status`;
+                    let myform = JSON.stringify({user_id:LOGIN_USER._id,blog_id:row._id,status:status});
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'authorization': `Bearer ${LOGIN_USER.token}`,
+                    };
+                    let response = await Post_With_Htoken(myform, url, headers);
+                    if(response!==""){
+                    response = await response.json();
+                    const data = response;
+                    if (data.status == 200) {
+                        if(list_type==1){
+                            let newdatalist = datalist.map(item => {
+                                if (item._id === row._id) {
+                                    return {
+                                        ...item,
+                                        publish:status,
+                                    };
+                                }
+                                return item;
+                            });
+                            setDatelist((prev) => {return newdatalist});
+                        } else {
+                           let newdatalist = dataArchivelist.map(item => {
+                                if (item._id === row._id) {
+                                    return {
+                                        ...item,
+                                        publish:status,
+                                    };
+                                }
+                                return item;
+                            });
+                            setArchiveDatalist((prev) => {return newdatalist});
+                        }
+                        swal({
+                            title: `${status ? "Published" : "Unpublished"} Successfully.`,
+                            icon: "success",
+                        })
+                    } else {
+                        swal({
+                            title: `${data?.message}`,
+                            icon: "warning",
+                        })
+                    }
+                }
+                }
+            })
+            } catch (error) {
+            swal({
+                title: `Unknow error:- ${error.message}`,
+                icon: "error",
+            })
+        }
+    }
+
     const [editdata,seteditdata] = useState(null)
     let blogtypeRef = useRef(false)
     async function EditRow(row,blogtype) {
@@ -655,9 +720,82 @@ async function BlogCetegoryList() {
             })
         }
     }
+
+ const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState("Idle");
+const uploadRef = useRef(null);
+  const fileRef = useRef(null);
+    const uploadFile = (file) => {
+    const upload = new tus.Upload(file, {
+      endpoint: "http://10.188.163.53:5000/upload-blog-video",
+      chunkSize: 10 * 1024 * 1024, // 10MB
+      retryDelays: [0, 3000, 5000],
+
+      onProgress(bytesUploaded, bytesTotal) {
+        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+        setProgress(percentage);
+        setStatus("Uploading");
+      },
+
+      onSuccess() {
+        setStatus("Completed");
+        console.log("Upload finished:", upload.url);
+      },
+
+      onError(error) {
+        setStatus("Error");
+        console.error("Upload failed:", error);
+      }
+    });
+
+    upload.start();
+    return upload;
+  };
+  const startUpload = () => {
+    if (!fileRef.current.files.length) {
+      alert("Please select a file");
+      return;
+    }
+
+    const file = fileRef.current.files[0];
+    uploadRef.current = uploadFile(file);
+  };
+
+  const pauseUpload = () => {
+    if (uploadRef.current) {
+      uploadRef.current.abort();
+      setStatus("Paused");
+    }
+  };
+
+  const resumeUpload = () => {
+    if (uploadRef.current) {
+      uploadRef.current.start();
+      setStatus("Uploading");
+    }
+  };
+
     return (
         <>
-           
+           {/*<div style={{ maxWidth: "400px", margin: "40px auto" }}>
+      <h2>Large File Upload</h2>
+
+      <input
+        type="file"
+        ref={fileRef}
+        style={{ marginBottom: "10px" }}
+      />
+
+      <div style={{ marginBottom: "10px" }}>
+        <button onClick={startUpload}>Start</button>{" "}
+        <button onClick={pauseUpload}>Pause</button>{" "}
+        <button onClick={resumeUpload}>Resume</button>
+      </div>
+
+      <progress value={progress} max="100" style={{ width: "100%" }} />
+      <p>{progress}%</p>
+      <p>Status: <b>{status}</b></p>
+    </div>*/}
             <section>
                 <div className="container h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
@@ -975,6 +1113,9 @@ async function BlogCetegoryList() {
                                     </>
                                     }
                                     
+                                    <button type='button' className='btn btn-primary btn-sm m-1' onClick={() => UpdateBlogPublishStatus(item,(item.publish ? false : true),1)}>
+                                       {item.publish ? "Unpublish" : "Publish"}
+                                    </button><br/>
                                     <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,true)}>
                                         Move to Archive
                                     </button>
@@ -1104,8 +1245,18 @@ async function BlogCetegoryList() {
                                     </button><br/>
                                     </>
                                     :
-                                    <><b>Shared Post</b></>
+                                    <>
+                                    <b>Shared Post</b><br/>
+                                    <button type='button' title='Settings' className='btn btn-info btn-sm mb-1' onClick={() => Settings(item,true)}>
+                                        <i className="bi bi-gear"></i>
+                                    </button><br/>
+                                    </>
+                                    
                                     }
+
+                                    <button type='button' className='btn btn-primary btn-sm m-1' onClick={() => UpdateBlogPublishStatus(item,(item.publish ? false : true),0)}>
+                                       {item.publish ? "Unpublish" : "Publish"}
+                                    </button><br/>
                                     <button type='button' className='btn btn-danger btn-sm' onClick={() => UpdateBlogArchive(item,false)}>
                                         Remove From Archive
                                     </button>
