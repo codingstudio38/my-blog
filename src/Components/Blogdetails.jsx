@@ -946,6 +946,7 @@ item.share_file_dtl.file_view_path == "" ?
                             </div>
                         </div>
                         <div className="sort-desc">{item.share_sort_description}</div>
+                        <div className='sort-desc mt-1' dangerouslySetInnerHTML={{__html: item.share_content}} />
                         {/* <a href="" 
                             onClick={(e) => {
                             e.preventDefault();
@@ -1022,6 +1023,7 @@ item.file_dtl.file_view_path == "" ?
                 <div className='sort-desc'>
                     {item.sort_description}
                 </div>
+                <div className='sort-desc mt-1' dangerouslySetInnerHTML={{__html: item.content}} />
                 {/* <a href="" 
                     onClick={(e) => {
                     e.preventDefault();

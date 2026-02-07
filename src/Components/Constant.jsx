@@ -1,14 +1,14 @@
 import CryptoJS from "crypto-js";
 const secretKey = 'bc665a1f223dba15f5fbf5df08838647';
 const iv_secretKey = 'bc66-f223-dba1-8647-2345-fd45-dfg3';
-export const API_URL = "http://10.188.163.53:5000";
-export const CKADITOR_UPLOAD_URL = "http://10.188.163.53:5000/ckeditor";
-export const API_STORAGE_URL = "http://10.188.163.53:5000/uploads";
+export const API_URL = "http://10.144.4.53:5000";
+export const CKADITOR_UPLOAD_URL = "http://10.144.4.53:5000/ckeditor";
+export const API_STORAGE_URL = "http://10.144.4.53:5000/uploads";
 export const WEBSITE_URL = "http://localhost:3000";
 // set HOST=localhost && set PORT=3000 && npm start
 export const WEBSITE_PUBLIC = "http://localhost:3000";
 export const WEBSITE_BASE_URL = "/";
-export const WS_URL = "ws://10.188.163.53:8000";
+export const WS_URL = "ws://10.144.4.53:8000";
 export const new_client = 1000;
 export const client_disconnected = 2000;
 export const new_message_receive = 3000;
