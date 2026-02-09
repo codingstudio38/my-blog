@@ -1,7 +1,7 @@
 import './../Css/Userslist.css';
 import Websocket from "./../Services/WebSocketService";
  
-import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message,subscribe_FindUserById} from './Constant.jsx';
+import { accept_friend_request,remove_friend,USER_DETAILS, API_URL,USER_LOGOUT,new_client,client_disconnected,subscribe_auto_reload_friendlist,new_chat_message,subscribe_FindUserById,user_is_typing} from './Constant.jsx';
  import { Post_With_Htoken } from '../Services/Https.jsx';
 import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate,Link,useLocation  } from 'react-router-dom';
@@ -48,6 +48,8 @@ export default function Userslist(props){
             }else if (msg?.code == new_chat_message) {
                 let resert_data = msg.chat
                 getNewmessage(resert_data)
+            }else if (msg?.code == user_is_typing) {
+                handleUserTyping(msg);
             }
         });
         // const unsubscribeClose = Websocket.onClose(() => {
@@ -82,6 +84,7 @@ export default function Userslist(props){
             }
             return item;
         });
+        newdatalist.sort((a, b) => b.total_unread_message - a.total_unread_message);
         return newdatalist;
     });
     }
@@ -164,10 +167,10 @@ function LoadMore(){
                       if (data.status == 200) {
                         let userlist = data.result.list;
                         userlist.map((item)=>{
-                           item.isuser_typing=false;
+                           return {...item,isuser_typing:false};
                         })
-                        //   console.log(data);
-                          setDatelist((prev) => [...prev, ...data.result.list]);
+                        userlist.sort((a, b) => b.total_unread_message - a.total_unread_message);
+                          setDatelist((prev) => [...prev, ...userlist]);
                           settotal_friend_rec((dataid) => { return data.result.total });
                           setlastpage((dataid) => { return data.result.lastpage });
                           setDatelist((prev) =>{
@@ -217,7 +220,8 @@ function LoadMore(){
                                 return item;
                             });
                             return newdatalist;
-                        })
+                        });
+                        CurrentUser(user);
                     } else {
                         swal({
                             title: `${data?.message}`,
@@ -325,6 +329,40 @@ function LoadMore(){
                 props.getuser(user);
             }
         }
+    }
+    let TypingUserList = useRef([]);
+    function handleUserTyping(msg){
+        if(TypingUserList.current.findIndex(item=>item.from==msg?.from) !== -1){
+            return false;
+        }
+        TypingUserList.current.push(msg);
+        setDatelist((prev) => {
+            let newdatalist = prev.map(item => {
+                if (item._id === msg?.from) {
+                    return {
+                        ...item,
+                        isuser_typing:true
+                    };
+                }
+                return item;
+            });
+            return newdatalist;
+        })
+        setTimeout(() => {
+            TypingUserList.current = TypingUserList.current.filter(item=>item.from !== msg?.from);
+            setDatelist((prev) => {
+            let newdatalist = prev.map(item => {
+                if (item._id === msg?.from) {
+                    return {
+                        ...item,
+                        isuser_typing:false
+                    };
+                }
+                return item;
+            });
+            return newdatalist;
+        })
+        }, 2000);
     }
     return ( 
         <>

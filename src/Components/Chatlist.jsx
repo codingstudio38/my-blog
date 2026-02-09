@@ -57,9 +57,7 @@ function Chatlist() {
             if (msg?.code == new_chat_message) {
                 let resert_data = msg.chat
                 getNewmessage(resert_data)
-            } else if (msg?.code == user_is_typing) {
-                console.log(2,msg);
-            }
+            } 
         });
         // const unsubscribeClose = Websocket.onClose(() => {
         //     console.error("Disconnected from WS server! Allnotifications.js");
@@ -438,8 +436,8 @@ function Chatlist() {
                 "to": chat_details.to_user,
                 "message": `${LOGIN_USER.name} is typing...`,
             };
-            console.log(result)
-            // Websocket.send(result);
+            // console.log(result)
+            Websocket.send(result);
         }
     }
     const handleUserIsTyping = () => {
