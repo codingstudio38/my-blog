@@ -13,6 +13,7 @@ export const new_client = 1000;
 export const client_disconnected = 2000;
 export const new_message_receive = 3000;
 export const receive_binary_data = 4000;
+export const user_is_typing = 5000;
 export const new_friend_request = 1;
 export const cancel_friend_request = 2;
 export const accept_friend_request = 3;

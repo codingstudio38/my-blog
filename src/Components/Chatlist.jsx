@@ -1,7 +1,7 @@
 import './../Css/chat-box.css';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { API_URL, WEBSITE_PUBLIC, API_STORAGE_URL, USER_DETAILS, SET_LOCAL, GET_LOCAL, REMOVE_LOCAL, new_chat_message } from './Constant.jsx';
+import { API_URL, WEBSITE_PUBLIC, API_STORAGE_URL, USER_DETAILS, SET_LOCAL, GET_LOCAL, REMOVE_LOCAL, new_chat_message,user_is_typing } from './Constant.jsx';
 import Messagefilefilter from './Messagefilefilter.jsx';
 import $ from 'jquery';
 import Userslist from './Userslist.jsx';
@@ -57,6 +57,8 @@ function Chatlist() {
             if (msg?.code == new_chat_message) {
                 let resert_data = msg.chat
                 getNewmessage(resert_data)
+            } else if (msg?.code == user_is_typing) {
+                console.log(2,msg);
             }
         });
         // const unsubscribeClose = Websocket.onClose(() => {
@@ -424,6 +426,43 @@ function Chatlist() {
             previous_scroll.current=0;
         }
     };
+    const typingTimerRef = useRef(null);
+    const isTypingSentRef = useRef(false);
+    function UserIsTyping() {
+        if(chat_details.to_user!==""){
+            let result = {};
+            result={
+                "code": user_is_typing,
+                "from_user_name":LOGIN_USER.name,
+                "from":LOGIN_USER._id,
+                "to": chat_details.to_user,
+                "message": `${LOGIN_USER.name} is typing...`,
+            };
+            console.log(result)
+            // Websocket.send(result);
+        }
+    }
+    const handleUserIsTyping = () => {
+    // Send "typing" only once
+    if (!isTypingSentRef.current) {
+      UserIsTyping();
+      isTypingSentRef.current = true;
+    }
+    // Reset timer
+    clearTimeout(typingTimerRef.current);
+    typingTimerRef.current = setTimeout(() => {
+      isTypingSentRef.current = false;
+    }, 2000);
+  };
+    function debounceCallBack(fn, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+            fn.apply(this, args);
+            }, delay);
+        };
+    }
     return (
         <div>
 
@@ -670,7 +709,7 @@ function Chatlist() {
                                     }
 
                                     <textarea name="message-to-send" className='disabledall' id="message-to-send" placeholder="Type your message" rows={3} defaultValue={""}
-                                        onChange={(e) => setchat_details({ ...chat_details, message: e.target.value })}
+                                        onChange={(e) => setchat_details({ ...chat_details, message: e.target.value })} onKeyUp={()=>handleUserIsTyping()}
                                     />
                                     {/* onKeyUp={() => TypeinggMassageFN(false)} onKeyDown={() => TypeinggMassageFN(true)}  */}
                                     <label className="fa fa-file-image-o" htmlFor="IMGPhoto"></label>

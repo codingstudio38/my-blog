@@ -88,3 +88,29 @@
 .name-search{
     width: 100%;
 }
+
+.user-list .typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 15px;
+    color: #009ccf;
+}
+
+.user-list .typing span {
+  width: 8px;
+  height: 8px;
+  background: #009ccf;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.user-list .typing span:nth-child(1) { animation-delay: 0s; }
+.user-list .typing span:nth-child(2) { animation-delay: 0.2s; }
+.user-list .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%   { transform: translateY(0); opacity: 0.4; }
+  20%  { transform: translateY(-6px); opacity: 1; }
+  40%  { transform: translateY(0); opacity: 0.4; }
+}

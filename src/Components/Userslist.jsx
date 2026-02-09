@@ -162,6 +162,10 @@ function LoadMore(){
                       response = await response.json();
                       const data = response;
                       if (data.status == 200) {
+                        let userlist = data.result.list;
+                        userlist.map((item)=>{
+                           item.isuser_typing=false;
+                        })
                         //   console.log(data);
                           setDatelist((prev) => [...prev, ...data.result.list]);
                           settotal_friend_rec((dataid) => { return data.result.total });
@@ -370,6 +374,14 @@ function LoadMore(){
                                     <div className="friend-info text-left">
                                         <h4>{item.name}</h4>
                                         <p>{item.total_friend} friends  </p>
+                                        {item.isuser_typing==true ?
+                                        <><div className="typing">Typing
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        </div><br/></>
+                                        :<></>
+                                        }
                                         {item.wsstatus ==1 ?
                                         <><small className='text-success'>Online</small><br/>
                                         <button className='text-white btn btn-sm btn-info' onClick={(e) => { CurrentUser(item) }}>Message</button> 
