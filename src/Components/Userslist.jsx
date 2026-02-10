@@ -430,7 +430,7 @@ function LoadMore(){
                                         </>
                                         }
                                         {
-                                            item.total_unread_message > 0 ? <><p className='btn btn-sm btn-warning text-white ms-1' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message} Unread Message</p></> : <></>
+                                            item.total_unread_message > 0 ? <><p className='unread-message btn btn-sm btn-warning text-white ms-1' onClick={()=>UpdateUnreadMessage(item)} >{item.total_unread_message}</p></> : <></>
                                         }
                                     </div>
                                 </a>

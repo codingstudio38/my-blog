@@ -443,9 +443,10 @@ function Chatlist() {
     const handleUserIsTyping = () => {
     // Send "typing" only once
     if (!isTypingSentRef.current) {
-      UserIsTyping();
       isTypingSentRef.current = true;
+      return false;
     }
+    UserIsTyping();
     // Reset timer
     clearTimeout(typingTimerRef.current);
     typingTimerRef.current = setTimeout(() => {
