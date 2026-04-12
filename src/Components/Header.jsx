@@ -375,6 +375,7 @@ export default function Header(){
                 <Nav className="me-auto">
                     <NavLink className={"navlink"} to="/web/home">Home</NavLink>
                     <NavLink className={"navlink"} to="/web/create-blog">New Blog</NavLink>
+                    <NavLink className={"navlink"} to="/web/upload-large-file">Upload Large File</NavLink>
                     <NavLink className={"navlink"} to="/web/my-profile">Profile</NavLink>
                     <NavLink className={"navlink"} to="/web/find-friends">Find Friends</NavLink>
                     <NavLink className={"navlink"} to="/web/friend-rquest-send-list">Request Send Status List</NavLink>

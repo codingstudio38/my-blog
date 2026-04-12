@@ -23,6 +23,7 @@ import Blogdetails from './Components/Blogdetails';
 import Chatlist from './Components/Chatlist';
 import VideoCall from './Components/VideoCall';
 import Usersprofile from './Components/Usersprofile';
+import Uploadlargefile from './Components/Uploadlargefile';
 function App() {
    const firstCall = useRef(true);
   const LOGIN_USER = USER_DETAILS()
@@ -53,6 +54,7 @@ function App() {
             <Route path='new-friend-request-list' element={<Protected Component={Newfriendrequestlist} />} />
             <Route path='chat' element={<Protected Component={Chatlist} />} />
             <Route path='video-call' element={<Protected Component={VideoCall} />} />
+            <Route path='upload-large-file' element={<Protected Component={Uploadlargefile} />} />
           </Route>
           <Route path='*' element={<Page404 />} />
         </Routes>
