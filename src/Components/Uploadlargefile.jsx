@@ -21,19 +21,22 @@ export default function Uploadlargefile() {
         }
     }, []);
 
-    const [progress, setProgress] = useState(0);
+    
     const fileRef = useRef(null);
     const isPaused = useRef(false);
     const showPaused = useRef(false);
     const showResume = useRef(false);
     const showStart = useRef(false);
+    const showRetry = useRef(false);
     const total_chunk = useRef(0);
     const upload_chunk = useRef(0);
+    const [progress, setProgress] = useState(0);
     const [currentChunk, setCurrentChunk] = useState(0);
     const [showcontroller, setShowController] = useState(false);
 
     const handleFileOnChange = (e) => {
-        if(e.target.files.length === 0) {
+        const file = e.target.files;
+        if(file.length === 0) {
             setShowController(false);
             setProgress(0);
             setCurrentChunk(0);
@@ -41,8 +44,21 @@ export default function Uploadlargefile() {
             showPaused.current = false;
             showResume.current = false;
             isPaused.current = false;
+            showRetry.current = false;
             return false;
         } 
+        const file_name = file[0].name.toLowerCase();
+        const file_type = file[0].type.toLowerCase();
+        const file_type_ = file_type.split("/")[0];
+        
+        if (!file_name.match(/(\.mp4|\.mp3|\.mkv|\.avi)$/)) {
+            swal({
+                title: 'Please Select mp4, mp3, mkv, avi File',
+                icon: "warning",
+            })
+            fileRef.current.value = null;
+            return false;
+        }
         setShowController(true);
         setProgress(0);
         setCurrentChunk(0);
@@ -50,7 +66,8 @@ export default function Uploadlargefile() {
         showPaused.current = false;
         showResume.current = false;
         isPaused.current = false;
-         return true;
+        showRetry.current = false;
+        return true;
     }
 
     const uploadFile = async () => {
@@ -63,7 +80,7 @@ export default function Uploadlargefile() {
         // console.log("file size: ", file.size);
         // console.log("Total Chunks: ", totalChunks);
         for (let i = currentChunk; i < totalChunks; i++) {
-            console.log("Uploading chunk: ", i);
+            // console.log("Uploading chunk: ", i);
             if (isPaused.current) {
                 return false;
             }
@@ -77,6 +94,7 @@ export default function Uploadlargefile() {
             formData.append('chunkIndex', i);
             formData.append('totalChunks', totalChunks);
             formData.append('userid', LOGIN_USER._id);
+            formData.append('file_size', file.size);
             let url = `${API_URL}/upload-large-file`;
             let headers = {
                 // 'Content-Type': 'multipart/form-data',
@@ -94,8 +112,10 @@ export default function Uploadlargefile() {
             response = await response.json();
             if(response.status !== 200) {
                 isPaused.current= true;
-                showResume.current = true;
+                showStart.current = false;
+                showResume.current = false;
                 showPaused.current = false;
+                showRetry.current = true;
                  swal({
                         title: (response.message) ? response.message : response.statusText || "Unknown error",
                         icon: "error",
@@ -104,8 +124,6 @@ export default function Uploadlargefile() {
             }
             let before_file_uploaded= response.before_file_uploaded;
          
-            // console.log(response);
-            // console.log(`Uploading chunk ${i}`);
             if(before_file_uploaded==true && can_resume_from_previous==true){// check if file is already uploaded and resume upload from last uploaded chunk
                 can_resume_from_previous=false;
                 i= response.previous_metadata.uploadedchunk;
@@ -128,6 +146,7 @@ export default function Uploadlargefile() {
         showResume.current = false;
         showPaused.current = false;
         showStart.current = true;
+        showRetry.current = false;
         setProgress(0);
         setShowController(false);
         fileRef.current.value = null;
@@ -138,6 +157,7 @@ export default function Uploadlargefile() {
         showResume.current = false;
         showPaused.current = true;
         showStart.current = false;
+        showRetry.current = false;
         uploadFile();
     };
     const handleResume = () => {
@@ -145,6 +165,7 @@ export default function Uploadlargefile() {
         showPaused.current = true;
         showResume.current = false;
         showStart.current = false;
+        showRetry.current = false;
         uploadFile();
     };
     const handlePause = () => {
@@ -152,10 +173,22 @@ export default function Uploadlargefile() {
         showPaused.current = false;
         showResume.current = true;
         showStart.current = false;
+        showRetry.current = false;
+    };
+    const reTry = () => {
+        showRetry.current = false;
+        isPaused.current=false;
+        showPaused.current = true;
+        showResume.current = false;
+        showStart.current = false;
+        setProgress(0);
+        setCurrentChunk(0);
+        setShowController(true);
+        uploadFile();
     };
     return (
         <>
-            <h1>Upload Large File</h1>
+            <h1>Upload Large Video File</h1>
             <div style={{ maxWidth: "400px", margin: "40px auto" }}>
                 <h2>Large File Upload</h2>
 
@@ -180,6 +213,11 @@ export default function Uploadlargefile() {
                         :<></>
                         }
                         {
+                        showRetry.current ?
+                        <button className='btn btn-primary m-1' type='button' title='Retry Upload' alt='Retry Upload' onClick={reTry}><i className="bi bi-arrow-repeat"></i></button>
+                        :<></>
+                        }
+                        {
                         showPaused.current ?
                         <button className='btn btn-secondary' type='button' title='Pause Upload' alt='Pause Upload' onClick={handlePause}><i className="bi bi-pause-fill"></i></button>
                         :<></>
@@ -189,13 +227,6 @@ export default function Uploadlargefile() {
                                 {progress}%
                             </div>
                         </div>
-
-                        {/* <progress value={progress} max="100" 
-                        style={{
-                            background: `linear-gradient(to right, rgba(233, 18, 18, 0.85) ${progress}%, #e6e6e6 ${progress}%)`,
-                            width: "100%" 
-                            }}
-                        /> */}
                         
                     </div>
                      </> 
