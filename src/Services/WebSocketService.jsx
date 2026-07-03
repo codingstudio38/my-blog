@@ -28,7 +28,7 @@ const connect = () => {
     isConnected = false;
     if (!isManualClose) {
       if (!isConnected) {
-          reconnectTimer = setTimeout(connect(), 1000);
+          reconnectTimer = setTimeout(()=>{connect()}, 1000);
           reconnectIn++;
           console.warn('echo-protocol Client Closed! Trying to reconnect in '+reconnectIn+` sec.`, );
           // if (isConnected) {
